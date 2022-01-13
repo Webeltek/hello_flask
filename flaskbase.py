@@ -19,6 +19,14 @@ def test_form_post():
     print(data)
     return 'OK, Igot your data!'
 
+@app.route("/fullform", methods= ['POST','GET'])
+def test_fullform():
+    if request.method == 'GET':
+      return render_template('html/form.html')
+    elif request.method == 'POST':
+        print(request.form)
+        return 'Ok i got your data this time too'
+
 
 if __name__== "__main__":
       app.run()
