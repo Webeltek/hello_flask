@@ -2,8 +2,11 @@
 <html>
 <body>
 {% from "html/_formhelpers.html" import render_field %}
-	<form method="POST">
+	<form  method="POST">
+		<dl>
 		{{ render_field(form.ufoname) }}
+		</dl>
+		<p><input type=submit value=Register>
 	</form>
 </body>
 </html>
