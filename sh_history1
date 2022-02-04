@@ -1,0 +1,27 @@
+459  git commit -m "third correction"
+  460  git push
+  461  git diff origin/willy..origin/reidar
+  462  git diff origin/willy..origin/reidar
+  463  git pull
+  464* 
+  465  status
+  466  git status
+  467  git add templates/formtemplate.html
+  468  git checkout -m "fourth correction"
+  469  git commit -m "fourth correction"
+  470  git push
+  471  cd templates
+  472  vim formtemplate.html
+  473  ls
+  474  cd html
+  475  ls
+  476  vim formtemplate.html
+  477  vim formtemplate.html
+  478  python3 ../../flaskform.py
+  479  git status
+  480  git add formtemplate.html
+  481  git commit -m "fifth corr"
+  482  git push
+  483  git branch
+  484  history
+root@st2:~/work
