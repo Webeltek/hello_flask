@@ -1,0 +1,56 @@
+{% extends "/user_page.jinja2" %}
+
+{% block navbar %}
+{{ super() }}
+{% endblock navbar %}
+
+
+
+{% block profilecard %}
+<div class="col-lg-2 d-flex flex-row-reverse bg-success">
+  <div class="p2 card">
+    <img class="card-img-top rounded" style="max" src="img/card_avatar.jpg" alt="Card image">
+    <div class="card-body text-center">
+      <h4 class="card-title">Bond Street AS</h4>
+      <p class="card-text">Some example text.</p>
+      <a href="#" class="btn btn-secondary">Logut</a>
+{% endblock profilecard %}
+
+
+
+{% block form %}
+    <div class="col-lg-9 border-start">
+      <form class="container" action="/">
+        <div class="mt-5 h3">Generelt</div>
+        <div class="mb-3 mt-3">
+          <label for="email" class="form-label">Epost:</label>
+          <input type="email" class="form-control" id="email" placeholder="Firma epost her" name="email">
+        </div>
+        <div class="mb-3">
+          <label for="tlf" class="form-label">Telefon:</label>
+          <input type="text" class="form-control" id="tlf" placeholder="Firma tlf" name="tlf">
+        </div>
+
+        <div class="mt-5 h3">Sosialemedier</div>
+        <div class="mb-3">
+          <label for="twitter" class="form-label">Twitter:</label>
+          <input type="text" class="form-control" id="twiter" placeholder="@..." name="twitter">
+        </div>
+        <div class="mb-3">
+          <label for="facebook" class="form-label">Facebook:</label>
+          <input type="text" class="form-control" id="facebook" placeholder="..." name="facebook">
+        </div>
+        <div class="mb-3">
+          <label for="instragram" class="form-label">Instagram:</label>
+          <input type="text" class="form-control" id="instagram" placeholder="@..." name="instagram">
+        </div>
+
+        <p class="mt-5 mb-5" style="font-style: italic;">Påminnelse: Informasjonen dere leggertil her vil bli brukt som kontakt informasjon. 
+           Dersom dere ønsker å lede folk til sosiale medier, men ikke vil bruke de som et kontaktpunkt, 
+           venneligst bruk "om oss" siden.</p>
+
+        <button type="submit" class="btn-lg btn-primary">Lagre</button>
+      </form>
+    </div>
+{{ super() }}
+{% endblock %}

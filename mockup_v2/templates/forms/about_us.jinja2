@@ -1,0 +1,44 @@
+{% extends "/user_page.jinja2" %}
+
+{% block navbar %}
+{{ super() }}
+{% endblock navbar %}
+
+
+{% block profilecard %}
+<div class="col-lg-2 d-flex flex-row-reverse bg-success">
+  <div class="p2 card">
+    <img class="card-img-top rounded" style="max" src="img/card_avatar.jpg" alt="Card image">
+    <div class="card-body text-center">
+      <h4 class="card-title">Bond Street AS</h4>
+      <p class="card-text">Some example text.</p>
+      <a href="#" class="btn btn-secondary">Logut</a>
+{% endblock profilecard %}
+
+
+
+{% block form %}
+    <div class="col-lg-9 border-start">
+      <form class="container" action="/">
+        <div class="mt-5 h3">Om oss</div>
+
+        <div class="mb-3 mt-3">
+          <label for="firmanavn" class="form-label">Firma navn: </label>
+          <input type="text" class="form-control" id="firmanavn" placeholder="Firma navn her" name="firmanavn">
+        </div>
+
+        <div class="mb-3">
+          <label for="orgnr" class="form-label">OrgNr:</label>
+          <input type="text" class="form-control" id="orgnr" placeholder="Firma org nr her" name="orgnr">
+        </div>
+
+        <div class="mb-3">
+            <label for="beskrivelse" class="form-label">Kort om oss:</label>
+            <textarea class="form-control" id="beskrivelse" placeholder="En kort beskrivelse her." name="beskrivelse"></textarea>
+        </div>
+
+        <button type="submit" class="btn-lg btn-primary">Lagre</button>
+      </form>
+    </div>
+{{ super() }}
+{% endblock %}

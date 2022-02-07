@@ -1,0 +1,23 @@
+{% extends "/user_page.jinja2" %}
+
+{% block navbar %}
+{% endblock navbar %}
+
+{% block form %}
+    <div class="col-lg-9 border-start">
+      <form class="container text-center" action="/">
+        <div class="mt-5 h3">Login</div>
+
+        <div class="mb-3 mt-3">
+          <input type="text" class="form-control" id="user" placeholder="Brukernavn" name="user">
+        </div>
+
+        <div class="mb-3">
+          <input type="password" class="form-control" id="pwd" placeholder="Passord" name="pwd">
+        </div>
+
+        <button type="button" class="btn-lg btn-primary" onclick="window.location.href='{{ url_for('contact_form') }}';">Login</button>
+      </form>
+    </div>
+{{ super() }}
+{% endblock %}
