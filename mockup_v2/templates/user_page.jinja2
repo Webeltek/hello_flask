@@ -30,7 +30,15 @@
     <div class="col-lg-10 d-flex flex-row bp-10 bg-success text-white">
       <h1 class="mx-auto display-1 block text-center">Hovden Næringsforening</h1>
     </div>
-    {% block profilecard %} {% endblock profilecard %}
+    {% block profilecard %}
+      <div class="col-lg-2 d-flex flex-row-reverse bg-success">
+  <div class="p2 card">
+    <img class="card-img-top rounded" style="max" src="img/card_avatar.jpg" alt="Card image">
+    <div class="card-body text-center">
+      <h4 class="card-title">Bond Street AS</h4>
+      <p class="card-text">Some example text.</p>
+      <a href="#" class="btn btn-secondary">Logg ut</a>
+    {% endblock profilecard %}
         </div>
       </div>
     </div>
@@ -40,15 +48,16 @@
   <!-- MENU BUTTONS -->
     {% block navbar %}
       <div class="col-xl-3 btn-group-vertical" style="max-height:15rem;"> 
-    <button type="button" class="btn btn-outline-primary" onclick="window.location.href='{{ url_for('contact_form') }}';">Kontakt info</button>
-    <button type="button" class="btn btn-outline-primary" onclick="window.location.href='{{ url_for('persons_form') }}';">Personer</button>
-    <button type="button" class="btn btn-outline-primary" onclick="window.location.href='{{ url_for('services_form') }}';">Tjenester</button>
-    <button type="button" class="btn btn-outline-primary" onclick="window.location.href='{{ url_for('about_us_form') }}';">Om oss</button>
+    <button type="button" class="btn btn-outline-primary" onclick="window.location.href='/contact';">Kontakt info</button>
+    <button type="button" class="btn btn-outline-primary" onclick="window.location.href='/persons';">Personer</button>
+    <button type="button" class="btn btn-outline-primary" onclick="window.location.href='/services';">Tjenester</button>
+    <button type="button" class="btn btn-outline-primary" onclick="window.location.href='/about_us';">Om oss</button>
   </div>
     {% endblock navbar %}
 
   <!-- FORM -->
-    {% block form %} {% endblock form %}
+    {% block form %} 
+    {% endblock form %}
   </div>
 
   <!-- Latest compiled JavaScript -->
