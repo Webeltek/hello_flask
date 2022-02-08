@@ -1,0 +1,32 @@
+body {
+  max-width: 1111px;
+  margin: auto;
+}
+
+/* MAIN MENU */
+ul#main-menu {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #333;
+  position: -webkit-sticky; /* Safari */
+  position: sticky;
+  top: 0;
+  border-bottom: solid red 3px;
+}
+li.main-menu {
+    float: left;
+  }
+  
+li.main-menu a {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+ul.home-posts {
+  list-style: none;
+}
