@@ -65,11 +65,11 @@ def login_form():
 
 @app.route("/contact", methods= ['GET','POST'])
 def contact_form():
-        contact = ContactForm(request.form)
-        if request.method == 'POST' and contact.validate():
+        contact_form = ContactForm(request.form)
+        if request.method == 'POST' and contact_form.validate():
             print(F'I got UFO name is {myform.ufoname.data}')
             return F'I got your autodata!!!'
-        return contact_templ.render(contact=contact)
+        return contact_templ.render(contact=contact_form)
 
 @app.route("/persons", methods= ['GET','POST'])
 def persons_form():
@@ -77,7 +77,7 @@ def persons_form():
         if request.method == 'POST' and persons.validate():
             print(F'I got UFO name is {myform.ufoname.data}')
             return F'I got your autodata!!!'
-        return render_template('forms/persons.jinja2',form=myform)
+        return render_template('forms/persons.jinja2',persons=persons)
 
 @app.route("/services", methods= ['GET','POST'])
 def services_form():
