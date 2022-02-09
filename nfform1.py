@@ -41,17 +41,18 @@ app = Flask(__name__,
      static_folder= 'static',
      template_folder=templ_dir)
 
+app.config['SECRET_KEY'] = 'passord1' # replace with env var SECRET_KEY 
+
 csrf = CSRFProtect(app)
 
 templateLoader = jinja2.FileSystemLoader(searchpath='./mockup_v2/templates')
 templateEnv = jinja2.Environment(loader=templateLoader)
 
-user_templ = templateEnv.get_template('user_page.jinja2')
-login_templ = templateEnv.get_template('forms/login.jinja2')
-contact_templ = templateEnv.get_template('forms/contact.jinja2')
-persons_templ = templateEnv.get_template('forms/persons.jinja2')
-services_templ = templateEnv.get_template('forms/services.jinja2')
-about_us_templ = templateEnv.get_template('forms/about_us.jinja2')
+login_templ = templateEnv.get_template('/forms/login.jinja2')
+contact_templ = templateEnv.get_template('/forms/contact.jinja2')
+persons_templ = templateEnv.get_template('/forms/persons.jinja2')
+services_templ = templateEnv.get_template('/forms/services.jinja2')
+about_us_templ = templateEnv.get_template('/forms/about_us.jinja2')
 
 @app.route("/", methods= ['GET','POST'])
 def login_form():
