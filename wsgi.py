@@ -1,8 +1,8 @@
 import sys
 
-sys.path.append("/home/willy/work/pythonworkshop/pythonworkshop")
+sys.path.append("/home/willy/work/pythonworkshop")
 
-from flasky import app
+from nfform1 import app
 
 
 if __name__ == "__main__":
