@@ -1,0 +1,37 @@
+{% extends "user_page.jinja2" %}
+ {% block form %}
+ <div class="col-lg-9 border-start">
+      <form class="container" action="/">
+        <div class="mt-5 h3">Generelt</div>
+        <div class="mb-3 mt-3">
+           {{ persons.epost.label(class='form-label') }}
+           {{ persons.epost(class='form-control', placeholder= 'Firma epost her') }} 
+        </div>
+        <div class="mb-3">
+           {{ persons.telf.label(class='form-label') }}
+           {{ persons.telf(class='form-control') }}
+        </div>
+        <div class="mt-5 h3">Sosialemedier</div>
+        <div class="mb-3">
+          {{ persons.twitter.label(class="form-label") }}
+          {{ persons.twitter( class="form-control", placeholder="@...") }}
+        </div>
+        <div class="mb-3">
+          {{ persons.facebook.label( class="form-label") }}
+          {{ persons.facebook(class="form-control", placeholder="...") }}
+        </div>
+        <div class="mb-3">
+          {{ persons.instagram.label(class="form-label") }}
+          {{ persons.instagram( class="form-control", placeholder="@...") }}
+        </div>
+
+        <p class="mt-5 mb-5" style="font-style: italic;">Påminnelse: Informasjonen dere legger til her vil bli brukt som kontakt informasjon.
+           Dersom dere ønsker å lede folk til sosiale medier, men ikke vil bruke de som et kontaktpunkt,
+           venneligst bruk "om oss" siden.</p>
+
+        <button type="submit" class="btn-lg btn-primary">Lagre</button>
+      </form>
+    </div>
+{% endblock form %}
+
+

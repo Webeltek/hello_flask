@@ -1,0 +1,21 @@
+{% extends "user_page.jinja2" %}
+
+
+{% block form %}
+    <div class="col-lg-9 border-start">
+      <form class="container" action="/">
+        <div class="mt-5 h3">Beskrivelse av bedriftens profil:</div>
+        <div class="mb-3 mt-3">
+          {{ services.hidden_tag() }}
+          {{ services.description.label( class="form-label") }}
+          {{ services.description( class="form-control", placeholder="Firma epost her") }}
+        </div>
+        <div class="mb-3">
+          <label for="tlf" class="form-label">Legg til bilder:</label>
+          <input type="text" class="form-control" id="tlf" placeholder="bilder filer" name="bilder">
+        </div>
+
+        <button type="submit" class="btn-lg btn-primary">Lagre</button>
+      </form>
+    </div>
+{% endblock %}

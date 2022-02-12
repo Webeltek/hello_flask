@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<body>
+{% from "html/_formhelpers.html" import render_field %}
+	<form  method="POST">
+		<dl>
+		{{ render_field(form.ufoname) }}
+		</dl>
+		<p>{{ form.submit }}</p>
+	</form>
+</body>
+</html>
