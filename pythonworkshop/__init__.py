@@ -17,6 +17,7 @@ templ_dir = os.path.abspath('./templates')
 mail = Mail()
 moment = Moment()
 login_manager = LoginManager()
+login_manager.login_view = 'auth_bp.login_form'
 
 #csrf = CSRFProtect(app)    - only views that don't use FlaskForm use the provided CSRF extension
 
@@ -31,8 +32,8 @@ def create_app(config_name):
   from .main_bp import main_bp
   app.register_blueprint(main_bp)
 
-  from .login_bp import login_bp
-  #app.register_blueprint(auth_bp)
+  from .auth_bp import auth_bp
+  app.register_blueprint(auth_bp)
 
   return app
 
