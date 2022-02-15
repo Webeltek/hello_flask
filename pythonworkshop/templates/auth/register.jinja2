@@ -1,0 +1,28 @@
+{% extends "user_page.jinja2" %}
+
+{% block navbar %}
+{% endblock navbar %}
+
+{% block form %}
+    <div class="col-lg-9 border-start">
+      <form class="container text-center" method="post" >
+        <div class="mt-5 h3">Registrer</div>
+
+        <div class="mb-3 mt-3">
+        {{ register.email(class="form-control", placeholder="Email") }}
+        </div>
+	<div class="mb-3 mt-3">
+        {{ register.username(class="form-control", placeholder="Brukernavn") }}
+        </div>
+        <div class="mb-3">
+        {{ register.password(class="form-control", placeholder="Passord") }}
+        </div>
+        <div class="mb-3">
+        {{ register.password2(class="form-control", placeholder="Bekreft passord") }}
+        </div>
+        <button type="submit" class="btn-lg btn-primary">Registrer</button>
+        </form>
+    </div>
+{{ super() }}
+{% endblock %}
+

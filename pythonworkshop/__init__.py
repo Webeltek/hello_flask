@@ -12,7 +12,7 @@ from flask_moment import Moment
 from flask_login import LoginManager
 from config import config
 
-templ_dir = os.path.abspath('./templates')
+templ_dir = os.path.abspath('./pythonworkshop/templates')
 
 mail = Mail()
 moment = Moment()
@@ -22,7 +22,7 @@ login_manager.login_view = 'auth_bp.login_form'
 #csrf = CSRFProtect(app)    - only views that don't use FlaskForm use the provided CSRF extension
 
 def create_app(config_name):
-  app = Flask(__name__, static_url_path='/static',static_folder= 'static', template_folder=templ_dir)
+  app = Flask(__name__, static_url_path='/pythonworkshop/static',static_folder= 'static', template_folder=templ_dir)
   app.config.from_object(config[config_name])
   mail.init_app(app)
   moment.init_app(app)

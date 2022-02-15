@@ -2,7 +2,7 @@ from flask import render_template, redirect, request, url_for, flash
 from flask_login import login_user, logout_user, login_required, \
     current_user
 from . import auth_bp
-from .forms import LoginForm
+from .forms import LoginForm, RegistrationForm
 import jinja2
 from ..models import User
 
@@ -12,7 +12,7 @@ templateEnv = jinja2.Environment(loader=templateLoader)
 
 login_templ = templateEnv.get_template('/auth/login.jinja2')
 
-@auth_bp.route("/",defaults={ 'form':'login'})
+@auth_bp.route("/",defaults={ 'form':'login'}, methods= ['GET','POST'])
 @auth_bp.route("/<form>", methods= ['GET','POST'])
 def initial_login_form(form):
         login_form = LoginForm(request.form)
@@ -27,8 +27,8 @@ def initial_login_form(form):
 def login_form():
     login_form = LoginForm()
     if login_form.validate_on_submit():
-        #user = User.query.filter_by(email=form.email.data).first()
-        if user is not None and user.verify_passord(form.password.data):
+        user = User.select().where(User.user_id=='first_id')
+        if user is not None and user.verify_passord(login_form.password.data):
             login_user(user, form.remember_me.data)
             next = request.args.get('next')
             if next is None or not next.startswith('/'):
@@ -36,3 +36,16 @@ def login_form():
             return redirect(next)
     flash('Invalid email or password.')
     return login_templ.render( login=login_form)
+
+@auth_bp.route('/register', methods=['GET', 'POST'])
+def register_form():
+  reg_form = RegistrationForm()
+  if reg_form.validate_on_submit():
+    print('inside validate')
+    user = User(email=form.email.data,
+                username=form.username.data,
+                password=form.password.data)
+    User.create(user)
+    flash('You can now login.')
+    return redirect(url_for('auth.login_form'))
+  return render_template('auth/register.jinja2', register=reg_form)
