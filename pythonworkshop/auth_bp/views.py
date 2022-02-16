@@ -2,6 +2,7 @@ from flask import render_template, redirect, request, url_for, flash
 from flask_login import login_user, logout_user, login_required, \
     current_user
 from . import auth_bp
+from .. import main_bp
 from .forms import LoginForm, RegistrationForm
 import jinja2
 from ..models import User
@@ -40,12 +41,11 @@ def login_form():
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register_form():
   reg_form = RegistrationForm()
-  if reg_form.validate_on_submit():
+  if  request.method == 'POST':
     print('inside validate')
-    user = User(email=form.email.data,
-                username=form.username.data,
-                password=form.password.data)
-    User.create(user)
+    user = User.create(user_email=reg_form.email.data,
+                       user_name=reg_form.username.data,
+                       user_pass=reg_form.password.data)
     flash('You can now login.')
-    return redirect(url_for('auth.login_form'))
+    return redirect(url_for('auth_bp.login_form'))
   return render_template('auth/register.jinja2', register=reg_form)
