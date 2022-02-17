@@ -5,7 +5,7 @@ from . import auth_bp
 from .. import main_bp
 from .forms import LoginForm, RegistrationForm
 import jinja2
-from ..models import User
+from .. import models
 
 
 templateLoader = jinja2.PackageLoader('pythonworkshop','templates')
@@ -28,7 +28,7 @@ def initial_login_form(form):
 def login_form():
     login_form = LoginForm()
     if login_form.validate_on_submit():
-        user = User.select().where(User.user_id=='first_id')
+        user = User.select().where(User.user_email==login_form.email.data)
         if user is not None and user.verify_passord(login_form.password.data):
             login_user(user, form.remember_me.data)
             next = request.args.get('next')
@@ -41,11 +41,13 @@ def login_form():
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register_form():
   reg_form = RegistrationForm()
-  if  request.method == 'POST':
-    print('inside validate')
-    user = User.create(user_email=reg_form.email.data,
+  if  request.method == 'POST' and reg_form.validate_on_submit():
+      if not models.User.table_exists():
+        models.users_db.create_tables([models.User])
+      user = models.User(user_email=reg_form.email.data,
                        user_name=reg_form.username.data,
                        user_pass=reg_form.password.data)
-    flash('You can now login.')
-    return redirect(url_for('auth_bp.login_form'))
+      user.save()
+      flash('Du kan logge inn.')
+      return redirect(url_for('auth_bp.login_form'))
   return render_template('auth/register.jinja2', register=reg_form)
