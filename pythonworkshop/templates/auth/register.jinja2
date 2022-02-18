@@ -5,22 +5,49 @@
 
 {% block form %}
     <div class="col-lg-9 border-start">
-      <form class="container text-center" method="post" >
-        <div class="mt-5 h3">Registrer</div>
-
-        <div class="mb-3 mt-3">
+    <form class="container text-center" method="post" >
+    {{ register.csrf_token }}
+        <div class="mt-5 h3">Registrer deg</div>
+        <div class=" mt-3">
         {{ register.email(class="form-control", placeholder="Email") }}
-        </div>
+	</div>
+	{% if register.email.errors %}
+    		<ul class="list-group">
+    		{% for error in register.email.errors %}
+			<li class="list-group-item list-group-item-warning">{{ error }}</li>
+    		{% endfor %}
+    		</ul>
+	{% endif %}
 	<div class="mb-3 mt-3">
         {{ register.username(class="form-control", placeholder="Brukernavn") }}
-        </div>
+	</div>
+	{% if register.username.errors %}
+                <ul class="list-group">
+                {% for error in register.username.errors %}
+                       <li class="list-group-item list-group-item-warning">{{ error }}</li>                			   {% endfor %}
+                </ul>
+        {% endif %}
         <div class="mb-3">
         {{ register.password(class="form-control", placeholder="Passord") }}
-        </div>
+	</div>
+	{% if register.password.errors %}
+                <ul class="list-group">
+                {% for error in register.password.errors %}
+                       <li class="list-group-item list-group-item-warning">{{ error }}</li>
+                {% endfor %}
+                </ul>
+        {% endif %}
         <div class="mb-3">
         {{ register.password2(class="form-control", placeholder="Bekreft passord") }}
-        </div>
-        <button type="submit" class="btn-lg btn-primary">Registrer</button>
+	</div>
+	{% if register.password2.errors %}
+                <ul class="list-group">
+                {% for error in register.password2.errors %}
+                        <li class="list-group-item list-group-item-warning">{{ error }}</li>
+                {% endfor %}
+                </ul>
+        {% endif %}
+        <button type="submit" class="btn-lg btn-primary">Lagre</button>
         </form>
     </div>
 {{ super() }}

@@ -5,8 +5,9 @@
 
 {% block form %}
     <div class="col-lg-9 border-start">
-      <form class="container text-center" method="post">
-        <div class="mt-5 h3">Login</div>
+    <form class="container text-center" method="post">
+      {{ login.csrf_token }}	
+        <div class="mt-5 h3">Logg inn</div>
 
         <div class="mb-3 mt-3">
 	{{ login.username(class="form-control", placeholder="Brukernavn") }}
@@ -18,8 +19,10 @@
 	<div class="mb-3">
 	{{ login.password(class="form-control", placeholder="Passord") }}
 	</div>
-	<div class="mb-3">
-	{{ login.remember_me }}
+	<div class="form-check mb-3">
+	  <label class="form-check-label">
+	  {{ login.remember_me(class="form-check-input") }} Husk meg
+	  </label>
 	</div>
 	<div class="mb-3">
 	{{ login.submit( class="btn-lg btn-primary") }}
