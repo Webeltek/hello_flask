@@ -31,8 +31,8 @@ def initial_login_form(form):
 def login_form():
     login_form = LoginForm()
     if login_form.validate_on_submit():
-        user = User.select().where(User.user_email==login_form.email.data)
-        if user is not None and user.verify_passord(login_form.password.data):
+        user = User.get(User.user_email==login_form.email.data)
+        if user is not None and user.verify_password(login_form.password.data):
             login_user(user, login_form.remember_me.data)
             next = request.args.get('next')
             if next is None or not next.startswith('/'):
