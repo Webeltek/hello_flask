@@ -19,6 +19,7 @@ users_db = p.PostgresqlDatabase(user='nf_user',password='nfvinter2022',
 
 
 class User(UserMixin,p.Model):
+  id = p.AutoField()  
   user_email = p.CharField(default='first_email')
   user_name = p.CharField(default='anonymous_user',max_length='30')
   user_pass_hash = p.CharField(default='initial hash')
@@ -36,7 +37,6 @@ class User(UserMixin,p.Model):
     database = users_db
     table_name = 'nf_user'
   
-"""
   def generate_confirmation_token(self, expiration=3600):
         s = Serializer(current_app.config['SECRET_KEY'], expiration)
         return s.dumps({'confirm': self.id}).decode('utf-8')
@@ -49,9 +49,9 @@ class User(UserMixin,p.Model):
         return False
     if data.get('confirm') != self.id:
         return False
-    self.confirmed = True
+    self.user_confirmed = True
     self.save()
     return True
-"""  
+ 
 users_db.connect()   
 users_db.create_tables([User])
