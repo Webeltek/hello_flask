@@ -1,4 +1,5 @@
-from flask import render_template, redirect, request, url_for, flash
+from flask import render_template, redirect, request, url_for, flash, \
+        current_app
 from flask_login import login_user, logout_user, login_required, \
     current_user
 from . import auth_bp
@@ -19,12 +20,20 @@ register_templ = templateEnv.get_template('/auth/register.jinja2')
 @auth_bp.route("/",defaults={ 'form':'login'}, methods= ['GET','POST'])
 @auth_bp.route("/<form>", methods= ['GET','POST'])
 def initial_login_form(form):
-        login_form = LoginForm(request.form)
-        if request.method == 'POST':
-            request.form.get('user')
-            print(F'I got username  {login_form.email.data}')
-            return F'I got your autodata!!!'
-        return login_templ.render(login=login_form)
+    if form=='login':
+        login_form = LoginForm()
+        if login_form.validate_on_submit():
+          user = User.get(User.user_email==login_form.email.data)
+          if user is not None and user.verify_password(login_form.password.data):
+            login_user(user, login_form.remember_me.data)
+            next = request.args.get('next')
+            if next is None or not next.startswith('/'):
+              next = url_for('main_bp.contact_form')
+            return redirect(next)
+    print('Invalid email or password.')
+    app = current_app._get_current_object()
+    return render_template('/auth/login.jinja2', login=login_form)    
+   
 
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
@@ -36,9 +45,10 @@ def login_form():
             login_user(user, login_form.remember_me.data)
             next = request.args.get('next')
             if next is None or not next.startswith('/'):
-              next = url_for('main_bp.contact')
+              next = url_for('main_bp.contact_form')
             return redirect(next)
-    flash('Invalid email or password.')
+    flash('Invalid email or password.') 
+    # use render_template(..) to insert cntxt vars where get_flashed_messages is defined
     return login_templ.render( login=login_form)
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
@@ -54,13 +64,13 @@ def register_form():
                  'auth/email/confirm', user=user, token=token)
       flash('A confirmation email has been sent to you by email.')
       return redirect(url_for('main_bp.contact_form'))
-  return render_template('auth/register.jinja2', register=reg_form)
+  return register_templ.render( register=reg_form)
 
 @auth_bp.route('/confirm/<token>')
 @login_required
 def confirm(token):
     if current_user.user_confirmed:
-        return redirect(url_for('main_bp.contact'))
+        return redirect(url_for('main_bp.contact_form'))
     if current_user.confirm(token):
         current_user.save()
         flash('You have confirmed your account. Thanks!')

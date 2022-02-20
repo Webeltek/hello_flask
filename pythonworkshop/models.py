@@ -31,7 +31,7 @@ class User(UserMixin,p.Model):
   def user_pass(self, password):
     self.user_pass_hash = bcrypt_sha256.hash(password)
   def verify_password(self, password):
-    return bcrypt_sha256.verify(password,user_pass_hash)
+    return bcrypt_sha256.verify(password,self.user_pass_hash)
   
   class Meta:
     database = users_db
