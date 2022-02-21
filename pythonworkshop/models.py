@@ -52,6 +52,24 @@ class User(UserMixin,p.Model):
     self.user_confirmed = True
     self.save()
     return True
+  
+  def generate_reset_token(self, expiration=3600):
+        s = Serializer(current_app.config['SECRET_KEY'], expiration)
+        return s.dumps({'reset': self.id}).decode('utf-8')
+
+  @staticmethod
+  def reset_password(token, new_password):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token.encode('utf-8'))
+        except:
+            return False
+        user = User.get(User.id == data.get('reset'))
+        if user is None:
+            return False
+        user.password = new_password
+        user.save()
+        return True
  
 users_db.connect()   
 users_db.create_tables([User])

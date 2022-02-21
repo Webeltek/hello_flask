@@ -4,7 +4,8 @@ from flask_login import login_user, logout_user, login_required, \
     current_user
 from . import auth_bp
 from .. import main_bp
-from .forms import LoginForm, RegistrationForm
+from .forms import LoginForm, RegistrationForm, ChangePasswordForm,\
+    PasswordResetRequestForm, PasswordResetForm
 import jinja2
 from .. import models
 from ..models import *
@@ -32,7 +33,7 @@ def initial_login_form(form):
             return redirect(next)
     print('Invalid email or password.')
     app = current_app._get_current_object()
-    return render_template('/auth/login.jinja2', login=login_form)    
+    return login_templ.render(login=login_form)    
    
 
 
@@ -47,9 +48,15 @@ def login_form():
             if next is None or not next.startswith('/'):
               next = url_for('main_bp.contact_form')
             return redirect(next)
-    flash('Invalid email or password.') 
+    #flash('Invalid email or password.') 
     # use render_template(..) to insert cntxt vars where get_flashed_messages is defined
     return login_templ.render( login=login_form)
+
+@auth_bp.route('/logout')
+@login_required
+def logout():
+  logout_user()
+  return redirect(url_for('auth_bp.initial_login_form'))
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register_form():
@@ -62,7 +69,6 @@ def register_form():
       token = user.generate_confirmation_token()
       send_email(user.user_email, 'Confirm Your Account',
                  'auth/email/confirm', user=user, token=token)
-      flash('A confirmation email has been sent to you by email.')
       return redirect(url_for('main_bp.contact_form'))
   return register_templ.render( register=reg_form)
 
@@ -75,5 +81,38 @@ def confirm(token):
         current_user.save()
         flash('You have confirmed your account. Thanks!')
     else:
-        flash('The confirmation link is invalid or has expired.')
-    return redirect(url_for('main_bp.contact'))
+      return redirect(url_for('main_bp.contact'))
+
+
+
+@auth.route('/reset', methods=['GET', 'POST'])
+def password_reset_request():
+    if not current_user.is_anonymous:
+        return redirect(url_for('main.index'))
+    form = PasswordResetRequestForm()
+    if form.validate_on_submit():
+        user = User.get(email=form.email.data.lower())
+        if user:
+            token = user.generate_reset_token()
+            send_email(user.email, 'Reset Your Password',
+                       'auth/email/reset_password',
+                       user=user, token=token)
+        flash('An email with instructions to reset your password has been '
+              'sent to you.')
+        return redirect(url_for('auth.login'))
+    return render_template('auth/reset_password.html', form=form)
+
+
+@auth.route('/reset/<token>', methods=['GET', 'POST'])
+def password_reset(token):
+    if not current_user.is_anonymous:
+        return redirect(url_for('main.index'))
+    form = PasswordResetForm()
+    if form.validate_on_submit():
+        if User.reset_password(token, form.password.data):
+            db.session.commit()
+            flash('Your password has been updated.')
+            return redirect(url_for('auth_bp.login_form'))
+        else:
+            return redirect(url_for('main.index'))
+    return render_template('auth/reset_password.html', form=form)  
