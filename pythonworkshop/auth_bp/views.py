@@ -79,16 +79,15 @@ def confirm(token):
         return redirect(url_for('main_bp.contact_form'))
     if current_user.confirm(token):
         current_user.save()
-        flash('You have confirmed your account. Thanks!')
+        #flash('You have confirmed your account. Thanks!')
     else:
       return redirect(url_for('main_bp.contact'))
 
 
 
-@auth.route('/reset', methods=['GET', 'POST'])
+@auth_bp.route('/reset', methods=['GET', 'POST'])
+@login_required
 def password_reset_request():
-    if not current_user.is_anonymous:
-        return redirect(url_for('main.index'))
     form = PasswordResetRequestForm()
     if form.validate_on_submit():
         user = User.get(email=form.email.data.lower())
@@ -97,16 +96,14 @@ def password_reset_request():
             send_email(user.email, 'Reset Your Password',
                        'auth/email/reset_password',
                        user=user, token=token)
-        flash('An email with instructions to reset your password has been '
-              'sent to you.')
-        return redirect(url_for('auth.login'))
-    return render_template('auth/reset_password.html', form=form)
+        #flash('An email with instructions to reset your password has been sent to you.')
+        return redirect(url_for('auth_bp.login'))
+    return render_template('auth/pass_reset_request.jinja2', form=form)
 
 
-@auth.route('/reset/<token>', methods=['GET', 'POST'])
+@auth_bp.route('/reset/<token>', methods=['GET', 'POST'])
+@login_required
 def password_reset(token):
-    if not current_user.is_anonymous:
-        return redirect(url_for('main.index'))
     form = PasswordResetForm()
     if form.validate_on_submit():
         if User.reset_password(token, form.password.data):
@@ -115,4 +112,4 @@ def password_reset(token):
             return redirect(url_for('auth_bp.login_form'))
         else:
             return redirect(url_for('main.index'))
-    return render_template('auth/reset_password.html', form=form)  
+    return render_template('auth/pass_reset.jinja2', form=form)  
