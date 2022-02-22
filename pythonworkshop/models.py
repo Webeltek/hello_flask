@@ -63,11 +63,14 @@ class User(UserMixin,p.Model):
         try:
             data = s.loads(token.encode('utf-8'))
         except:
+            print('serializer loads exeption')
             return False
         user = User.get(User.id == data.get('reset'))
         if user is None:
+            print('User is None')
             return False
-        user.password = new_password
+        user.user_pass = new_password
+        print (F'user pass {new_password}')
         user.save()
         return True
  

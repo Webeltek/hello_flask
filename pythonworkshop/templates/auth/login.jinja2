@@ -15,10 +15,13 @@
 
         <div class="mb-3">
 	{{ login.email(class="form-control", placeholder="Email") }}
-        </div>
+	</div>
 	<div class="mb-3">
 	{{ login.password(class="form-control", placeholder="Passord") }}
 	</div>
+	{% if wrong_cred %}
+	  <div class="alert-danger">Feil brukernavn/passord</div>
+        {% endif %}
 	<div class="form-check mb-3">
 	  <label class="form-check-label">
 	  {{ login.remember_me(class="form-check-input") }} Husk meg

@@ -22,6 +22,7 @@ register_templ = templateEnv.get_template('/auth/register.jinja2')
 @auth_bp.route("/<form>", methods= ['GET','POST'])
 def initial_login_form(form):
     if form=='login':
+        print('inside form==login ')
         login_form = LoginForm()
         if login_form.validate_on_submit():
           user = User.get(User.user_email==login_form.email.data)
@@ -31,7 +32,10 @@ def initial_login_form(form):
             if next is None or not next.startswith('/'):
               next = url_for('main_bp.contact_form')
             return redirect(next)
-    print('Invalid email or password.')
+          else :
+            print('inside wrong cred')  
+            return login_templ.render(login=login_form, wrong_cred=True)  
+    print('inside initial_login_form')
     app = current_app._get_current_object()
     return login_templ.render(login=login_form)    
    
@@ -90,14 +94,13 @@ def confirm(token):
 def password_reset_request():
     form = PasswordResetRequestForm()
     if form.validate_on_submit():
-        user = User.get(email=form.email.data.lower())
+        user = User.get(User.user_email==form.email.data.lower())
         if user:
             token = user.generate_reset_token()
-            send_email(user.email, 'Reset Your Password',
+            send_email(user.user_email, 'Reset Your Password',
                        'auth/email/reset_password',
                        user=user, token=token)
-        #flash('An email with instructions to reset your password has been sent to you.')
-        return redirect(url_for('auth_bp.login'))
+        return redirect(url_for('auth_bp.login_form'))
     return render_template('auth/pass_reset_request.jinja2', form=form)
 
 
@@ -107,9 +110,7 @@ def password_reset(token):
     form = PasswordResetForm()
     if form.validate_on_submit():
         if User.reset_password(token, form.password.data):
-            db.session.commit()
-            flash('Your password has been updated.')
             return redirect(url_for('auth_bp.login_form'))
         else:
-            return redirect(url_for('main.index'))
+            return redirect(url_for('main_bp.contact_form'))
     return render_template('auth/pass_reset.jinja2', form=form)  
