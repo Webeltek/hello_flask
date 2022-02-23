@@ -5,7 +5,7 @@ from flask_login import login_user, logout_user, login_required, \
 from . import auth_bp
 from .. import main_bp
 from .forms import LoginForm, RegistrationForm, ChangePasswordForm,\
-    PasswordResetRequestForm, PasswordResetForm
+    PasswordResetRequestForm, PasswordResetForm, ChangeEmailForm
 import jinja2
 from .. import models
 from ..models import *
@@ -113,4 +113,32 @@ def password_reset(token):
             return redirect(url_for('auth_bp.login_form'))
         else:
             return redirect(url_for('main_bp.contact_form'))
-    return render_template('auth/pass_reset.jinja2', form=form)  
+    return render_template('auth/pass_reset.jinja2', form=form) 
+
+@auth_bp.route('/change_email', methods=['GET', 'POST'])
+@login_required
+def change_email_request():
+    form = ChangeEmailForm()
+    if form.validate_on_submit():
+        if current_user.verify_password(form.password.data):
+            new_email = form.email.data.lower()
+            token = current_user.generate_email_change_token(new_email)
+            send_email(new_email, 'Confirm your email address',
+                       'auth/email/change_email',
+                       user=current_user, token=token)
+            print('An email with instructions to confirm your new email '
+                  'address has been sent to you.')
+            return redirect(url_for('auth_bp.login'))
+        else:
+            print('Invalid email or password.')
+    return render_template("auth/email_reset_request.jinja2", form=form)
+
+
+@auth_bp.route('/change_email/<token>')
+@login_required
+def change_email(token):
+    if current_user.change_email(token):
+        print('Your email address has been updated.')
+    else:
+        print('Invalid request.')
+    return redirect(url_for('main_bp.contact_form'))

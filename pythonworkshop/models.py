@@ -67,11 +67,32 @@ class User(UserMixin,p.Model):
             return False
         user = User.get(User.id == data.get('reset'))
         if user is None:
-            print('User is None')
             return False
         user.user_pass = new_password
-        print (F'user pass {new_password}')
         user.save()
+        return True
+
+  def generate_email_change_token(self, new_email, expiration=3600):
+        s = Serializer(current_app.config['SECRET_KEY'], expiration)
+        return s.dumps(
+            {'change_email': self.id, 'new_email': new_email}).decode('utf-8')
+
+  def change_email(self, token):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token.encode('utf-8'))
+        except:
+            return False
+        if data.get('change_email') != self.id:
+            return False
+        new_email = data.get('new_email')
+        if new_email is None:
+            return False
+        user =  User.get(User.user_email==new_email)        
+        if user is not None:
+            return False
+        self.user_email = new_email
+        user
         return True
  
 users_db.connect()   

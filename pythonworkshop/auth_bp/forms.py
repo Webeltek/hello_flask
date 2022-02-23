@@ -45,9 +45,19 @@ class PasswordResetForm(FlaskForm):
     submit = SubmitField('Tilbakestill passord')
 
 class ChangePasswordForm(FlaskForm):
-    old_password = PasswordField('Old password', validators=[DataRequired()])
-    password = PasswordField('New password', validators=[
-        DataRequired(), EqualTo('password2', message='Passwords must match.')])
-    password2 = PasswordField('Confirm new password',
+    old_password = PasswordField('Gammelt passord', validators=[DataRequired()])
+    password = PasswordField('Nytt passord', validators=[
+        DataRequired(), EqualTo('password2', message='Passordene må være like!')])
+    password2 = PasswordField('Bekreft nytt passord',
                               validators=[DataRequired()])
-    submit = SubmitField('Update Password')    
+    submit = SubmitField('Lagre passord')
+
+class ChangeEmailForm(FlaskForm):
+    email = StringField('Ny epost', validators=[DataRequired(), Length(1, 64),
+                                                 Email()])
+    password = PasswordField('Passord', validators=[DataRequired()])
+    submit = SubmitField('Oppdater epost')
+
+    def validate_email(self, field):
+        if User.select().where(User.user_email==field.data.lower()):
+            raise ValidationError('Epost allerede i bruk.')    
