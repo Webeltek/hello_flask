@@ -17,11 +17,13 @@ users_db = p.PostgresqlDatabase(user='nf_user',password='nfvinter2022',
         port='5432',
         database='nf_users_db')
 
+class Permission:
+    VIEW = 1
+    ADMIN = 16
 
 class User(UserMixin,p.Model):
   id = p.AutoField()  
   user_email = p.CharField(default='first_email')
-  user_name = p.CharField(default='anonymous_user',max_length='30')
   user_pass_hash = p.CharField(default='initial hash')
   user_confirmed = p.BooleanField(default=False)
   @property

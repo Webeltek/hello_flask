@@ -37,8 +37,44 @@
     <img class="card-img-top rounded" style="max" src="img/card_avatar.jpg" alt="Card image">
     <div class="card-body text-center">
       <h4 class="card-title">Bond Street AS</h4>
-      <p class="card-text">Some example text.</p>
-      <a href="#" class="btn btn-secondary" onclick="window.location.href='/';" >Logg ut</a>
+			<p class="card-text">Some example text.</p>
+			<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="{{ url_for('main_bp.contact_form') }}">Flasky</a>
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="/contact">Hjem</a></li>
+                {% if current_user.is_authenticated %}
+                <li><a href="{{ url_for('main_bp.contact_form', username=current_user.user_name) }}">Profile</a></li>
+                {% endif %}
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                {% if current_user.is_authenticated %}
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        Account <b class="caret"></b>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a onclick="window.location.href='/reset';">Change Password</a></li>
+                        <li><a onclick="window.location.href='/change_email';">Change Email</a></li>
+                        <li><a onclick="window.location.href='/login';">Log Out</a></li>
+                    </ul>
+                </li>
+                {% else %}
+                <li><a href="/login">Log In</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</div>
     {% endblock profilecard %}
         </div>
       </div>

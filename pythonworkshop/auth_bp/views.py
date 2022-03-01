@@ -37,13 +37,15 @@ def initial_login_form(form):
             return login_templ.render(login=login_form, wrong_cred=True)  
     print('inside initial_login_form')
     app = current_app._get_current_object()
-    return login_templ.render(login=login_form)    
+    return redirect(url_for('auth_bp.login_form'))    
    
 
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login_form():
     login_form = LoginForm()
+    pass_reset_form = PasswordResetRequestForm()
+    reg_form = RegistrationForm()
     if login_form.validate_on_submit():
         user = User.get(User.user_email==login_form.email.data)
         if user is not None and user.verify_password(login_form.password.data):
@@ -54,7 +56,7 @@ def login_form():
             return redirect(next)
     #flash('Invalid email or password.') 
     # use render_template(..) to insert cntxt vars where get_flashed_messages is defined
-    return login_templ.render( login=login_form)
+    return render_template('/auth/login.jinja2', login=login_form, reset_pass=pass_reset_form, reg=reg_form)
 
 @auth_bp.route('/logout')
 @login_required
@@ -85,7 +87,7 @@ def confirm(token):
         current_user.save()
         #flash('You have confirmed your account. Thanks!')
     else:
-      return redirect(url_for('main_bp.contact'))
+      return redirect(url_for('main_bp.contact_form'))
 
 
 

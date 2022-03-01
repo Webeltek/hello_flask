@@ -4,37 +4,107 @@
 {% endblock navbar %}
 
 {% block form %}
-    <div class="col-lg-9 border-start">
-    <form class="container text-center" method="post">
-      {{ login.csrf_token }}	
-        <div class="mt-5 h3">Logg inn</div>
-
-        <div class="mb-3 mt-3">
-	{{ login.username(class="form-control", placeholder="Brukernavn") }}
-        </div>
-
-        <div class="mb-3">
-	{{ login.email(class="form-control", placeholder="Email") }}
-	</div>
-	<div class="mb-3">
-	{{ login.password(class="form-control", placeholder="Passord") }}
-	</div>
-	{% if wrong_cred %}
-	  <div class="alert-danger">Feil brukernavn/passord</div>
-        {% endif %}
-	<div class="form-check mb-3">
-	  <label class="form-check-label">
-	  {{ login.remember_me(class="form-check-input") }} Husk meg
-	  </label>
-	</div>
-	<div class="mb-3">
-	{{ login.submit( class="btn-lg btn-primary") }}
-	</div>
-      </form>
-      <br>
-			<p>Glemt passord? <a href='/reset'>Tilbakestill passord</a>.</p>
-      <p>Ny epost? <a href='/change_email'>Bytte epost adresse</a>.</p>
-      <p>Ny bruker? <a href='/register'>Klikk her for å registrere</a>.</p>
-    </div>
+				<div class="row">
+				  <div class="col-lg-6">
+				    <div class="panel panel-success">
+				      <div class="panel-heading">
+				        <h4>Logg inn</h4>
+				      </div>
+				      <div class="panel-body">	
+				        <form class="container text-center" method="post">
+				            {{ login.csrf_token }}	
+				          <div class="form-grouource">
+				            {{ login.email.label }}
+				            {{ login.email(class="form-control", placeholder="Epost") }}
+				          </div>
+				          <div class="form-group">
+				             {{ login.password.label }}
+				             {{ login.password(class="form-control", placeholder="Passord") }}
+				          </div>
+				           {% if wrong_cred %}
+								     <div class="alert-danger">Feil brukernavn/passord</div>
+				           {% endif %}
+				          <div class="form-check mb-3">
+				            <label class="form-check-label">
+				             {{ login.remember_me(class="form-check-input") }} Husk meg
+				            </label>
+				          </div>
+				          <div class="mb-3">
+				            {{ login.submit( class="btn-lg btn-primary") }}
+				          </div>
+								</form>
+							</div>
+						</div>
+					</div>				
+				<div class="col-lg-6" >
+			     <div class="panel panel-warning">
+			       <div class="panel-heading">
+				 		  <h4>Glemt passord?</h4>
+				     </div>
+			       <div class="panel-body">
+				          <form class="form-control">
+				          {{ reset_pass.csrf_token }}
+				          <div class="row">
+				            <div class="col-lg-12">
+				              <div class="form-group">
+							          {{ reset_pass.email.label }}
+							          {{ reset_pass.email(class="form-control", placeholder="Epost")  }}
+								      </div>
+								    </div>
+							    </div>
+							    <div class="row">
+								    <div class="col-lg-12">
+								      <div class="form-group">
+							          {{ reset_pass.submit(class="form-control")  }}
+							        </div>
+								    </div>
+							    </div>
+						    </div>	
+			      </div>
+			    </div>
+			  </div>
+			    <div class="row">
+				    <div class="col-md-12">
+					    <div class="panel panel-success">
+						    <div class="panel-heading">
+							     <h4>Registrer deg som bruker</h4>
+							  </div> 
+						<div class="panel-body">
+							<form action="/"  method="post">
+								<div class="row">
+									<div class="col-lg-12">
+									<div class="form-group">
+										{{ reg.email.label }}
+										{{ reg.email(class="form-control", placeholder="Epost") }}	
+											<span data-valmsg-for="registerModel.Email" data-valmsg-replace="true" class="field-validation-valid">
+											</span>
+										</div>
+									</div>
+								</div> 
+								<div class="row">
+									<div class="col-md-12">
+									<div class="form-group">
+										{{ reg.password.label }}
+										{{ reg.password(class="form-control", placeholder="passord") }}
+																<span data-valmsg-for="registerModel.Password" data-valmsg-replace="true" class="field-validation-valid">
+																</span>
+										</div>
+									</div>
+								</div> 
+								<div class="row">
+									<div class="col-md-12">
+									<div class="form-group">
+										{{ reg.password2.label }}
+									   {{ reg.password2(class="form-control",placeholder="gjenta passord") }}
+																<span data-valmsg-for="registerModel.RepeatPassword" data-valmsg-replace="true" class="field-validation-valid">
+																</span>
+										</div>
+									</div>
+								</div> 
+								{{ reg.submit(class="form-control") }} 
+								</form>
+									</div>
+										</div>
+											</div>
 {{ super() }}
 {% endblock %}

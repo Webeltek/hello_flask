@@ -50,3 +50,13 @@ def about_us_form():
             return F'I got your autodata!!!'
         return about_us_templ.render(about=about_us)
 
+@main_bp.route("/user_profile/<string:username>", methods= ['GET','POST'])
+@login_required
+def user_profile(username):
+        user = User.select().where(user_name==username).get()
+        about_us = forms.AboutUsForm(request.form)
+        if request.method == 'POST' and about_us.validate():
+            print(F'I got UFO name is {myform.ufoname.data}')
+            return F'I got your autodata!!!'
+        return render_template('main/user_profile.jinja2',user=user)    
+
