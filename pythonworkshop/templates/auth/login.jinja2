@@ -4,25 +4,37 @@
 {% endblock navbar %}
 
 {% block form %}
-				<div class="row">
-			    <div class="col-lg-6">
-		        <div class="panel panel-success">
-				      <div class="panel-heading">
+  <div class="container ms-1">
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-warning"> 
+          <button type="button" class="btn-close" aria-label=""></button>
+          {{ message }}
+        </div>
+    {% endfor %}
+  {% endif %}
+  {% endwith %} 
+
+			<div class="row mb-3">
+			  <div class="col-lg-6">
+			    <div class="card">
+				    <div class="card-header bg-success">
 				        <h4>Logg inn</h4>
-				      </div>
-				      <div class="panel-body">	
-				        <form class="container text-center" method="post">
+				    </div>
+				    <div class="card-body">	
+				      <form class="container" method="post">
 				            {{ login.csrf_token }}	
-				          <div class="form-grouource">
-				            {{ login.email.label }}
+				          <div class="mb-3">
+				            {{ login.email.label(class="form-label") }}
 				            {{ login.email(class="form-control", placeholder="Epost") }}
 				          </div>
-				          <div class="form-group">
-				             {{ login.password.label }}
+				          <div class="mb-3">
+				             {{ login.password.label(class="form-label") }}
 				             {{ login.password(class="form-control", placeholder="Passord") }}
 				          </div>
 				           {% if wrong_cred %}
-								     <div class="alert-danger">Feil brukernavn/passord</div>
+			              <div class="alert-danger">Feil brukernavn/passord</div>
 				           {% endif %}
 				          <div class="form-check mb-3">
 				            <label class="form-check-label">
@@ -32,79 +44,90 @@
 				          <div class="mb-3">
 				            {{ login.submit( class="btn-lg btn-primary") }}
 				          </div>
-								</form>
-							</div>
-						</div>
-					</div>				
+		          </form>
+				    </div>
+				  </div>
+			  </div>				
 				<div class="col-lg-6" >
-			     <div class="panel panel-warning">
-			       <div class="panel-heading">
-				 		  <h4>Glemt passord?</h4>
+			     <div class="card">
+			       <div class="card-header bg-warning">
+			        <h4>Glemt passord?</h4>
 				     </div>
-			       <div class="panel-body">
-				          <form class="form-control">
+			       <div class="card-body">
+			          <form class="container" method="post">
 				          {{ reset_pass.csrf_token }}
 				          <div class="row">
 				            <div class="col-lg-12">
-				              <div class="form-group">
-							          {{ reset_pass.email.label }}
-							          {{ reset_pass.email(class="form-control", placeholder="Epost")  }}
-								      </div>
-								    </div>
-							    </div>
-							    <div class="row">
-								    <div class="col-lg-12">
-								      <div class="form-group">
-							          {{ reset_pass.submit(class="form-control")  }}
-							        </div>
-								    </div>
-							    </div>
-						    </div>	
+				              <div class="mb-3">
+				                {{ reset_pass.email.label }}
+			                  {{ reset_pass.email(class="form-control", placeholder="Epost")  }}
+                        </div>
+                      {% if email_sent %}
+                        <div class="alert-danger mb-3">Email med instruksjoner sendt</div>
+                      {% endif %}  
+				            </div>
+				          </div>
+				          <div class="row">
+				            <div class="col-lg-12">
+				              <div class="mb-3">
+			                  {{ reset_pass.submit(class="btn-lg btn-primary")  }}
+				              </div>
+				            </div>
+			            </div>
+						    </form>	
 			      </div>
 			    </div>
 			  </div>
-			    <div class="row">
-				    <div class="col-md-12">
-					    <div class="panel panel-success">
-						    <div class="panel-heading">
-							     <h4>Registrer deg som bruker</h4>
-							  </div> 
-						<div class="panel-body">
-							<form action="/"  method="post">
-								<div class="row">
-									<div class="col-lg-12">
-									<div class="form-group">
-										{{ reg.email.label }}
-										{{ reg.email(class="form-control", placeholder="Epost") }}	
-											<span data-valmsg-for="registerModel.Email" data-valmsg-replace="true" class="field-validation-valid">
-											</span>
-										</div>
-									</div>
-								</div> 
-								<div class="row">
-									<div class="col-md-12">
-									<div class="form-group">
-										{{ reg.password.label }}
-										{{ reg.password(class="form-control", placeholder="passord") }}
-																<span data-valmsg-for="registerModel.Password" data-valmsg-replace="true" class="field-validation-valid">
-																</span>
-										</div>
-									</div>
-								</div> 
-								<div class="row">
-									<div class="col-md-12">
-									<div class="form-group">
-										{{ reg.password2.label }}
-									   {{ reg.password2(class="form-control",placeholder="gjenta passord") }}
-																<span data-valmsg-for="registerModel.RepeatPassword" data-valmsg-replace="true" class="field-validation-valid">
-																</span>
-										</div>
-									</div>
-								</div> 
-								{{ reg.submit(class="form-control") }} 
-								</form>
-									</div>
-										</div>
-											</div>
+			<div class="row">
+			  <div class="col-md-12">
+			    <div class="card">
+			      <div class="card-header bg-success">
+			        <h4>Registrer deg som bruker</h4>
+			      </div> 
+			      <div class="card-body">
+			        <form class="container"  method="post">
+			          <div class="row">
+			            <div class="col-lg-12">
+			              <div class="mb-3">
+			                {{ reg.email.label }}
+			                {{ reg.email(class="form-control", placeholder="Epost") }}	
+			                <span data-valmsg-for="registerModel.Email" data-valmsg-replace="true" class="field-validation-valid">
+			                </span>
+			              </div>
+			            </div>
+			          </div> 
+			          <div class="row">
+			            <div class="col-lg-12">
+			              <div class="mb-3">
+			                {{ reg.password.label }}
+			                {{ reg.password(class="form-control", placeholder="passord") }}
+			                <span data-valmsg-for="registerModel.Password" data-valmsg-replace="true" class="field-validation-valid">
+			                </span>
+			              </div>
+			            </div>
+			          </div> 
+			          <div class="row">
+			            <div class="col-lg-12">
+			              <div class="mb-3">
+			                {{ reg.password2.label }}
+			                {{ reg.password2(class="form-control",placeholder="gjenta passord") }}
+			                <span data-valmsg-for="registerModel.RepeatPassword" data-valmsg-replace="true" class="field-validation-valid">
+			                </span>
+			              </div>
+			            </div>
+                  </div> 
+                <div class="row">
+                  <div class="col-lg-12">
+                    <div class="mb-3">
+                    {{ reg.submit(class="btn-lg btn-primary") }}
+                    </div>
+                  </div>
+                </div>  
+			        </form>
+			      </div>
+		      </div>
+        </div>
+      </div>
+    </div>
 {{ super() }}
 {% endblock %}

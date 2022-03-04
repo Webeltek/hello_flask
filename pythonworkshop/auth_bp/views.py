@@ -1,5 +1,5 @@
 from flask import render_template, redirect, request, url_for, flash, \
-        current_app
+        current_app, session
 from flask_login import login_user, logout_user, login_required, \
     current_user
 from . import auth_bp
@@ -18,24 +18,23 @@ templateEnv = jinja2.Environment(loader=templateLoader)
 login_templ = templateEnv.get_template('/auth/login.jinja2')
 register_templ = templateEnv.get_template('/auth/register.jinja2')
 
-@auth_bp.route("/",defaults={ 'form':'login'}, methods= ['GET','POST'])
+@auth_bp.route("/", defaults={ 'form':'login'}, methods= ['GET','POST'])
 @auth_bp.route("/<form>", methods= ['GET','POST'])
 def initial_login_form(form):
     if form=='login':
-        print('inside form==login ')
         login_form = LoginForm()
+        pass_reset_form = PasswordResetRequestForm()
+        reg_form = RegistrationForm()
         if login_form.validate_on_submit():
-          user = User.get(User.user_email==login_form.email.data)
-          if user is not None and user.verify_password(login_form.password.data):
-            login_user(user, login_form.remember_me.data)
-            next = request.args.get('next')
-            if next is None or not next.startswith('/'):
-              next = url_for('main_bp.contact_form')
-            return redirect(next)
-          else :
-            print('inside wrong cred')  
-            return login_templ.render(login=login_form, wrong_cred=True)  
-    print('inside initial_login_form')
+            user = User.get_or_none(User.user_email==login_form.email.data)
+            if user is not None and user.verify_password(login_form.password.data):
+                login_user(user, login_form.remember_me.data)
+                next = request.args.get('next')
+                if next is None or not next.startswith('/'):
+                    next = url_for('main_bp.contact_form')
+                return redirect(next)
+            else :
+              return login_templ.render(login=login_form, reset_pass=pass_reset_form, reg=reg_form, wrong_cred=True)  
     app = current_app._get_current_object()
     return redirect(url_for('auth_bp.login_form'))    
    
@@ -46,17 +45,21 @@ def login_form():
     login_form = LoginForm()
     pass_reset_form = PasswordResetRequestForm()
     reg_form = RegistrationForm()
+    wrong_cred=False
+    email_sent=False
     if login_form.validate_on_submit():
-        user = User.get(User.user_email==login_form.email.data)
+        user = User.get_or_none(User.user_email==login_form.email.data)
         if user is not None and user.verify_password(login_form.password.data):
             login_user(user, login_form.remember_me.data)
             next = request.args.get('next')
             if next is None or not next.startswith('/'):
-              next = url_for('main_bp.contact_form')
+                next = url_for('main_bp.contact_form')
             return redirect(next)
-    #flash('Invalid email or password.') 
-    # use render_template(..) to insert cntxt vars where get_flashed_messages is defined
-    return render_template('/auth/login.jinja2', login=login_form, reset_pass=pass_reset_form, reg=reg_form)
+        else:
+            return render_template('/auth/login.jinja2',login=login_form, reset_pass=pass_reset_form, reg=reg_form, wrong_cred=True)
+    if pass_reset_form.validate_on_submit():
+        email_sent=True
+    return render_template('/auth/login.jinja2', login=login_form, reset_pass=pass_reset_form, reg=reg_form, email_sent=email_sent)
 
 @auth_bp.route('/logout')
 @login_required

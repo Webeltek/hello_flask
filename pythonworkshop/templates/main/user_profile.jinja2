@@ -1,0 +1,25 @@
+{% extends "user_page.jinja2" %}
+
+{% block title %}Bruker - {{ user.user_name }}{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <img class="img-rounded profile-thumbnail" src="{{ user.gravatar(size=256) }}">
+    <div class="profile-header">
+        <h1>{{ user.user_name }}</h1>
+        {% if user.user_name or user.location %}
+        <p>
+            {% if user.user_name %}{{ user.user_name }}<br>{% endif %}
+            {% if user.location %}
+                from <a href="http://maps.google.com/?q={{ user.location }}">{{ user.location }}</a><br>
+            {% endif %}
+        </p>
+        {% endif %}
+        {% if current_user.is_administrator() %}
+        <p><a href="mailto:{{ user.user_email }}">{{ user.user_email }}</a></p>
+        {% endif %}
+        {% if user.about_me %}<p>{{ user.about_me }}</p>{% endif %}
+        <p>Medlem siden {{ moment(user.member_since).format('L') }}. Sist sett {{ moment(user.last_seen).fromNow() }}.</p>
+    </div>
+</div>
+{% endblock %}

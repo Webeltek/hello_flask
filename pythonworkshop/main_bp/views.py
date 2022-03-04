@@ -21,7 +21,7 @@ def contact_form():
         if request.method == 'POST' and contact_form.validate():
             print(F'I got UFO name is {myform.ufoname.data}')
             return F'I got your autodata!!!'
-        return contact_templ.render(contact=contact_form)
+        return render_template('/main/contact.jinja2', contact=contact_form)
 
 @main_bp.route("/persons", methods= ['GET','POST'])
 @login_required
@@ -30,7 +30,7 @@ def persons_form():
         if request.method == 'POST' and persons.validate():
             print(F'I got UFO name is {myform.ufoname.data}')
             return F'I got your autodata!!!'
-        return persons_templ.render(persons=persons)
+        return render_template('/main/persons.jinja2', persons=persons)
 
 @main_bp.route("/services", methods= ['GET','POST'])
 @login_required
@@ -39,7 +39,7 @@ def services_form():
         if request.method == 'POST' and services.validate():
             print(F'I got UFO name is {myform.ufoname.data}')
             return F'I got your autodata!!!'
-        return services_templ.render(services = services)
+        return render_template('/main/services.jinja2' ,services = services)
 
 @main_bp.route("/about_us", methods= ['GET','POST'])
 @login_required
@@ -58,5 +58,5 @@ def user_profile(username):
         if request.method == 'POST' and about_us.validate():
             print(F'I got UFO name is {myform.ufoname.data}')
             return F'I got your autodata!!!'
-        return render_template('main/user_profile.jinja2',user=user)    
+        return render_template('/main/user_profile.jinja2',user=user)    
 

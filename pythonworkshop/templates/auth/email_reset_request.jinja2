@@ -1,0 +1,24 @@
+{% extends 'user_page.jinja2' %}
+{% block title %} Ny epost innføring {% endblock %}
+
+{% block page_content %}
+        <div class="page-header">
+        <h1>Skriv inn epost-adressen din nedenfor, og vi vil sende 
+			 	deg instruksjoner hvordan å bytte epost-adressen din.</h1>
+        </div>                                                                
+        <div class ="col-md-4">                                               
+        <form class="container text-center" method="post">                    
+        {{ form.csrf_token }}                                                 
+            <div class="mb-3">                                                
+            {{ form.email(class="form-control", placeholder="Epost") }}       
+            </div>                                                                    <div class="mb-3">                                                
+            {{ form.password(class="form-control", placeholder="passord") }}       
+            </div>  
+            <div class="mb-3">                                                
+            {{ form.submit(class="btn-lg btn-primary") }}                     
+            </div>                                                            
+          </form>                                                             
+          </div>                                                              
+  {% endblock page_content %}                                                 
+  {% block navbar %}                                                          
+  {% endblock navbar %}
