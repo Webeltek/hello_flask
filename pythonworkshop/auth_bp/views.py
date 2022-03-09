@@ -57,6 +57,15 @@ def login_form():
             return redirect(next)
         else:
             return render_template('/auth/login.jinja2',login=login_form, reset_pass=pass_reset_form, reg=reg_form, wrong_cred=True)
+    if reg_form.validate_on_submit():
+      user = models.User(user_email=reg_form.email.data,
+                           user_name=reg_form.username.data,
+                           user_pass=reg_form.password.data)
+      user.save()
+      token = user.generate_confirmation_token()
+      send_email(user.user_email, 'Confirm Your Account',
+                 'auth/email/confirm', user=user, token=token)
+      return redirect(url_for('main_bp.contact_form'))
     if pass_reset_form.validate_on_submit():
         email_sent=True
     return render_template('/auth/login.jinja2', login=login_form, reset_pass=pass_reset_form, reg=reg_form, email_sent=email_sent)

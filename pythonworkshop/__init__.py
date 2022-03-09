@@ -4,13 +4,13 @@
 from flask import Flask, render_template, request
 import jinja2
 import os
-from flask_wtf.csrf import CSRFProtect
 from passlib.hash import bcrypt_sha256
 from flask_moment import Moment
 from flask_mail import Mail
 from flask_moment import Moment
 from flask_login import LoginManager
-from config import config
+from config import config, DevelopmentConfig
+
 
 templ_dir = os.path.abspath('./pythonworkshop/templates')
 static_dir = os.path.abspath('./pythonworkshop/static')
@@ -20,15 +20,17 @@ moment = Moment()
 login_manager = LoginManager()
 login_manager.login_view = 'auth_bp.login_form'
 
-#csrf = CSRFProtect(app)    - only views that don't use FlaskForm use the provided CSRF extension
+ #- only views that don't use FlaskForm use the provided CSRF extension
 
 def create_app(config_name):
   app = Flask(__name__, static_url_path=static_dir ,static_folder= 'static', template_folder=templ_dir)
   app.config.from_object(config[config_name])
+  print('mail server: ' + app.config['MAIL_SERVER'])
+  app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+
   mail.init_app(app)
   moment.init_app(app)
   login_manager.init_app(app)
-  #csrf.init_app(app)
 
   from .main_bp import main_bp
   app.register_blueprint(main_bp)
