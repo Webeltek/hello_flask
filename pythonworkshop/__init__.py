@@ -26,7 +26,11 @@ def create_app(config_name):
   app = Flask(__name__, static_url_path=static_dir ,static_folder= 'static', template_folder=templ_dir)
   app.config.from_object(config[config_name])
   print('mail server: ' + app.config['MAIL_SERVER'])
+  print('ENV value: ' + app.config['ENV'])
+  print('DEBUG value :' + str(app.config['DEBUG']))
+  #python-dotenv doesn't override existing SECRET_KEY value which defauts to None!
   app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+  config[config_name].init_app(app)
 
   mail.init_app(app)
   moment.init_app(app)

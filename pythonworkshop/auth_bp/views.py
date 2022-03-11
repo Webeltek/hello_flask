@@ -18,36 +18,28 @@ templateEnv = jinja2.Environment(loader=templateLoader)
 login_templ = templateEnv.get_template('/auth/login.jinja2')
 register_templ = templateEnv.get_template('/auth/register.jinja2')
 
-@auth_bp.route("/", defaults={ 'form':'login'}, methods= ['GET','POST'])
-@auth_bp.route("/<form>", methods= ['GET','POST'])
-def initial_login_form(form):
-    if form=='login':
-        login_form = LoginForm()
-        pass_reset_form = PasswordResetRequestForm()
-        reg_form = RegistrationForm()
-        if login_form.validate_on_submit():
-            user = User.get_or_none(User.user_email==login_form.email.data)
-            if user is not None and user.verify_password(login_form.password.data):
-                login_user(user, login_form.remember_me.data)
-                next = request.args.get('next')
-                if next is None or not next.startswith('/'):
-                    next = url_for('main_bp.contact_form')
-                return redirect(next)
-            else :
-              return login_templ.render(login=login_form, reset_pass=pass_reset_form, reg=reg_form, wrong_cred=True)  
-    app = current_app._get_current_object()
-    return redirect(url_for('auth_bp.login_form'))    
-   
+@auth_bp.route('/')
+def index():
+  login_form = LoginForm()
+  pass_reset_form = PasswordResetRequestForm()
+  reg_form = RegistrationForm()
+  wrong_cred=False
+  email_sent=False
+  return render_template('/auth/login.jinja2', login=login_form, reset_pass=pass_reset_form, reg=reg_form, email_sent=email_sent, wrong_cred=wrong_cred)
 
+  
 
-@auth_bp.route('/login', methods=['GET', 'POST'])
+@auth_bp.route('/login', methods=[ 'POST'])
 def login_form():
     login_form = LoginForm()
     pass_reset_form = PasswordResetRequestForm()
     reg_form = RegistrationForm()
     wrong_cred=False
     email_sent=False
-    if login_form.validate_on_submit():
+    if request.method == 'POST':
+      print('request method POST')
+      print('request request.form["email"] : ' + str(request.form['email']))
+    if  login_form.validate_on_submit():
         user = User.get_or_none(User.user_email==login_form.email.data)
         if user is not None and user.verify_password(login_form.password.data):
             login_user(user, login_form.remember_me.data)
@@ -56,19 +48,30 @@ def login_form():
                 next = url_for('main_bp.contact_form')
             return redirect(next)
         else:
-            return render_template('/auth/login.jinja2',login=login_form, reset_pass=pass_reset_form, reg=reg_form, wrong_cred=True)
-    if reg_form.validate_on_submit():
-      user = models.User(user_email=reg_form.email.data,
-                           user_name=reg_form.username.data,
+            wrong_cred=True
+    return render_template('/auth/login.jinja2', login=login_form, reset_pass=pass_reset_form, reg=reg_form, email_sent=email_sent, wrong_cred=wrong_cred)
+
+@auth_bp.route('/register', methods=[ 'POST'])
+def register_form():
+  login_form = LoginForm()
+  pass_reset_form = PasswordResetRequestForm()
+  reg_form = RegistrationForm()
+  wrong_cred=False
+  email_sent=False
+  awaiting_confirm=False
+  if reg_form.validate_on_submit():
+      print('inside reg_form.Validate_on_submit()')
+      user = models.User(user_email=reg_form.email.data, user_name=reg_form.username.data,
                            user_pass=reg_form.password.data)
       user.save()
       token = user.generate_confirmation_token()
       send_email(user.user_email, 'Confirm Your Account',
                  'auth/email/confirm', user=user, token=token)
-      return redirect(url_for('main_bp.contact_form'))
-    if pass_reset_form.validate_on_submit():
+      awaiting_confirm= True
+  if pass_reset_form.validate_on_submit():
         email_sent=True
-    return render_template('/auth/login.jinja2', login=login_form, reset_pass=pass_reset_form, reg=reg_form, email_sent=email_sent)
+  return render_template('/auth/login.jinja2', login=login_form, reset_pass=pass_reset_form, reg=reg_form, email_sent=email_sent, wrong_cred=wrong_cred,awaiting_confirm=awaiting_confirm)
+
 
 @auth_bp.route('/logout')
 @login_required
@@ -76,19 +79,6 @@ def logout():
   logout_user()
   return redirect(url_for('auth_bp.initial_login_form'))
 
-@auth_bp.route('/register', methods=['GET', 'POST'])
-def register_form():
-  reg_form = RegistrationForm()
-  if reg_form.validate_on_submit():
-      user = models.User(user_email=reg_form.email.data,
-                           user_name=reg_form.username.data,
-                           user_pass=reg_form.password.data)
-      user.save()
-      token = user.generate_confirmation_token()
-      send_email(user.user_email, 'Confirm Your Account',
-                 'auth/email/confirm', user=user, token=token)
-      return redirect(url_for('main_bp.contact_form'))
-  return register_templ.render( register=reg_form)
 
 @auth_bp.route('/confirm/<token>')
 @login_required

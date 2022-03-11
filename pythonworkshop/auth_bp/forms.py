@@ -23,9 +23,6 @@ class RegistrationForm(FlaskForm):
         if User.select().where(User.user_email == field.data.lower()):
             raise ValidationError('E-postadressen er allerede i bruk.')
 
-    def validate_username(self, field):
-        if User.select().where(User.user_name == field.data):
-            raise ValidationError('Brukernavn er allerede i bruk.')
 
 class PasswordResetRequestForm(FlaskForm):
     email = StringField('E-postadresse', validators=[DataRequired(), Length(1, 64), Email()])

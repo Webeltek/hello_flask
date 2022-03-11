@@ -8,9 +8,7 @@ if os.path.exists(dotenv_path):
     print('dotenv path exists')
     load_dotenv(dotenv_path)
 
-print(sys.prefix)
-print(os.getenv('FLASK_CONFIG'))
-app = create_app('development')
+app = create_app(os.getenv('FLASK_CONFIG'))
 
 if __name__== "__main__":
       app.run()

@@ -23,7 +23,7 @@
 				        <h4>Logg inn</h4>
 				    </div>
 				    <div class="card-body">	
-				      <form class="container" method="post">
+				      <form class="container" method="post" action="{{ url_for('auth_bp.login_form') }}">
 				            {{ login.csrf_token }}	
 				          <div class="mb-3">
 				            {{ login.email.label(class="form-label") }}
@@ -42,7 +42,7 @@
 				            </label>
 				          </div>
 				          <div class="mb-3">
-				            {{ login.submit( class="btn-lg btn-primary") }}
+				            {{ login.submit(class="btn-lg btn-primary") }}
 				          </div>
 		          </form>
 				    </div>
@@ -85,13 +85,12 @@
 			        <h4>Registrer deg som bruker</h4>
 			      </div> 
 			      <div class="card-body">
-			        <form class="container"  method="post">
+			        <form class="container"  method="post" action= "{{ url_for('auth_bp.register_form') }}">
 			          <div class="row">
 			            <div class="col-lg-12">
 			              <div class="mb-3">
 			                {{ reg.email.label }}
 			                {{ reg.email(class="form-control", placeholder="Epost") }}	
-			                <span data-valmsg-for="registerModel.Email" data-valmsg-replace="true" class="field-validation-valid">
 			                </span>
 			              </div>
 			            </div>
@@ -101,7 +100,6 @@
 			              <div class="mb-3">
 			                {{ reg.password.label }}
 			                {{ reg.password(class="form-control", placeholder="passord") }}
-			                <span data-valmsg-for="registerModel.Password" data-valmsg-replace="true" class="field-validation-valid">
 			                </span>
 			              </div>
 			            </div>
@@ -111,7 +109,6 @@
 			              <div class="mb-3">
 			                {{ reg.password2.label }}
 			                {{ reg.password2(class="form-control",placeholder="gjenta passord") }}
-			                <span data-valmsg-for="registerModel.RepeatPassword" data-valmsg-replace="true" class="field-validation-valid">
 			                </span>
 			              </div>
 			            </div>
@@ -119,8 +116,11 @@
                 <div class="row">
                   <div class="col-lg-12">
                     <div class="mb-3">
-                    {{ reg.submit(class="btn-lg btn-primary") }}
+                    {{ reg.submit( class="btn-lg btn-primary") }}
                     </div>
+                    {% if awaiting_confirm %}
+                    <div class="alert-danger">Sjekk e-post</div>
+                   {% endif %}
                   </div>
                 </div>  
 			        </form>

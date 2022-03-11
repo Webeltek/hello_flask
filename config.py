@@ -1,6 +1,6 @@
 import os
 
-class Config:
+class Config(object):
     SECRET_KEY = os.environ.get('SECRET_KEY') 
     MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.googlemail.com')
     MAIL_PORT = int(os.environ.get('MAIL_PORT', '587'))
