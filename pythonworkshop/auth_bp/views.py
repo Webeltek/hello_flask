@@ -39,7 +39,7 @@ def login_form():
     if request.method == 'POST':
       print('request method POST')
       print('request request.form["email"] : ' + str(request.form['email']))
-    if  login_form.validate_on_submit():
+    if  request.form['submit']== 'login_subm':
         user = User.get_or_none(User.user_email==login_form.email.data)
         if user is not None and user.verify_password(login_form.password.data):
             login_user(user, login_form.remember_me.data)
@@ -59,9 +59,9 @@ def register_form():
   wrong_cred=False
   email_sent=False
   awaiting_confirm=False
-  if reg_form.validate_on_submit():
+  if request.form['submit']== 'register_subm':
       print('inside reg_form.Validate_on_submit()')
-      user = models.User(user_email=reg_form.email.data, user_name=reg_form.username.data,
+      user = models.User(user_email=reg_form.email.data,
                            user_pass=reg_form.password.data)
       user.save()
       token = user.generate_confirmation_token()
