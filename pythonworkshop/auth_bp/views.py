@@ -27,9 +27,24 @@ def index():
   email_sent=False
   return render_template('/auth/login.jinja2', login=login_form, reset_pass=pass_reset_form, reg=reg_form, email_sent=email_sent, wrong_cred=wrong_cred)
 
-  
+@auth_bp.before_app_request
+def before_request():
+    if current_user.is_authenticated:
+        current_user.ping()
+        if not current_user.confirmed \
+                and request.endpoint \
+                and request.blueprint != 'auth' \
+                and request.endpoint != 'static':
+            return redirect(url_for('auth.unconfirmed'))
 
-@auth_bp.route('/login', methods=[ 'POST'])
+
+@auth_bp.route('/unconfirmed')
+def unconfirmed():
+    if current_user.is_anonymous or current_user.confirmed:
+        return redirect(url_for('main.index'))
+    return render_template('auth/unconfirmed.html')  
+
+@auth_bp.route('/login', methods=['POST','GET'])
 def login_form():
     login_form = LoginForm()
     pass_reset_form = PasswordResetRequestForm()
@@ -39,7 +54,7 @@ def login_form():
     if request.method == 'POST':
       print('request method POST')
       print('request request.form["email"] : ' + str(request.form['email']))
-    if  request.form['submit']== 'login_subm':
+    if  request.form['submit']== 'Logg Inn':
         user = User.get_or_none(User.user_email==login_form.email.data)
         if user is not None and user.verify_password(login_form.password.data):
             login_user(user, login_form.remember_me.data)
@@ -59,12 +74,14 @@ def register_form():
   wrong_cred=False
   email_sent=False
   awaiting_confirm=False
-  if request.form['submit']== 'register_subm':
+  if request.form['submit']== 'Registrer':
       print('inside reg_form.Validate_on_submit()')
+      
       user = models.User(user_email=reg_form.email.data,
                            user_pass=reg_form.password.data)
       user.save()
       token = user.generate_confirmation_token()
+      print('User email to send: ' +  user.user_email)
       send_email(user.user_email, 'Confirm Your Account',
                  'auth/email/confirm', user=user, token=token)
       awaiting_confirm= True

@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import Flask, request
 from passlib.hash import bcrypt_sha256
 import peewee as p
@@ -26,6 +27,8 @@ class User(UserMixin,p.Model):
   user_email = p.CharField(default='first_email')
   user_pass_hash = p.CharField(default='initial hash')
   user_confirmed = p.BooleanField(default=False)
+  last_seen = p.CharField(default='initial date')
+
   @property
   def user_pass(self):
     raise AttributeError('password is not a readable attribute')
@@ -96,6 +99,12 @@ class User(UserMixin,p.Model):
         self.user_email = new_email
         user
         return True
+
+  def ping(self):
+        self.last_seen = datetime.utcnow()
+
  
-users_db.connect()   
-users_db.create_tables([User])
+users_db.connect()
+
+def create_table():
+   users_db.create_tables([User])

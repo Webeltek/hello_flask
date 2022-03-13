@@ -28,6 +28,7 @@ def create_app(config_name):
   print('mail server: ' + app.config['MAIL_SERVER'])
   print('ENV value: ' + app.config['ENV'])
   print('DEBUG value :' + str(app.config['DEBUG']))
+  print('mail user '+ str(app.config['MAIL_USERNAME']) )
   #python-dotenv doesn't override existing SECRET_KEY value which defauts to None!
   app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
   config[config_name].init_app(app)
