@@ -10,7 +10,10 @@ from flask import current_app
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.select().where(User.id == int(user_id)).get()  
+    User.create_nf_user_table()
+    query = User.get_or_none(User.id == int(user_id))
+    print('extr user value : ' + str(query))
+    return  query   
 #equal to User.get(int(user_id))  type=serial constraint=PRIMARY KEY 
 
 users_db = p.PostgresqlDatabase(user='nf_user',password='nfvinter2022',
@@ -104,7 +107,8 @@ class User(UserMixin,p.Model):
         self.last_seen = datetime.utcnow()
 
  
-users_db.connect()
 
-def create_table():
+  @classmethod
+  def create_nf_user_table(cls):
+   users_db.connect() 
    users_db.create_tables([User])

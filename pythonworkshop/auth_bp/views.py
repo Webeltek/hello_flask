@@ -29,6 +29,7 @@ def index():
 
 @auth_bp.before_app_request
 def before_request():
+  if current_user is not None:
     if current_user.is_authenticated:
         current_user.ping()
         if not current_user.confirmed \
