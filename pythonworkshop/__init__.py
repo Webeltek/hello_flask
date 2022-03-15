@@ -24,11 +24,9 @@ login_manager.login_view = 'auth_bp.login_form'
 
 def create_app(config_name):
   app = Flask(__name__, static_url_path=static_dir ,static_folder= 'static', template_folder=templ_dir)
+  print('config_name : ' + str(config[config_name]) )
   app.config.from_object(config[config_name])
-  print('mail server: ' + app.config['MAIL_SERVER'])
-  print('ENV value: ' + app.config['ENV'])
-  print('DEBUG value :' + str(app.config['DEBUG']))
-  print('mail user '+ str(app.config['MAIL_USERNAME']) )
+  app.config.from_envvar('DOTENV_FILE')
   #python-dotenv doesn't override existing SECRET_KEY value which defauts to None!
   app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
   config[config_name].init_app(app)
@@ -36,7 +34,11 @@ def create_app(config_name):
   mail.init_app(app)
   moment.init_app(app)
   login_manager.init_app(app)
-
+  print('mail server: ' + app.config['MAIL_SERVER'])
+  print('ENV value: ' + app.config['ENV'])
+  print('DEBUG value :' + str(app.config['DEBUG']))
+  print('mail user '+ str(os.environ.get('MAIL_USERNAME')) )
+  print('mail pass : ' + str(os.environ.get('MAIL_PASSWORD')) )
   from .main_bp import main_bp
   app.register_blueprint(main_bp)
 
