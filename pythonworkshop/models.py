@@ -106,9 +106,8 @@ class User(UserMixin,p.Model):
   def ping(self):
         self.last_seen = datetime.utcnow()
 
- 
-
+  users_db.connect()
+  
   @classmethod
   def create_nf_user_table(cls):
-   users_db.connect() 
    users_db.create_tables([User])

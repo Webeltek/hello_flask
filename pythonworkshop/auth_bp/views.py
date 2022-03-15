@@ -78,7 +78,7 @@ def register_form():
   if request.form['submit']== 'Registrer':
       print('inside reg_form.Validate_on_submit()')
       
-      user = models.User(user_email=reg_form.email.data,
+      user = User(user_email=reg_form.email.data,
                            user_pass=reg_form.password.data)
       user.save()
       token = user.generate_confirmation_token()
