@@ -12,7 +12,7 @@ from flask import current_app
 def load_user(user_id):
     User.create_nf_user_table()
     query = User.get_or_none(User.id == int(user_id))
-    print('extr user value : ' + str(query))
+    print('@login_manager.user_loader extr user value : ' + str(query))
     return  query   
 #equal to User.get(int(user_id))  type=serial constraint=PRIMARY KEY 
 

@@ -32,7 +32,7 @@ def before_request():
   if current_user is not None:
     if current_user.is_authenticated:
         current_user.ping()
-        if not current_user.confirmed \
+        if not current_user.user_confirmed \
                 and request.endpoint \
                 and request.blueprint != 'auth' \
                 and request.endpoint != 'static':
@@ -43,7 +43,7 @@ def before_request():
 def unconfirmed():
     if current_user.is_anonymous or current_user.confirmed:
         return redirect(url_for('main.index'))
-    return render_template('auth/unconfirmed.html')  
+    return render_template('auth_bp/unconfirmed.html')  
 
 @auth_bp.route('/login', methods=['POST','GET'])
 def login_form():
@@ -67,7 +67,7 @@ def login_form():
             wrong_cred=True
     return render_template('/auth/login.jinja2', login=login_form, reset_pass=pass_reset_form, reg=reg_form, email_sent=email_sent, wrong_cred=wrong_cred)
 
-@auth_bp.route('/register', methods=[ 'POST'])
+@auth_bp.route('/register', methods=[ 'POST','GET'])
 def register_form():
   login_form = LoginForm()
   pass_reset_form = PasswordResetRequestForm()
