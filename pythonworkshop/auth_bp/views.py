@@ -34,9 +34,9 @@ def before_request():
         current_user.ping()
         if not current_user.user_confirmed \
                 and request.endpoint \
-                and request.blueprint != 'auth' \
+                and request.blueprint != 'auth_bp' \
                 and request.endpoint != 'static':
-            return redirect(url_for('auth.unconfirmed'))
+            return redirect(url_for('auth_bp.login_form'))
 
 
 @auth_bp.route('/unconfirmed')
@@ -67,7 +67,7 @@ def login_form():
             wrong_cred=True
     return render_template('/auth/login.jinja2', login=login_form, reset_pass=pass_reset_form, reg=reg_form, email_sent=email_sent, wrong_cred=wrong_cred)
 
-@auth_bp.route('/register', methods=[ 'POST','GET'])
+@auth_bp.route('/register', methods=[ 'POST'])
 def register_form():
   login_form = LoginForm()
   pass_reset_form = PasswordResetRequestForm()
@@ -105,9 +105,10 @@ def confirm(token):
         return redirect(url_for('main_bp.contact_form'))
     if current_user.confirm(token):
         current_user.save()
-        #flash('You have confirmed your account. Thanks!')
+        print('current_user.user_confirmed = True') 
     else:
-      return redirect(url_for('main_bp.contact_form'))
+        print('current_user.user_confirmed = False')
+    return redirect(url_for('main_bp.contact_form'))
 
 
 
