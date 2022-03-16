@@ -67,7 +67,7 @@ def login_form():
             wrong_cred=True
     return render_template('/auth/login.jinja2', login=login_form, reset_pass=pass_reset_form, reg=reg_form, email_sent=email_sent, wrong_cred=wrong_cred)
 
-@auth_bp.route('/register', methods=[ 'POST'])
+@auth_bp.route('/register', methods=[ 'POST','GET'])
 def register_form():
   login_form = LoginForm()
   pass_reset_form = PasswordResetRequestForm()
