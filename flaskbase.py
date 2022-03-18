@@ -13,5 +13,5 @@ app = create_app(os.getenv('FLASK_CONFIG'))
 User.create_nf_user_table()
 
 if __name__== "__main__":
-      app.run()
+    app.run()
 

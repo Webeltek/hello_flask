@@ -10,6 +10,7 @@ from flask_mail import Mail
 from flask_moment import Moment
 from flask_login import LoginManager
 from config import config, DevelopmentConfig
+from flask_executor import Executor
 
 
 templ_dir = os.path.abspath('./pythonworkshop/templates')
@@ -17,6 +18,7 @@ static_dir = os.path.abspath('./pythonworkshop/static')
 
 mail = Mail()
 moment = Moment()
+executor = Executor()
 login_manager = LoginManager()
 login_manager.login_view = 'auth_bp.login_form'
 
@@ -25,14 +27,15 @@ login_manager.login_view = 'auth_bp.login_form'
 def create_app(config_name):
   app = Flask(__name__, static_url_path=static_dir ,static_folder= 'static', template_folder=templ_dir)
   print('config_name : ' + str(config[config_name]) )
-  #app.config.from_object(config[config_name])
+  #app.config.from_object(config[config_name] warning!!! doesn't instatiate config object!!!)
   app.config.from_envvar('DOTENV_FILE')
-  #python-dotenv doesn't override existing SECRET_KEY value which defauts to None!
+  #python-dotenv doesn't override existing envvar SECRET_KEY value which defauts to None!
   app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
   config[config_name].init_app(app)
 
   mail.init_app(app)
   moment.init_app(app)
+  executor.init_app(app)
   login_manager.init_app(app)
   print('mail server: ' + app.config['MAIL_SERVER'])
   print('ENV value: ' + app.config['ENV'])

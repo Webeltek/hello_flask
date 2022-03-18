@@ -10,6 +10,7 @@ import jinja2
 from .. import models
 from ..models import *
 from ..email import send_email
+from .. import executor
 
 
 templateLoader = jinja2.PackageLoader('pythonworkshop','templates')
@@ -36,7 +37,7 @@ def before_request():
                 and request.endpoint \
                 and request.blueprint != 'auth_bp' \
                 and request.endpoint != 'static':
-            return redirect(url_for('auth_bp.login_form'))
+            return redirect(url_for('auth_bp.unconfirmed'))
 
 
 @auth_bp.route('/unconfirmed')
@@ -83,8 +84,9 @@ def register_form():
       user.save()
       token = user.generate_confirmation_token()
       print('User email to send: ' +  user.user_email)
-      send_email(user.user_email, 'Confirm Your Account',
-                 'auth/email/confirm', user=user, token=token)
+      future = executor.submit(send_email, user.user_email, 'Confirm Your Account', 'auth/email/confirm', user=user, token=token)
+      print(future.result())
+      #send_email(user.user_email, 'Confirm Your Account', 'auth/email/confirm', user=user, token=token)
       awaiting_confirm= True
   if pass_reset_form.validate_on_submit():
         email_sent=True
@@ -95,7 +97,7 @@ def register_form():
 @login_required
 def logout():
   logout_user()
-  return redirect(url_for('auth_bp.initial_login_form'))
+  return redirect(url_for('auth_bp.login_form'))
 
 
 @auth_bp.route('/confirm/<token>')
@@ -108,7 +110,7 @@ def confirm(token):
         print('current_user.user_confirmed = True') 
     else:
         print('current_user.user_confirmed = False')
-    return redirect(url_for('main_bp.contact_form'))
+    return redirect(url_for('auth_bp.login_form'))
 
 
 
