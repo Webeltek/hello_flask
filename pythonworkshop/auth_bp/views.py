@@ -33,36 +33,40 @@ def before_request():
   if current_user is not None:
     if current_user.is_authenticated:
         current_user.ping()
+        print('request.blueprint is: '+ str(request.blueprint))
+        print('request.endpoint is: '+str(request.endpoint))
         if not current_user.user_confirmed \
-                and request.endpoint \
                 and request.blueprint != 'auth_bp' \
                 and request.endpoint != 'static':
-            return redirect(url_for('auth_bp.unconfirmed'))
+            print('condition for unconfirmed == True')
+            #return redirect(url_for('auth_bp.unconfirmed'))
+            pass
 
 
 @auth_bp.route('/unconfirmed')
 def unconfirmed():
-    if current_user.is_anonymous or current_user.confirmed:
-        return redirect(url_for('main.index'))
+    if current_user.is_anonymous or current_user.user_confirmed:
+        return redirect(url_for('main_bp.contact'))
     return render_template('auth_bp/unconfirmed.html')  
 
 @auth_bp.route('/login', methods=['POST','GET'])
 def login_form():
+    print('login_form call')
     login_form = LoginForm()
     pass_reset_form = PasswordResetRequestForm()
     reg_form = RegistrationForm()
     wrong_cred=False
     email_sent=False
-    if request.method == 'POST':
-      print('request method POST')
-      print('request request.form["email"] : ' + str(request.form['email']))
-    if  request.form['submit']== 'Logg Inn':
+    if request.method == 'POST' and request.form['submit'] == 'Logg Inn':
+        print('request method POST')
+        print('request request.form["email"] : ' + str(request.form['email']))
         user = User.get_or_none(User.user_email==login_form.email.data)
         if user is not None and user.verify_password(login_form.password.data):
             login_user(user, login_form.remember_me.data)
             next = request.args.get('next')
             if next is None or not next.startswith('/'):
                 next = url_for('main_bp.contact_form')
+            print('inside request.form["submit"]')
             return redirect(next)
         else:
             wrong_cred=True
@@ -104,9 +108,9 @@ def logout():
 @login_required
 def confirm(token):
     if current_user.user_confirmed:
+        print('current_user.user_confirmed = True')
         return redirect(url_for('main_bp.contact_form'))
     if current_user.confirm(token):
-        current_user.save()
         print('current_user.user_confirmed = True') 
     else:
         print('current_user.user_confirmed = False')

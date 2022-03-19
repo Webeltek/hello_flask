@@ -54,11 +54,14 @@ class User(UserMixin,p.Model):
     try:
         data = s.loads(token.encode('utf-8'))
     except:
+        print('exeption in User.confirm( s.loads')
         return False
     if data.get('confirm') != self.id:
+        print('exeption in data.get(')
         return False
     self.user_confirmed = True
     self.save()
+    print('User confirmed in User.confirm(')
     return True
   
   def generate_reset_token(self, expiration=3600):
