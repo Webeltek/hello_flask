@@ -12,6 +12,5 @@ if os.path.exists(dotenv_path):
 app = create_app(os.getenv('FLASK_CONFIG'))
 
 if __name__== "__main__":
-    User.create_nf_user_table()
     app.run()
 

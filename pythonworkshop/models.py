@@ -109,6 +109,6 @@ class User(UserMixin,p.Model):
         self.last_seen = datetime.utcnow()
 
   
-  @classmethod
-  def create_nf_user_table(cls):
-   users_db.create_tables([User])
+users_db.connect()
+users_db.create_tables([User], safe = True) #safe=True equal to IF_NOT_EXISTS
+
