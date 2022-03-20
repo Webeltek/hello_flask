@@ -1,12 +1,12 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, EmailField
 from wtforms.validators import DataRequired, Length, Email, Regexp, EqualTo
 from wtforms import ValidationError
 from ..models import User
 
 
 class LoginForm(FlaskForm):
-    email = StringField('E-postadresse', validators=[DataRequired(), Length(1, 64),Email()])
+    email = EmailField('E-postadresse', validators=[DataRequired(), Length(4, 64),Email(message='feil',check_deliverability=True)])
     password = PasswordField('Passord', validators=[DataRequired()])
     remember_me = BooleanField('La meg være pålogget')
     submit = SubmitField('Logg Inn')

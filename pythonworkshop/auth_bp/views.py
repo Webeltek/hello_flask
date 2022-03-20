@@ -64,8 +64,9 @@ def login_form():
         if user is not None and user.verify_password(login_form.password.data):
             login_user(user, login_form.remember_me.data)
             next = request.args.get('next')
-            if next is None or not next.startswith('/'):
-                next = url_for('main_bp.contact_form')
+            print('next arg from request in login_form: '+str(next))
+            if next is None or not (next.startswith('/') or next.startswith('%2F')):
+                next = url_for('auth_bp.index')
             print('inside request.form["submit"]')
             return redirect(next)
         else:
@@ -89,7 +90,7 @@ def register_form():
       token = user.generate_confirmation_token()
       print('User email to send: ' +  user.user_email)
       future = executor.submit(send_email, user.user_email, 'Confirm Your Account', 'auth/email/confirm', user=user, token=token)
-      print(future.result())
+      print(str(future.result()))
       #send_email(user.user_email, 'Confirm Your Account', 'auth/email/confirm', user=user, token=token)
       awaiting_confirm= True
   if pass_reset_form.validate_on_submit():

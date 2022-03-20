@@ -10,7 +10,6 @@ from flask import current_app
 
 @login_manager.user_loader
 def load_user(user_id):
-    User.create_nf_user_table()
     query = User.get_or_none(User.id == int(user_id))
     print('@login_manager.user_loader extr user value : ' + str(query))
     return  query   
@@ -109,7 +108,6 @@ class User(UserMixin,p.Model):
   def ping(self):
         self.last_seen = datetime.utcnow()
 
-  users_db.connect()
   
   @classmethod
   def create_nf_user_table(cls):
