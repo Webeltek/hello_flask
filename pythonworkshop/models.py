@@ -28,7 +28,7 @@ class Permission:
 
 class User(UserMixin,p.Model):
   id = p.AutoField()  
-  user_email = p.CharField(default='first_email')
+  user_email = p.CharField(default='first_email',unique=True)
   user_pass_hash = p.CharField(default='initial hash')
   user_confirmed = p.BooleanField(default=False)
   last_seen = p.CharField(default='initial date')

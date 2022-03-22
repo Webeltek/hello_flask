@@ -36,7 +36,7 @@ def before_request():
         current_user.ping()
         print('request.blueprint is: '+ str(request.blueprint))
         print('request.endpoint is: '+str(request.endpoint))
-        print('next in before_request: '+str(request.args.get('next')) )
+        print('next in before_request: '+str(request.values.get('next')) )
         if not current_user.user_confirmed \
                 and request.blueprint != 'auth_bp' \
                 and request.endpoint != 'static':
@@ -60,7 +60,6 @@ def login_form():
     reg_form = RegistrationForm()
     wrong_cred=False
     email_sent=False
-    next = request.args.get('next')
     if request.method == 'POST' and request.form['submit'] == 'Logg Inn':
         users_db.connect(reuse_if_open=True)
         print('login_form() request method POST')
@@ -68,7 +67,7 @@ def login_form():
         user = User.select().where(User.user_email==login_form.email.data).last()
         if user is not None and user.verify_password(login_form.password.data):
             login_user(user, login_form.remember_me.data)
-            next = request.args.get('next')
+            next = request.values.get('next')
             print('next in  login_form: '+str(next))
             if next is None or not (next.startswith('/') or not next.startswith('%2F')):
                 next = url_for('auth_bp.index')
@@ -112,6 +111,7 @@ def logout():
 
 
 @auth_bp.route('/confirm/<token>')
+@login_required
 def confirm(token):
     users_db.connect(reuse_if_open=True)
     if current_user.user_confirmed or current_user.confirm(token):
