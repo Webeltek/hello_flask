@@ -10,8 +10,10 @@ from flask import current_app
 
 @login_manager.user_loader
 def load_user(user_id):
-    query = User.get_or_none(User.id == int(user_id))
+    users_db.connect(reuse_if_open=True)
+    query = User.select().where(User.id == int(user_id)).first()
     print('@login_manager.user_loader extr user value : ' + str(query))
+    users_db.close()
     return  query   
 #equal to User.get(int(user_id))  type=serial constraint=PRIMARY KEY 
 
@@ -56,7 +58,9 @@ class User(UserMixin,p.Model):
         print('exeption in User.confirm( s.loads')
         return False
     if data.get('confirm') != self.id:
-        print('exeption in data.get(')
+        print('User.confirm(...) exception in data.get("confirm")')
+        print('User.confirm(...) data.get("confirm"): ' + str(data.get('confirm')) + 'is not = self.id: '+str(self.id)) 
+        
         return False
     self.user_confirmed = True
     self.save()
@@ -109,6 +113,6 @@ class User(UserMixin,p.Model):
         self.last_seen = datetime.utcnow()
 
   
-users_db.connect()
+users_db.connect(reuse_if_open=True)
 users_db.create_tables([User], safe = True) #safe=True equal to IF_NOT_EXISTS
 

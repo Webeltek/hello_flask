@@ -18,6 +18,7 @@ templateEnv = jinja2.Environment(loader=templateLoader)
 login_templ = templateEnv.get_template('/auth/login.jinja2')
 register_templ = templateEnv.get_template('/auth/register.jinja2')
 
+
 @auth_bp.route('/')
 def index():
   login_form = LoginForm()
@@ -29,17 +30,20 @@ def index():
 
 @auth_bp.before_app_request
 def before_request():
+  users_db.connect(reuse_if_open=True)
   if current_user is not None:
     if current_user.is_authenticated:
         current_user.ping()
         print('request.blueprint is: '+ str(request.blueprint))
         print('request.endpoint is: '+str(request.endpoint))
+        print('next in before_request: '+str(request.args.get('next')) )
         if not current_user.user_confirmed \
                 and request.blueprint != 'auth_bp' \
                 and request.endpoint != 'static':
             print('condition for unconfirmed == True')
             #return redirect(url_for('auth_bp.unconfirmed'))
-            pass
+  users_db.close()
+  pass    
 
 
 @auth_bp.route('/unconfirmed')
@@ -56,44 +60,47 @@ def login_form():
     reg_form = RegistrationForm()
     wrong_cred=False
     email_sent=False
+    next = request.args.get('next')
     if request.method == 'POST' and request.form['submit'] == 'Logg Inn':
-        print('request method POST')
-        print('request request.form["email"] : ' + str(request.form['email']))
-        user = User.get_or_none(User.user_email==login_form.email.data)
+        users_db.connect(reuse_if_open=True)
+        print('login_form() request method POST')
+        print('login_form POST  request.form["email"] : ' + str(request.form['email']))
+        user = User.select().where(User.user_email==login_form.email.data).last()
         if user is not None and user.verify_password(login_form.password.data):
             login_user(user, login_form.remember_me.data)
             next = request.args.get('next')
-            print('next arg from request in login_form: '+str(next))
-            if next is None or not (next.startswith('/') or next.startswith('%2F')):
+            print('next in  login_form: '+str(next))
+            if next is None or not (next.startswith('/') or not next.startswith('%2F')):
                 next = url_for('auth_bp.index')
             print('inside request.form["submit"]')
             return redirect(next)
         else:
             wrong_cred=True
+        users_db.close()
     return render_template('/auth/login.jinja2', login=login_form, reset_pass=pass_reset_form, reg=reg_form, email_sent=email_sent, wrong_cred=wrong_cred)
 
 @auth_bp.route('/register', methods=[ 'POST','GET'])
 def register_form():
+  users_db.connect(reuse_if_open=True)
   login_form = LoginForm()
   pass_reset_form = PasswordResetRequestForm()
   reg_form = RegistrationForm()
   wrong_cred=False
   email_sent=False
   awaiting_confirm=False
-  if request.form['submit']== 'Registrer':
-      print('inside reg_form.Validate_on_submit()')
-      
-      user = User(user_email=reg_form.email.data,
+  if request.method == 'POST' and request.form['submit']== 'Registrer':
+      print('inside register_form POST')
+      user = User.create(user_email=reg_form.email.data,
                            user_pass=reg_form.password.data)
-      user.save()
       token = user.generate_confirmation_token()
       print('User email to send: ' +  user.user_email)
       future = executor.submit(send_email, user.user_email, 'Confirm Your Account', 'auth/email/confirm', user=user, token=token)
-      print(str(future.result()))
+      print('register_form future.result : '+str(future.result()))
       #send_email(user.user_email, 'Confirm Your Account', 'auth/email/confirm', user=user, token=token)
       awaiting_confirm= True
   if pass_reset_form.validate_on_submit():
         email_sent=True
+  users_db.close()
   return render_template('/auth/login.jinja2', login=login_form, reset_pass=pass_reset_form, reg=reg_form, email_sent=email_sent, wrong_cred=wrong_cred,awaiting_confirm=awaiting_confirm)
 
 
@@ -105,15 +112,13 @@ def logout():
 
 
 @auth_bp.route('/confirm/<token>')
-@login_required
 def confirm(token):
-    if current_user.user_confirmed:
+    users_db.connect(reuse_if_open=True)
+    if current_user.user_confirmed or current_user.confirm(token):
         print('current_user.user_confirmed = True')
         return redirect(url_for('main_bp.contact_form'))
-    if current_user.confirm(token):
-        print('current_user.user_confirmed = True') 
-    else:
-        print('current_user.user_confirmed = False')
+    print('current_user.user_confirmed = False') 
+    users_db.close()
     return redirect(url_for('auth_bp.login_form'))
 
 
