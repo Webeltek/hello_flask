@@ -35,9 +35,9 @@ def before_request():
   if current_user is not None:
     if current_user.is_authenticated:
         current_user.ping()
-        print('request.blueprint is: '+ str(request.blueprint))
-        print('request.endpoint is: '+str(request.endpoint))
-        print('next in before_request: '+str(request.values.get('next')) )
+        print('before_request is_authenticated=True blueprint is: '+ str(request.blueprint))
+        print('before_request is_authenticated=True endpoint is: '+str(request.endpoint))
+        print('before_request is_authenticated=True next is: '+str(request.values.get('next')) )
         if not current_user.user_confirmed \
                 and request.blueprint != 'auth_bp' \
                 and request.endpoint != 'static':
@@ -56,6 +56,8 @@ def unconfirmed():
 @auth_bp.route('/login', methods=['POST','GET'])
 def login_form():
     print('login_form call')
+    next = request.values.get('next')
+    print('login_form method= POST and GET, next is: '+str(next))
     login_form = LoginForm()
     pass_reset_form = PasswordResetRequestForm()
     reg_form = RegistrationForm()
@@ -70,10 +72,9 @@ def login_form():
         if user is not None and user.verify_password(login_form.password.data):
             login_user(user, login_form.remember_me.data)
             next = request.values.get('next')
-            print('next in  login_form: '+str(next))
+            print('login_form method=POST, next is: '+str(next))
             if next is None or not (next.startswith('/') or not next.startswith('%2F')):
                 next = url_for('auth_bp.index')
-            print('inside request.form["submit"]')
             return redirect(next)
         else:
             wrong_cred=True

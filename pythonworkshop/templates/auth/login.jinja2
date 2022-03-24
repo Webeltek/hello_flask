@@ -23,7 +23,7 @@
 				        <h4>Logg inn</h4>
 				    </div>
 				    <div class="card-body">	
-				      <form class="container" method="post" action="{{ url_for('auth_bp.login_form') }}">
+				      <form class="container" method="post" >
 				            {{ login.csrf_token }}	
 				          <div class="mb-3">
 				            {{ login.email.label(class="form-label") }}
@@ -85,7 +85,7 @@
 			        <h4>Registrer deg som bruker</h4>
 			      </div> 
 			      <div class="card-body">
-			        <form class="container"  method="post" action= "{{ url_for('auth_bp.register_form') }}">
+			        <form class="container"  method="post" >
               {{ reg.csrf_token }}
 			          <div class="row">
 			            <div class="col-lg-12">
