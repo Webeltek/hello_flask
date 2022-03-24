@@ -86,6 +86,7 @@
 			      </div> 
 			      <div class="card-body">
 			        <form class="container"  method="post" action= "{{ url_for('auth_bp.register_form') }}">
+              {{ reg.csrf_token }}
 			          <div class="row">
 			            <div class="col-lg-12">
 			              <div class="mb-3">

@@ -10,7 +10,8 @@ import jinja2
 from ..models import *
 from ..email import send_email
 from .. import executor
-
+import peewee as p
+from wtforms import ValidationError
 
 templateLoader = jinja2.PackageLoader('pythonworkshop','templates')
 templateEnv = jinja2.Environment(loader=templateLoader)
@@ -60,11 +61,12 @@ def login_form():
     reg_form = RegistrationForm()
     wrong_cred=False
     email_sent=False
+    awaiting_confirm=False
     if request.method == 'POST' and request.form['submit'] == 'Logg Inn':
         users_db.connect(reuse_if_open=True)
         print('login_form() request method POST')
         print('login_form POST  request.form["email"] : ' + str(request.form['email']))
-        user = User.select().where(User.user_email==login_form.email.data).last()
+        user = User.select().where(User.user_email==login_form.email.data).first()
         if user is not None and user.verify_password(login_form.password.data):
             login_user(user, login_form.remember_me.data)
             next = request.values.get('next')
@@ -76,30 +78,35 @@ def login_form():
         else:
             wrong_cred=True
         users_db.close()
-    return render_template('/auth/login.jinja2', login=login_form, reset_pass=pass_reset_form, reg=reg_form, email_sent=email_sent, wrong_cred=wrong_cred)
+    return render_template('/auth/login.jinja2', login=login_form, reset_pass=pass_reset_form, reg=reg_form, email_sent=email_sent, wrong_cred=wrong_cred,awaiting_confirm=awaiting_confirm)
 
 @auth_bp.route('/register', methods=[ 'POST','GET'])
 def register_form():
-  users_db.connect(reuse_if_open=True)
   login_form = LoginForm()
   pass_reset_form = PasswordResetRequestForm()
   reg_form = RegistrationForm()
   wrong_cred=False
   email_sent=False
   awaiting_confirm=False
-  if request.method == 'POST' and request.form['submit']== 'Registrer':
+  if  request.method == 'POST' and request.form['submit']== 'Registrer' and reg_form.validate_on_submit() :
+      users_db.connect(reuse_if_open=True)
       print('inside register_form POST')
-      user = User.create(user_email=reg_form.email.data,
+      try :
+        user = User.create(user_email=reg_form.email.data,
                            user_pass=reg_form.password.data)
+      except p.IntegrityError :
+        raise ValidationError('duplikat epost')
+      print('user.is_authenticated before gene_conf_token(): ',str(user.is_authenticated)) 
       token = user.generate_confirmation_token()
+      print('user.is_authenticated after gene_conf_token(): ',str(user.is_authenticated))
       print('User email to send: ' +  user.user_email)
       future = executor.submit(send_email, user.user_email, 'Confirm Your Account', 'auth/email/confirm', user=user, token=token)
       print('register_form future.result : '+str(future.result()))
       #send_email(user.user_email, 'Confirm Your Account', 'auth/email/confirm', user=user, token=token)
       awaiting_confirm= True
+      users_db.close()
   if pass_reset_form.validate_on_submit():
         email_sent=True
-  users_db.close()
   return render_template('/auth/login.jinja2', login=login_form, reset_pass=pass_reset_form, reg=reg_form, email_sent=email_sent, wrong_cred=wrong_cred,awaiting_confirm=awaiting_confirm)
 
 
@@ -113,6 +120,7 @@ def logout():
 @auth_bp.route('/confirm/<token>')
 @login_required
 def confirm(token):
+    print('next in auth_bp.confirm is: ' + str(request.values.get('next')))
     users_db.connect(reuse_if_open=True)
     if current_user.user_confirmed or current_user.confirm(token):
         print('current_user.user_confirmed = True')

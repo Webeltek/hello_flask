@@ -11,10 +11,13 @@ from flask import current_app
 @login_manager.user_loader
 def load_user(user_id):
     users_db.connect(reuse_if_open=True)
-    query = User.select().where(User.id == int(user_id)).first()
-    print('@login_manager.user_loader extr user value : ' + str(query))
-    users_db.close()
-    return  query   
+    if User.table_exists():
+      query = User.select().where(User.id == int(user_id)).first()
+      print('@login_manager.user_loader extr user value : ' + str(query))
+      users_db.close()
+      return  query
+    else:
+      return None   
 #equal to User.get(int(user_id))  type=serial constraint=PRIMARY KEY 
 
 users_db = p.PostgresqlDatabase(user='nf_user',password='nfvinter2022',
@@ -28,7 +31,7 @@ class Permission:
 
 class User(UserMixin,p.Model):
   id = p.AutoField()  
-  user_email = p.CharField(default='first_email',unique=True)
+  user_email = p.CharField(default='first_email')
   user_pass_hash = p.CharField(default='initial hash')
   user_confirmed = p.BooleanField(default=False)
   last_seen = p.CharField(default='initial date')
