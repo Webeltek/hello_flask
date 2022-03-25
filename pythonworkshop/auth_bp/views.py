@@ -73,8 +73,9 @@ def login_form():
             login_user(user, login_form.remember_me.data)
             next = request.values.get('next')
             print('login_form method=POST, next is: '+str(next))
+            print('login_form method=POST, current_user.user_email: '+str(current_user.user_email))
             if next is None or not (next.startswith('/') or not next.startswith('%2F')):
-                next = url_for('auth_bp.index')
+                next = url_for('main_bp.contact_form')
             return redirect(next)
         else:
             wrong_cred=True
