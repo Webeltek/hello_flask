@@ -35,7 +35,6 @@ def before_request():
   if current_user is not None:
     if current_user.is_authenticated:
         current_user.ping()
-        print('before_request is_authenticated=True blueprint is: '+ str(request.blueprint))
         print('before_request is_authenticated=True endpoint is: '+str(request.endpoint))
         print('before_request is_authenticated=True next is: '+str(request.values.get('next')) )
         if not current_user.user_confirmed \
