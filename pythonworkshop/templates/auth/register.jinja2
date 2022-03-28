@@ -4,46 +4,56 @@
 {% endblock navbar %}
 
 {% block form %}
-    <div class="col-lg-9 border-start">
-    <form class="container text-center" method="post" >
-    {{ register.csrf_token }}
-        <div class="mt-5 h3">Registrer deg</div>
-        <div class=" mt-3">
-        {{ register.email(class="form-control", placeholder="Email") }}
-	</div>
-	{% if register.email.errors %}
-    		<ul class="list-group">
-    		{% for error in register.email.errors %}
-			<li class="list-group-item list-group-item-warning">{{ error }}</li>
-    		{% endfor %}
-    		</ul>
-	{% endif %}
-	<div class="mb-3 mt-3">
-        {{ register.username(class="form-control", placeholder="Brukernavn") }}
-	</div>
-        <div class="mb-3">
-        {{ register.password(class="form-control", placeholder="Passord") }}
-	</div>
-	{% if register.password.errors %}
-                <ul class="list-group">
-                {% for error in register.password.errors %}
-                       <li class="list-group-item list-group-item-warning">{{ error }}</li>
-                {% endfor %}
-                </ul>
-        {% endif %}
-        <div class="mb-3">
-        {{ register.password2(class="form-control", placeholder="Bekreft passord") }}
-	</div>
-	{% if register.password2.errors %}
-                <ul class="list-group">
-                {% for error in register.password2.errors %}
-                        <li class="list-group-item list-group-item-warning">{{ error }}</li>
-                {% endfor %}
-                </ul>
-        {% endif %}
-        <button type="submit" class="btn-lg btn-primary">Lagre</button>
-        </form>
-    </div>
+   <div class="row">
+        <div class="col-md-12">
+          <div class="card">
+            <div class="card-header bg-success">
+              <h4>Registrer deg som bruker</h4>
+            </div>
+            <div class="card-body">
+              <form class="container"  method="post" >
+              {{ reg.csrf_token }}
+                <div class="row">
+                  <div class="col-lg-12">
+                    <div class="mb-3">
+                      {{ reg.email.label }}
+                      {{ reg.email(class="form-control", placeholder="Epost") }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-lg-12">
+                    <div class="mb-3">
+                      {{ reg.password.label }}
+                      {{ reg.password(class="form-control", placeholder="passord") }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-lg-12">
+                    <div class="mb-3">
+                      {{ reg.password2.label }}
+                      {{ reg.password2(class="form-control",placeholder="gjenta passord") }}
+                      </span>
+                    </div>
+                  </div>
+                  </div>
+                <div class="row">
+                  <div class="col-lg-12">
+                    <div class="mb-3">
+                    {{ reg.submit( class="btn-lg btn-primary") }}
+                    </div>
+                    {% if awaiting_confirm %}
+                    <div class="alert-danger">Sjekk e-post</div>
+                   {% endif %}
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div> 
 {{ super() }}
 {% endblock %}
 

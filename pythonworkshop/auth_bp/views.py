@@ -27,7 +27,7 @@ def index():
   reg_form = RegistrationForm()
   wrong_cred=False
   email_sent=False
-  return render_template('/auth/login.jinja2', login=login_form, reset_pass=pass_reset_form, reg=reg_form, email_sent=email_sent, wrong_cred=wrong_cred)
+  return redirect(url_for('auth_bp.login_form'))
 
 @auth_bp.before_app_request
 def before_request():
@@ -78,13 +78,12 @@ def login_form():
             return redirect(next)
         else:
             wrong_cred=True
+            flash('Ugyldig epost eller passord.')
         users_db.close()
     return render_template('/auth/login.jinja2', login=login_form, reset_pass=pass_reset_form, reg=reg_form, email_sent=email_sent, wrong_cred=wrong_cred,awaiting_confirm=awaiting_confirm)
 
 @auth_bp.route('/register', methods=[ 'POST','GET'])
 def register_form():
-  login_form = LoginForm()
-  pass_reset_form = PasswordResetRequestForm()
   reg_form = RegistrationForm()
   wrong_cred=False
   email_sent=False
@@ -106,15 +105,14 @@ def register_form():
       #send_email(user.user_email, 'Confirm Your Account', 'auth/email/confirm', user=user, token=token)
       awaiting_confirm= True
       users_db.close()
-  if pass_reset_form.validate_on_submit():
-        email_sent=True
-  return render_template('/auth/login.jinja2', login=login_form, reset_pass=pass_reset_form, reg=reg_form, email_sent=email_sent, wrong_cred=wrong_cred,awaiting_confirm=awaiting_confirm)
+  return render_template('/auth/register.jinja2', reg=reg_form, wrong_cred=wrong_cred,awaiting_confirm=awaiting_confirm)
 
 
 @auth_bp.route('/logout')
 @login_required
 def logout():
   logout_user()
+  flash('Du har blitt logget ut.')
   return redirect(url_for('auth_bp.login_form'))
 
 
@@ -125,8 +123,10 @@ def confirm(token):
     users_db.connect(reuse_if_open=True)
     if current_user.user_confirmed or current_user.confirm(token):
         print('current_user.user_confirmed = True')
+        flash('Du har bekreftet kontoen din. Takk!')
         return redirect(url_for('main_bp.contact_form'))
-    print('current_user.user_confirmed = False') 
+    print('current_user.user_confirmed = False')
+    flash('Bekreftelseslenken er ugyldig eller har utløpt.') 
     users_db.close()
     return redirect(url_for('auth_bp.login_form'))
 
@@ -144,7 +144,7 @@ def password_reset_request():
                        'auth/email/reset_password',
                        user=user, token=token)
         return redirect(url_for('auth_bp.login_form'))
-    return render_template('auth/pass_reset_request.jinja2', form=form)
+    return render_template('auth/pass_reset.jinja2', pass_reset_form=form)
 
 
 @auth_bp.route('/reset/<token>', methods=['GET', 'POST'])
@@ -153,9 +153,10 @@ def password_reset(token):
     form = PasswordResetForm()
     if form.validate_on_submit():
         if User.reset_password(token, form.password.data):
+            flash('Passordet ditt er oppdatert')
             return redirect(url_for('auth_bp.login_form'))
         else:
-            return redirect(url_for('main_bp.contact_form'))
+            return redirect(url_for('auth_bp.password_reset_request'))
     return render_template('auth/pass_reset.jinja2', form=form) 
 
 @auth_bp.route('/change_email', methods=['GET', 'POST'])
@@ -169,11 +170,11 @@ def change_email_request():
             send_email(new_email, 'Confirm your email address',
                        'auth/email/change_email',
                        user=current_user, token=token)
-            print('An email with instructions to confirm your new email '
-                  'address has been sent to you.')
+            flash('En e-post med instruksjoner for å bekrefte din nye e-post adressen er sendt til deg.')
             return redirect(url_for('auth_bp.login'))
         else:
             print('Invalid email or password.')
+            flash('Ugyldig epost')
     return render_template("auth/email_reset_request.jinja2", form=form)
 
 
@@ -181,7 +182,7 @@ def change_email_request():
 @login_required
 def change_email(token):
     if current_user.change_email(token):
-        print('Your email address has been updated.')
+        flash('E-postadressen din er oppdatert')
     else:
-        print('Invalid request.')
+        print('Ugyldig forespørsel.')
     return redirect(url_for('main_bp.contact_form'))

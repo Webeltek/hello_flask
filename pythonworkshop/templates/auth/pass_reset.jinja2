@@ -1,24 +1,41 @@
 {% extends 'user_page.jinja2' %}
-{% block title %} Nytt passord {% endblock %}
 
-{% block page_content %}
-        <div class="page-header">
-	<h1>Skriv inn det dye passordet nedenfor.</h1>
+{% block navbar %}
+{% endblock navbar %}
+
+{% block form %}
+  <div class="row">
+    <div class="col-lg-6" >
+      <div class="card">
+        <div class="card-header bg-warning">
+          <h4>Glemt passord?</h4>
         </div>
-        <div class ="col-md-4">
-	<form class="container text-center" method="post">
-	{{ form.csrf_token }}
-            <div class="mb-3">
-            {{ form.password(class="form-control", placeholder="Nytt passord") }}
+        <div class="card-body">
+          <form class="container" method="post">
+            {{ pass_reset_form.csrf_token }}
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="mb-3">
+                  {{ pass_reset_form.email.label }}
+                  {{ pass_reset_form.email(class="form-control", placeholder="Epost")  }}
+                </div>
+                {% if email_sent %}
+                <div class="alert-danger mb-3">Email med instruksjoner sendt</div>
+                {% endif %}
+                </div>
+              </div>
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="mb-3">
+                  {{ pass_reset_form.submit(class="btn-lg btn-primary")  }}
+                </div>
+              </div>
             </div>
-            <div class="mb-3">
-            {{ form.password2(class="form-control", placeholder="bekreft nytt passord") }}
-	    </div>
-	    <div class="mb3">
-	    {{ form.submit(class="btn-lg btn-primary") }}
-	    </div>
           </form>
-          </div>
-  {% endblock page_content %}
-  {% block navbar %} {% endblock navbar %}
+        </div>
+      </div>
+    </div>
+  </div>
+{{ super() }}
+{% endblock %}
 
