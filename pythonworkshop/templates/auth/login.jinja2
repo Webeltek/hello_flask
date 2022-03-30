@@ -4,6 +4,13 @@
 {% endblock navbar %}
 
 {% block form %}
+{% for field, errors in login.errors.items() %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="">
+      </button>
+      {{ login[field].label }}: {{ ', '.join(errors) }}
+    </div>
+{% endfor %}
   <div class="container-fluid ms-1">
 			<div class="row mb-3">
 			  <div class="col-lg-6">

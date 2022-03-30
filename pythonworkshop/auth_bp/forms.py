@@ -6,7 +6,7 @@ from ..models import User
 
 
 class LoginForm(FlaskForm):
-    email = EmailField('E-postadresse', validators=[DataRequired(), Length(4, 64),Email(message='feil',check_deliverability=True)])
+    email = EmailField('E-postadresse', validators=[DataRequired(), Length(4, 64),Email(message='feil format',check_deliverability=True)])
     password = PasswordField('Passord', validators=[DataRequired()])
     remember_me = BooleanField('La meg være pålogget')
     submit = SubmitField('Logg Inn')

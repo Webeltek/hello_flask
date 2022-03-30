@@ -19,7 +19,6 @@ templateEnv = jinja2.Environment(loader=templateLoader)
 login_templ = templateEnv.get_template('/auth/login.jinja2')
 register_templ = templateEnv.get_template('/auth/register.jinja2')
 
-
 @auth_bp.route('/')
 def index():
   login_form = LoginForm()
@@ -52,6 +51,7 @@ def unconfirmed():
         return redirect(url_for('main_bp.contact'))
     return render_template('auth/unconfirmed.jinja2')  
 
+
 @auth_bp.route('/login', methods=['POST','GET'])
 def login_form():
     print('login_form call')
@@ -74,6 +74,7 @@ def login_form():
             return redirect(next)
         else:
             wrong_cred=True
+            print('login_form wrong cred')
             flash('Ugyldig epost eller passord.')
         users_db.close()
     return render_template('/auth/login.jinja2', login=login_form, wrong_cred=wrong_cred)
