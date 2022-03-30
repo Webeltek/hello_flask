@@ -16,7 +16,7 @@ def validate_email(form, field):
             raise ValidationError('E-postadressen er allerede i bruk.')
 
 class RegistrationForm(FlaskForm):
-    email = StringField('E-postadresse', validators=[DataRequired(), Length(4, 64),Email(), validate_email])
+    email = EmailField('E-postadresse', validators=[DataRequired(), Length(4, 64),Email(), validate_email])
     password = PasswordField('Passord', validators=[DataRequired(),
         Length(8,64,message='Passord må være minst 8 tegn!'), 
         EqualTo('password2', message='Passordene må være like!')])

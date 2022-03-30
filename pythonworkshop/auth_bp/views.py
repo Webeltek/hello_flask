@@ -41,7 +41,7 @@ def before_request():
                 and request.blueprint != 'auth_bp' \
                 and request.endpoint != 'static':
             print('condition for unconfirmed == True')
-            #return redirect(url_for('auth_bp.unconfirmed'))
+            return redirect(url_for('auth_bp.unconfirmed'))
   users_db.close()
   pass    
 
@@ -50,7 +50,7 @@ def before_request():
 def unconfirmed():
     if current_user.is_anonymous or current_user.user_confirmed:
         return redirect(url_for('main_bp.contact'))
-    return render_template('auth_bp/unconfirmed.html')  
+    return render_template('auth/unconfirmed.jinja2')  
 
 @auth_bp.route('/login', methods=['POST','GET'])
 def login_form():
@@ -58,12 +58,8 @@ def login_form():
     next = request.values.get('next')
     print('login_form method= POST and GET, next is: '+str(next))
     login_form = LoginForm()
-    pass_reset_form = PasswordResetRequestForm()
-    reg_form = RegistrationForm()
     wrong_cred=False
-    email_sent=False
-    awaiting_confirm=False
-    if request.method == 'POST' and request.form['submit'] == 'Logg Inn':
+    if login_form.validate_on_submit():
         users_db.connect(reuse_if_open=True)
         print('login_form() request method POST')
         print('login_form POST  request.form["email"] : ' + str(request.form['email']))
@@ -80,7 +76,7 @@ def login_form():
             wrong_cred=True
             flash('Ugyldig epost eller passord.')
         users_db.close()
-    return render_template('/auth/login.jinja2', login=login_form, reset_pass=pass_reset_form, reg=reg_form, email_sent=email_sent, wrong_cred=wrong_cred,awaiting_confirm=awaiting_confirm)
+    return render_template('/auth/login.jinja2', login=login_form, wrong_cred=wrong_cred)
 
 @auth_bp.route('/register', methods=[ 'POST','GET'])
 def register_form():
@@ -88,7 +84,7 @@ def register_form():
   wrong_cred=False
   email_sent=False
   awaiting_confirm=False
-  if  request.method == 'POST' and request.form['submit']== 'Registrer' and reg_form.validate_on_submit() :
+  if reg_form.validate_on_submit() :
       users_db.connect(reuse_if_open=True)
       print('inside register_form POST')
       try :
@@ -130,7 +126,14 @@ def confirm(token):
     users_db.close()
     return redirect(url_for('auth_bp.login_form'))
 
-
+@auth_bp.route('/confirm')
+@login_required
+def resend_confirmation():
+    token = current_user.generate_confirmation_token()
+    send_email(current_user.user_email, 'Bekreft kontoen din',
+               'auth/email/confirm', user=current_user, token=token)
+    flash('En ny bekreftelses-e-post har blitt sendt til deg på e-post.')
+    return redirect(url_for('auth_bp.login_form'))
 
 @auth_bp.route('/reset', methods=['GET', 'POST'])
 @login_required
@@ -144,7 +147,7 @@ def password_reset_request():
                        'auth/email/reset_password',
                        user=user, token=token)
         return redirect(url_for('auth_bp.login_form'))
-    return render_template('auth/pass_reset.jinja2', pass_reset_form=form)
+    return render_template('auth/pass_reset_request.jinja2', pass_res_req_form=form)
 
 
 @auth_bp.route('/reset/<token>', methods=['GET', 'POST'])
@@ -157,7 +160,7 @@ def password_reset(token):
             return redirect(url_for('auth_bp.login_form'))
         else:
             return redirect(url_for('auth_bp.password_reset_request'))
-    return render_template('auth/pass_reset.jinja2', form=form) 
+    return render_template('auth/pass_reset.jinja2', pass_reset_form=form) 
 
 @auth_bp.route('/change_email', methods=['GET', 'POST'])
 @login_required
