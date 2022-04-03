@@ -4,6 +4,15 @@
 {% endblock navbar %}
 
 {% block form %}
+{% for field, errors in reg.errors.items() %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="">
+      </button>
+      {{ reg[field].label }}: {{ ', '.join(errors) }}
+    </div>
+{% endfor %}
+
+
    <div class="row">
         <div class="col-lg-6">
           <div class="card">

@@ -58,7 +58,6 @@ def login_form():
     next = request.values.get('next')
     print('login_form method= POST and GET, next is: '+str(next))
     login_form = LoginForm()
-    wrong_cred=False
     if login_form.validate_on_submit():
         users_db.connect(reuse_if_open=True)
         print('login_form() request method POST')
@@ -73,18 +72,15 @@ def login_form():
                 next = url_for('main_bp.contact_form')
             return redirect(next)
         else:
-            wrong_cred=True
             print('login_form wrong cred')
             flash('Ugyldig epost eller passord.')
         users_db.close()
-    return render_template('/auth/login.jinja2', login=login_form, wrong_cred=wrong_cred)
+    return render_template('/auth/login.jinja2', login=login_form)
 
 @auth_bp.route('/register', methods=[ 'POST','GET'])
 def register_form():
   reg_form = RegistrationForm()
-  wrong_cred=False
   email_sent=False
-  awaiting_confirm=False
   if reg_form.validate_on_submit() :
       users_db.connect(reuse_if_open=True)
       print('inside register_form POST')
@@ -100,9 +96,9 @@ def register_form():
       future = executor.submit(send_email, user.user_email, 'Confirm Your Account', 'auth/email/confirm', user=user, token=token)
       print('register_form future.result : '+str(future.result()))
       #send_email(user.user_email, 'Confirm Your Account', 'auth/email/confirm', user=user, token=token)
-      awaiting_confirm= True
+      flash('En bekreftelses e-post har blitt sendt til deg på e-post.')
       users_db.close()
-  return render_template('/auth/register.jinja2', reg=reg_form, wrong_cred=wrong_cred,awaiting_confirm=awaiting_confirm)
+  return render_template('/auth/register.jinja2', reg=reg_form)
 
 
 @auth_bp.route('/logout')

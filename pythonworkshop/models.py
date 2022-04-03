@@ -115,7 +115,17 @@ class User(UserMixin,p.Model):
   def ping(self):
         self.last_seen = datetime.utcnow()
 
+class Event(p.Model):
+  id = p.AutoField()
+  title = p.CharField()
+  start = p.CharField()
+  end = p.CharField()
+
+  class Meta:
+    database = users_db
+    table_name = 'nf_event'
+
   
 users_db.connect(reuse_if_open=True)
-users_db.create_tables([User], safe = True) #safe=True equal to IF_NOT_EXISTS
+users_db.create_tables([User,Event], safe = True) #safe=True equal to IF_NOT_EXISTS
 
