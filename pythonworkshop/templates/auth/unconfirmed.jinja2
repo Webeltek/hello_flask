@@ -1,0 +1,22 @@
+{% extends "user_page.jinja2" %}
+
+{% block title %}Bekreft kontoen din{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <h1>
+        Hei, {{ current_user.user_email }}!
+    </h1>
+    <h3>Du har ikke bekreftet kontoen din ennå.</h3>
+    <p>
+        Før du kan få tilgang til denne siden må du bekrefte kontoen din.
+        Sjekk innboksen din, du skal ha mottatt en e-post med en bekreftelseslenke.
+    </p>
+    <p>
+        Trenger du en annen bekreftelses-e-post?
+        <a href="{{ url_for('auth_bp.resend_confirmation') }}">Klikk her</a>
+    </p>
+</div>
+{% endblock page_content %}
+{% block navbar %}
+{% endblock navbar %}
