@@ -5,7 +5,7 @@ import peewee as p
 from flask_login import LoginManager
 from flask_login import UserMixin
 from . import login_manager
-from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+import jwt
 from flask import current_app
 
 @login_manager.user_loader
@@ -42,21 +42,21 @@ class User(UserMixin,p.Model):
   @user_pass.setter
   def user_pass(self, password):
     self.user_pass_hash = bcrypt_sha256.hash(password)
-  def verify_password(self, password):
-    return bcrypt_sha256.verify(password,self.user_pass_hash)
+  def decode_password(self, password):
+    return bcrypt_sha256.decode(password,self.user_pass_hash)
   
   class Meta:
     database = users_db
     table_name = 'nf_user'
   
   def generate_confirmation_token(self, expiration=3600):
-        s = Serializer(current_app.config['SECRET_KEY'], expiration)
-        return s.dumps({'confirm': self.id}).decode('utf-8')
+        encodeed = jwt.encode({'confirm': self.id},current_app.config['SECRET_KEY'], algorithm='HS256')
+        return encodeed
 
   def confirm(self, token):
-    s = Serializer(current_app.config['SECRET_KEY'])
+    secret_key = current_app.config['SECRET_KEY']
     try:
-        data = s.loads(token.encode('utf-8'))
+        data = jwt.decode(token, secret_key, algorithms=['HS256'])
     except:
         print('exeption in User.confirm( s.loads')
         return False
@@ -71,14 +71,14 @@ class User(UserMixin,p.Model):
     return True
   
   def generate_reset_token(self, expiration=3600):
-        s = Serializer(current_app.config['SECRET_KEY'], expiration)
-        return s.dumps({'reset': self.id}).decode('utf-8')
+        encodeed = jwt.encode({'reset': self.id},current_app.config['SECRET_KEY'], algorithm='HS256')
+        return encodeed
 
   @staticmethod
   def reset_password(token, new_password):
-        s = Serializer(current_app.config['SECRET_KEY'])
+        secret_key = current_app.config['SECRET_KEY']
         try:
-            data = s.loads(token.encode('utf-8'))
+           data = jwt.decode(token, secret_key, algorithms=['HS256'])
         except:
             print('serializer loads exeption')
             return False
@@ -90,14 +90,13 @@ class User(UserMixin,p.Model):
         return True
 
   def generate_email_change_token(self, new_email, expiration=3600):
-        s = Serializer(current_app.config['SECRET_KEY'], expiration)
-        return s.dumps(
-            {'change_email': self.id, 'new_email': new_email}).decode('utf-8')
+        encodeed = jwt.encode({'change_email': self.id, 'new_email' : new_email },current_app.config['SECRET_KEY'], algorithm='HS256')
+        return encodeed
 
   def change_email(self, token):
-        s = Serializer(current_app.config['SECRET_KEY'])
+        secret_key = current_app.config['SECRET_KEY']
         try:
-            data = s.loads(token.encode('utf-8'))
+            data = jwt.decode(token, secret_key, algorithms=['HS256'])
         except:
             return False
         if data.get('change_email') != self.id:

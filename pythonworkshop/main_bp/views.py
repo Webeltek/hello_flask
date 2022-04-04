@@ -57,10 +57,10 @@ def user_profile(username):
 @login_required
 def index():
     users_db.connect(reuse_if_open=True)
-    events = Event.select().order_by('id').asc() 
+    events = Event.select().order_by(Event.id.asc()) 
     calendar = events
     users_db.close() 
-    return render_template('index.html', calendar = calendar)
+    return render_template('/main/services.jinja2', calendar = calendar)
   
 @main_bp.route("/services/insert",methods=["POST","GET"])
 @login_required
