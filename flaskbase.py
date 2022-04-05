@@ -14,5 +14,5 @@ if os.path.exists(dotenv_path):
 app = create_app(os.getenv('FLASK_CONFIG'))
 
 if __name__== "__main__":
-    app.run(host='0.0.0.0')
+    app.run()
 

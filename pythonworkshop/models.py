@@ -39,11 +39,13 @@ class User(UserMixin,p.Model):
   @property
   def user_pass(self):
     raise AttributeError('password is not a readable attribute')
+
   @user_pass.setter
   def user_pass(self, password):
     self.user_pass_hash = bcrypt_sha256.hash(password)
-  def decode_password(self, password):
-    return bcrypt_sha256.decode(password,self.user_pass_hash)
+
+  def verify_password(self, password):
+    return bcrypt_sha256.verify(password,self.user_pass_hash)
   
   class Meta:
     database = users_db
