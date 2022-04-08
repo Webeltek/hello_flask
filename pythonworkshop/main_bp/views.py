@@ -58,11 +58,13 @@ def user_profile(username):
 @login_required
 def index():
     users_db.connect(reuse_if_open=True)
-    events = Event.select().order_by(Event.id.asc()).get()
+    events = Event.select().order_by(Event.id.asc())
+    for row in events :
+      print('row id : ' + str(row.id))
     saved_events = events
     users_db.close()
     print ('url_for(" static") inside main_bp.services :' + str(url_for('static', filename='ufo.jpg')))  
-    return render_template('/main/services.jinja2')
+    return render_template('/main/services.jinja2',saved_events=saved_events)
   
 @main_bp.route("/services/insert",methods=["POST","GET"])
 @login_required
@@ -101,7 +103,7 @@ def ajax_delete():
     users_db.connect(reuse_if_open=True)
     if request.method == 'POST':
         getid = request.form['id']
-        print(getid)
+        print('deleted event with id : ' +str(getid))
         event = Event.delete().where(Event.id == getid).execute()
         users_db.close()
         msg = 'Record deleted successfully' 

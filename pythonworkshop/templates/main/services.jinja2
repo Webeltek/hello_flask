@@ -119,7 +119,7 @@
      }
     } ,
     
-      events: [{% for row in saved_events %}{ id : '{{row[id]}}', title : '{{row[title]}}', start : '{{row[start]}}', end : '{{row[end]}}', }, {% endfor %}]
+      events: [{% for row in saved_events %}{ id : '{{row.id}}', title : '{{row.title}}', start : '{{row.start}}', end : '{{row.end}}', }, {% endfor %}]
                  
 
    });
