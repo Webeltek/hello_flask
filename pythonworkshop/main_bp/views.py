@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify, url_for
 from ..models import *
 from . import forms
 from . import main_bp
@@ -58,9 +58,10 @@ def user_profile(username):
 def index():
     users_db.connect(reuse_if_open=True)
     events = Event.select().order_by(Event.id.asc()) 
-    calendar = events
-    users_db.close() 
-    return render_template('/main/services.jinja2', calendar = calendar)
+    saved_events = events.dicts()
+    users_db.close()
+    print ('url_for(" static") inside main_bp.services :' + str(url_for('static', filename='ufo.jpg')))  
+    return render_template('/main/services.jinja2', saved_events = saved_events)
   
 @main_bp.route("/services/insert",methods=["POST","GET"])
 @login_required
@@ -70,9 +71,9 @@ def insert():
         title = request.form['title']
         start = request.form['start']
         end = request.form['end']
-        print(title)     
+        print('/services/insert title: '+title)     
         print(start)  
-        User.create(title=title,start=start,end=end)
+        Event.create(title=title,start=start,end=end)
         users_db.close()
         msg = 'success' 
     return jsonify(msg)

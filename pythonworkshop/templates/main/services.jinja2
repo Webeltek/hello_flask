@@ -1,57 +1,82 @@
 {% extends "user_page.jinja2" %}
 
 {% block head %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/fullcalendar.css" />
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
- 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/fullcalendar.min.js"></script>
+  <!-- moment lib -->
+<script src='https://cdn.jsdelivr.net/npm/moment@2.27.0/min/moment.min.js'></script>
+
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/main.js" integrity="sha256-3YcmbVFydbcbP+ax1x6VxV1swYap/YsD/+RFVqSGqxk=" crossorigin="anonymous"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/main.css" integrity="sha256-jLWPhwkAHq1rpueZOKALBno3eKP3m4IMB131kGhAlRQ=" crossorigin="anonymous">
+
+<!-- the moment-to-fullcalendar connector. must go AFTER the moment lib -->
+<script src='https://cdn.jsdelivr.net/npm/@fullcalendar/moment@5.5.0/main.global.min.js'></script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
   <script>
-  $(document).ready(function() {
-   var calendar = $('#calendar').fullCalendar({
+  document.addEventListener('DOMContentLoaded',function() {
+    var calendarEl = document.getElementById('calendar');
+    var calendar = new FullCalendar.Calendar( calendarEl, {
+    
     editable:true,
-    header:{
+    dayMaxEvents: true,
+    headerToolbar: {
      left:'prev,next today',
      center:'title',
-     right:'month,agendaWeek,agendaDay'
+     right:' dayGridMonth,timeGridWeek,timeGridDay'
     },
-    events: [{% for row in calendar %}{ id : '{{row.id}}', title : '{{row.title}}', start : '{{row.start_event}}', end : '{{row.end_event}}', }, {% endfor %}],
+    
+    initialDate: '2022-04-07',
+    navLinks: true,        
     selectable:true,
-    selectHelper:true,
-    select: function(start, end, allDay)
+    selectMirror: true,
+    select: function(arg)
     {
-     var title = prompt("Enter Event Title");
-     if(title)
-     {
-      var start = $.fullCalendar.formatDate(start, "Y-MM-DD HH:mm:ss");
-      var end = $.fullCalendar.formatDate(end, "Y-MM-DD HH:mm:ss");
-      $.ajax({
-       url:"/insert",
-       type:"POST",
-       data:{title:title, start:start, end:end},
-       success:function(data)
-       {
-         //alert(data)
-        alert("Added Successfully");
-        window.location.replace("/");
-       }
-      })
-     }
+      var title = prompt("Enter Event Title");
+      if(title) { 
+          var start = FullCalendar.formatDate(arg.start, {
+                           month: 'numeric',
+                           year: 'numeric',
+                           day: 'numeric'           
+                            });
+          var end = FullCalendar.formatDate(arg.end, {
+                           month: 'numeric',
+                           year: 'numeric',
+                           day: 'numeric'
+                            });
+          calendar.addEvent({
+              title: title,
+              start: arg.start,
+              end: arg.end,
+              allDay: arg.allDay
+            })
+
+          $.ajax({
+          url:"/services/insert",
+          type:"POST",
+          data:{title:title, start:start, end:end},
+          success:function(data)
+            {
+            //alert(data)
+            alert("Added Successfully");
+            calendar.refetchEvents();
+            }
+          })
+
+      }
     },
-    editable:true,
     eventResize:function(event)
     {
-     var start = $.fullCalendar.formatDate(event.start, "Y-MM-DD HH:mm:ss");
-     var end = $.fullCalendar.formatDate(event.end, "Y-MM-DD HH:mm:ss");
+     var start = FullCalendar.formatDate(event.start, "Y-MM-DD HH:mm:ss");
+     var end = FullCalendar.formatDate(event.end, "Y-MM-DD HH:mm:ss");
      var title = event.title;
      var id = event.id;
      $.ajax({
-      url:"/update",
+      url:"/services/update",
       type:"POST",
       data:{title:title, start:start, end:end, id:id},
       success:function(){
-       calendar.fullCalendar('refetchEvents');
+       calendar.refetchEvents();
        alert('Event Update');
       }
      })
@@ -59,50 +84,61 @@
       
     eventDrop:function(event)
     {
-     var start = $.fullCalendar.formatDate(event.start, "Y-MM-DD HH:mm:ss");
-     var end = $.fullCalendar.formatDate(event.end, "Y-MM-DD HH:mm:ss");
+     var start = FullCalendar.formatDate(event.start, "Y-MM-DD HH:mm:ss");
+     var end = FullCalendar.formatDate(event.end, "Y-MM-DD HH:mm:ss");
      var title = event.title;
      var id = event.id;
      $.ajax({
-      url:"/update",
+      url:"/services/update",
       type:"POST",
       data:{title:title, start:start, end:end, id:id},
       success:function()
       {
-       calendar.fullCalendar('refetchEvents');
+       calendar.refetchEvents();
        alert("Event Updated");
       }
      });
     },
   
-    eventClick:function(event)
+    eventClick:function(arg)
     {
      if(confirm("Are you sure you want to remove it?"))
      {
-      var id = event.id;
+      arg.event.remove() ;
+      var id = arg.id;
       $.ajax({
-       url:"/ajax_delete",
+       url:"/services/ajax_delete",
        type:"POST",
        data:{id:id},
        success:function()
        {
-        calendar.fullCalendar('refetchEvents');
+        calendar.refetchEvents();
         alert("Event Removed");
        }
       })
      }
-    },
-  
+    } ,
+    
+      events: [{% for row in saved_events %}{ id : '{{row[id]}}', title : '{{row[title]}}', start : '{{row[start]}}', end : '{{row[end]}}', }, {% endfor %}]
+                 
+
    });
+    calendar.render();
+    var event = calendar.getEventById(13) ;
+    var start = event.start ;
+    console.log(start.toISOString()); 
   });
      
   </script>
+
 {% endblock head %}
 
 {% block form %}
     <br />
-  <h2 align="center"><a href="#">Fullcalandar CRUD(Create, Read, Update, Delete) with Python Flask Jquery Ajax and PostgreSQL</a></h2>
+  <h2 align="center"><a href="#">Fullcalendar CRUD(Create, Read, Update, Delete) with Python Flask Jquery Ajax and PostgreSQL</a></h2>
     <br />
+   <div> {{ url_for('static',filename='ufo.jpg') }} </div>
+    <br/>
     <div class="container">
       <div id="calendar"></div>
     </div> 

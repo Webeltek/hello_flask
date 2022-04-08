@@ -13,8 +13,9 @@ from config import config, DevelopmentConfig
 from flask_executor import Executor
 
 
-templ_dir = os.path.abspath('./pythonworkshop/templates')
-static_dir = os.path.abspath('./pythonworkshop/static')
+templ_dir = os.path.abspath('pythonworkshop/templates')
+static_dir = os.path.abspath('pythonworkshop/static')
+print('Static folder : ' + str(static_dir))
 
 mail = Mail()
 moment = Moment()
@@ -25,7 +26,7 @@ login_manager.login_view = 'auth_bp.login_form'
  #- only views that don't use FlaskForm use the provided CSRF extension
 
 def create_app(config_name):
-  app = Flask(__name__, static_url_path=static_dir ,static_folder= 'static', template_folder=templ_dir)
+  app = Flask(__name__ , static_folder=static_dir, template_folder=templ_dir)
   print('config_name : ' + str(config[config_name]) )
   #app.config.from_object(config[config_name] warning!!! doesn't instatiate config object!!!)
   app.config.from_envvar('DOTENV_FILE')
@@ -41,7 +42,6 @@ def create_app(config_name):
   print('ENV value: ' + app.config['ENV'])
   print('DEBUG value :' + str(app.config['DEBUG']))
   print('mail user '+ str(os.environ.get('MAIL_USERNAME')) )
-  print('mail pass : ' + str(os.environ.get('MAIL_PASSWORD')) )
   from .main_bp import main_bp
   app.register_blueprint(main_bp)
 
