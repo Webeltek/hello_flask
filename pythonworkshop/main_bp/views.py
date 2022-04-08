@@ -6,6 +6,7 @@ import jinja2
 import os
 from flask_login import login_required
 
+
 templateLoader = jinja2.PackageLoader('pythonworkshop','templates')
 templateEnv = jinja2.Environment(loader=templateLoader)
 
@@ -40,7 +41,7 @@ def about_us_form():
         if request.method == 'POST' and about_us.validate():
             print(F'I got UFO name is {myform.ufoname.data}')
             return F'I got your autodata!!!'
-        return about_us_templ.render(about=about_us)
+        return render_template('/main/about_us.jinja2',about=about_us)
 
 @main_bp.route("/user_profile/<string:username>", methods= ['GET','POST'])
 @login_required
@@ -57,11 +58,11 @@ def user_profile(username):
 @login_required
 def index():
     users_db.connect(reuse_if_open=True)
-    events = Event.select().order_by(Event.id.asc()) 
-    saved_events = events.dicts()
+    events = Event.select().order_by(Event.id.asc()).get()
+    saved_events = events
     users_db.close()
     print ('url_for(" static") inside main_bp.services :' + str(url_for('static', filename='ufo.jpg')))  
-    return render_template('/main/services.jinja2', saved_events = saved_events)
+    return render_template('/main/services.jinja2')
   
 @main_bp.route("/services/insert",methods=["POST","GET"])
 @login_required

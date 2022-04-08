@@ -7,6 +7,7 @@ from flask_login import UserMixin
 from . import login_manager
 import jwt
 from flask import current_app
+from playhouse.shortcuts import model_to_dict
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -35,6 +36,9 @@ class User(UserMixin,p.Model):
   user_pass_hash = p.CharField(default='initial hash')
   user_confirmed = p.BooleanField(default=False)
   last_seen = p.CharField(default='initial date')
+
+  def to_dict(self):
+      return self.model_to_dict()
 
   @property
   def user_pass(self):
