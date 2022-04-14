@@ -1,18 +1,30 @@
 {% extends "user_page.jinja2" %}
 
 {% block head %}
-  <!-- moment lib -->
+  <!-- moment lib 
 <script src='https://cdn.jsdelivr.net/npm/moment@2.27.0/min/moment.min.js'></script>
 
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/main.js" integrity="sha256-3YcmbVFydbcbP+ax1x6VxV1swYap/YsD/+RFVqSGqxk=" crossorigin="anonymous"></script>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/main.css" integrity="sha256-jLWPhwkAHq1rpueZOKALBno3eKP3m4IMB131kGhAlRQ=" crossorigin="anonymous">
+-->
 
-<!-- the moment-to-fullcalendar connector. must go AFTER the moment lib -->
+<!-- the moment-to-fullcalendar connector. must go AFTER the moment lib
 <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/moment@5.5.0/main.global.min.js'></script>
+-->
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
+<!--
+<link href="{{ url_for('static',filename = 'jquery.timeline-main/dist/jquery.timeline.min.css') }}" >
+<script src="{{ url_for('static',filename = 'jquery.timeline-main/dist/jquery.timeline.min.js') }} "></script>
+-->
+
+<link href="https://cdn.jsdelivr.net/gh/ka215/jquery.timeline@main/dist/jquery.timeline.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/ka215/jquery.timeline@main/dist/jquery.timeline.min.js"></script>
+
+
+<!--
   <script>
   document.addEventListener('DOMContentLoaded',function() {
     var calendarEl = document.getElementById('calendar');
@@ -65,12 +77,12 @@
 
       }
     },
-    eventResize:function(event)
+    eventResize:function(arg)
     {
-     var start = FullCalendar.formatDate(event.start, "Y-MM-DD HH:mm:ss");
-     var end = FullCalendar.formatDate(event.end, "Y-MM-DD HH:mm:ss");
-     var title = event.title;
-     var id = event.id;
+     var start = FullCalendar.formatDate(arg.start, "Y-MM-DD HH:mm:ss");
+     var end = FullCalendar.formatDate(arg.end, "Y-MM-DD HH:mm:ss");
+     var title = arg.title;
+     var id = arg.id;
      $.ajax({
       url:"/services/update",
       type:"POST",
@@ -82,12 +94,12 @@
      })
     },
       
-    eventDrop:function(event)
+    eventDrop:function(arg)
     {
-     var start = FullCalendar.formatDate(event.start, "Y-MM-DD HH:mm:ss");
-     var end = FullCalendar.formatDate(event.end, "Y-MM-DD HH:mm:ss");
-     var title = event.title;
-     var id = event.id;
+     var start = FullCalendar.formatDate(arg.start, "Y-MM-DD HH:mm:ss");
+     var end = FullCalendar.formatDate(arg.end, "Y-MM-DD HH:mm:ss");
+     var title = arg.title;
+     var id = arg.id;
      $.ajax({
       url:"/services/update",
       type:"POST",
@@ -104,8 +116,7 @@
     {
      if(confirm("Are you sure you want to remove it?"))
      {
-      arg.event.remove() ;
-      var id = arg.id;
+      var id = arg.id; <!-- arg.id is missing -->
       $.ajax({
        url:"/services/ajax_delete",
        type:"POST",
@@ -124,22 +135,44 @@
 
    });
     calendar.render();
-    var event = calendar.getEventById(13) ;
+    var event = calendar.getEventById(1) ;
     var start = event.start ;
     console.log(start.toISOString()); 
   });
      
   </script>
+-->
+ 
 
 {% endblock head %}
 
 {% block form %}
-    <br />
+<!--
   <h2 align="center"><a href="#">Fullcalendar CRUD(Create, Read, Update, Delete) with Python Flask Jquery Ajax and PostgreSQL</a></h2>
     <br />
    <div> {{ url_for('static',filename='ufo.jpg') }} </div>
     <br/>
     <div class="container">
       <div id="calendar"></div>
-    </div> 
-{% endblock %}
+    </div>
+-->         
+{% endblock form  %}
+
+{% block calendar %}
+   <script>
+    $(function () {
+      $("#myTimeline").Timeline({
+        type  : "bar",
+        startDatetime: "2019-03-04 00:00",
+        scale: "month",
+        rows: 6,
+        }).Timeline("initialized", function( self, data ){ 
+            console.log([ "user's callback", self, data ])
+            });
+    });
+  
+  </script>
+  <div id="myTimeline" ></div>
+
+{% endblock calendar %}
+
