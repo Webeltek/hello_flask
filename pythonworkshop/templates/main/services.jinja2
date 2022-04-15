@@ -15,13 +15,15 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
-<!--
-<link href="{{ url_for('static',filename = 'jquery.timeline-main/dist/jquery.timeline.min.css') }}" >
-<script src="{{ url_for('static',filename = 'jquery.timeline-main/dist/jquery.timeline.min.js') }} "></script>
--->
 
-<link href="https://cdn.jsdelivr.net/gh/ka215/jquery.timeline@main/dist/jquery.timeline.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/gh/ka215/jquery.timeline@main/dist/jquery.timeline.min.js"></script>
+<link rel="stylesheet"  href="{{ url_for('static',filename = 'jquery.timeline-main/dist/jquery.timeline.min.css') }}" >
+
+<link rel="stylesheet" href=" {{ url_for('static', filename = 'jquery.timeline-main/dist/jqtl-crud.css') }} ">
+
+<script src="{{ url_for('static',filename = 'jquery.timeline-main/dist/jquery.timeline.min.js') }} "></script>
+
+
+
 
 
 <!--
@@ -94,24 +96,6 @@
      })
     },
       
-    eventDrop:function(arg)
-    {
-     var start = FullCalendar.formatDate(arg.start, "Y-MM-DD HH:mm:ss");
-     var end = FullCalendar.formatDate(arg.end, "Y-MM-DD HH:mm:ss");
-     var title = arg.title;
-     var id = arg.id;
-     $.ajax({
-      url:"/services/update",
-      type:"POST",
-      data:{title:title, start:start, end:end, id:id},
-      success:function()
-      {
-       calendar.refetchEvents();
-       alert("Event Updated");
-      }
-     });
-    },
-  
     eventClick:function(arg)
     {
      if(confirm("Are you sure you want to remove it?"))
@@ -131,13 +115,9 @@
     } ,
     
       events: [{% for row in saved_events %}{ id : '{{row.id}}', title : '{{row.title}}', start : '{{row.start}}', end : '{{row.end}}', }, {% endfor %}]
-                 
 
    });
-    calendar.render();
-    var event = calendar.getEventById(1) ;
-    var start = event.start ;
-    console.log(start.toISOString()); 
+    
   });
      
   </script>
@@ -159,20 +139,824 @@
 {% endblock form  %}
 
 {% block calendar %}
-   <script>
-    $(function () {
-      $("#myTimeline").Timeline({
-        type  : "bar",
-        startDatetime: "2019-03-04 00:00",
-        scale: "month",
-        rows: 6,
-        }).Timeline("initialized", function( self, data ){ 
-            console.log([ "user's callback", self, data ])
-            });
-    });
   
-  </script>
-  <div id="myTimeline" ></div>
+<div class="d-flex-col">
+  <nav role="banner">
+    <h1 id="page-title">CRUD System for jQuery.Timeline</h1>
+    <div id="controller" class="d-flex-row" role="form">
+      <div class="d-flex-row">
+        <div class="d-flex-col">
+          <label for="change-mode" class="text-caption">Change Mode:</label>
+          <select id="change-mode">
+            <option value="read"  >Default</option>
+            <option value="create">Create Event</option>
+            <option value="update">Update Event</option>
+            <option value="delete">Delete Event</option>
+          </select>
+        </div>
+        <div id="mode-description">This is the normal readonly mode.</div>
+      </div>
+      <div class="d-flex-col">
+        <label for="import-events" class="text-caption">Import Events:</label>
+        <!-- form name="import-form" class="btn-upload" -->
+        <div class="btn-upload">
+          Import File
+          <input type="file" id="import-events" accept="application/json,.json">
+        </div>
+      </div>
+      <div class="d-flex-col">
+        <label for="import-events" class="text-caption">Export Events:</label>
+        <button type="button" id="export-events" disabled>Export File</button>
+      </div>
+      <div class="d-flex-col">
+        <label for="number-event" class="text-caption">Auto Put Events:</label>
+        <div>
+          <input type="number" id="number-event" min="1" max="20" value="10" class="text-small">
+          <button type="button" id="put-events">Put Events</button>
+        </div>
+      </div>
+      <div class="d-flex-col">
+        <label for="change-type" class="text-caption">View Type:</label>
+        <select id="change-type">
+          <option value="bar"  >Bar</option>
+          <option value="point">Point</option>
+          <option value="mixed">Mixed</option>
+        </select>
+      </div>
+      <div class="d-flex-col">
+        <button type="button" id="reload" class="no-label">Reload</button>
+      </div>
+      <div class="d-flex-col">
+        <button type="button" id="dateback" class="no-label">Dateback</button>
+      </div>
+      <div class="d-flex-col">
+        <button type="button" id="dateforth" class="no-label">Dateforth</button>
+      </div>
+    </div>
+  </nav>
+  <main role="main">
+    <div class="occupy-advance"></div>
+    <div id="crud-timeline"></div>
+  </main>
+</div>
+
+<script>
+const init = () => {
+    const JQTL_VER   = $.fn.Timeline ? $.fn.Timeline.Constructor.VERSION : '2.1.x',
+          JQUERY_VER = $.fn.jquery || null
+
+    if ( ! JQUERY_VER ) {
+        console.warn( 'jQuery is not loaded or readied.' )
+        return false
+    } else if ( /^(\d{1}\.\d{1,2})\.\d{1,2}$/.test( JQUERY_VER ) ) {
+        // Check jQuery version
+        let _version = JQUERY_VER.match(/^(\d{1})\.(\d{1,2})\.(\d{1,2})$/)
+
+        if ( parseInt(_version[1]) == 1 && parseInt(_version[2]) < 9 ) {
+            console.warn( `This jQuery version ${_version[0]} is outdated.` )
+            return false
+        }
+    }
+
+    const initTimeline = () => {
+        tlElem.Timeline( tlOpts )
+        .Timeline('initialized', function() {
+            //console.log( arguments[2].message )
+            window.addEventListener( 'resize', throttle, {passive: true} )
+            window.addEventListener( 'scroll', throttle, {passive: true} )
+            tlOpts = arguments[1]
+            $('#change-type').get(0).options.forEach(function(elm,idx){
+                if ( tlType === elm.value ) {
+                    $('#change-type').get(0).options.selectedIndex = idx
+                }
+            })
+        }, { message: 'Initialized Timeline!' } )
+        .Timeline('openEvent', function(targetEvent, viewerContents) {
+            //console.log( 'openEvent:', `Active Mode: ${mode}`, targetEvent )
+            let nodes = {
+                    label: $('<h3></h3>', { class: 'dialog-title' }),
+                    content: $('<form></form>', { id: `${mode}-event-form` }),
+                    button: $('<button></button>', { type: 'button', id: `btn-${mode}-event` }),
+                },
+                items = []
+
+            switch ( mode ) {
+                case 'update':
+                    // Generate form for new event updating
+                    items.push( '<p id="notice-message">Please enter at least the items marked with <span class="required"></span>.</p>' )
+                    items.push( makeField( 'Event Id', 'text', 'eventId', targetEvent.eventId, 'text-medium', { readonly: true } ) )
+                    items.push( makeField( 'Start Datetime', 'text', 'start', getDateString( targetEvent.start ), null, { required: true } ) )
+                    items.push( makeField( 'End Datetime', 'text', 'end', targetEvent.end ? getDateString( targetEvent.end ) : '', null ) )
+                    items.push( makeField( 'Row', 'number', 'row', targetEvent.row, 'text-small', { required: true } ) )
+                    items.push( makeField( 'Event Label', 'text', 'label', targetEvent.label, 'text-full', { required: true } ) )
+                    items.push( makeField( 'Event Content', 'textarea', 'content', targetEvent.content, 'text-full', { rows: 5, required: true } ) )
+                    items.push( makeField( 'Text Color', 'text', 'color', targetEvent.color, 'text-medium', { placeholder: '#343A40' } ) )
+                    items.push( makeField( 'Background Color', 'text', 'bgColor', targetEvent.bgColor, 'text-medium', { placeholder: '#E7E7E7' } ) )
+                    items.push( makeField( 'Border Color', 'text', 'bdColor', targetEvent.bdColor, 'text-medium', { placeholder: '#6C757D' } ) )
+                    $(nodes.content).append( ...items )
+                    $(nodes.label).text('Update Event Parameters')
+                    $(nodes.button).text('Update')
+                    openDialog( nodes )
+                    break
+                case 'delete':
+                    // Generate form for new event deletion
+                    items.push( '<p id="notice-message">Are you sure you want to delete the following events?</p>' )
+                    items.push( makeField( 'Event Id', 'text', 'eventId', targetEvent.eventId, 'text-medium', { readonly: true } ) )
+                    items.push( makeField( 'Start Datetime', 'text', 'start', getDateString( targetEvent.start ), null, { readonly: true } ) )
+                    items.push( makeField( 'End Datetime', 'text', 'end', targetEvent.end ? getDateString( targetEvent.end ) : '', null, { readonly: true } ) )
+                    items.push( makeField( 'Row', 'number', 'row', targetEvent.row, 'text-small', { readonly: true } ) )
+                    items.push( makeField( 'Event Label', 'text', 'label', targetEvent.label, 'text-full', { readonly: true } ) )
+                    items.push( makeField( 'Event Content', 'textarea', 'content', targetEvent.content, 'text-full', { rows: 5, readonly: true } ) )
+                    items.push( makeField( 'Text Color', 'text', 'color', targetEvent.color, 'text-medium', { readonly: true } ) )
+                    items.push( makeField( 'Background Color', 'text', 'bgColor', targetEvent.bgColor, 'text-medium', { readonly: true } ) )
+                    items.push( makeField( 'Border Color', 'text', 'bdColor', targetEvent.bdColor, 'text-medium', { readonly: true } ) )
+                    $(nodes.content).append( ...items )
+                    $(nodes.label).text('Delete Event')
+                    $(nodes.button).text('Delete')
+                    openDialog( nodes )
+                    break
+                default:
+                    // Define an event handler for getting event nodes on the timeline
+                    //console.log( 'The event node with eventID: '+ targetEvent.eventId +' was clicked.', targetEvent, viewerContents )
+                    openDialog( viewerContents )
+                    break
+            }
+        })
+    }
+
+    const handleDblclick = function(evt) {
+        if ( 'create' === mode && evt.target.closest('.jqtl-events') && evt.target.classList.contains('jqtl-events') ) {
+            let targetPos   = { x: evt.offsetX, y: evt.offsetY },
+                currentStDt = new Date(tlOpts.startDatetime).getTime(),
+                positionRow = Math.ceil(targetPos.y / tlOpts.rowHeight),
+                perPxDt, positionDt, newStartDt
+
+            switch(true) {
+                case /^years?$/i.test(tlOpts.scale):
+                    perPxDt = (365*24*60*60*1000) / tlOpts.minGridSize
+                    break
+                case /^months?$/i.test(tlOpts.scale):
+                    perPxDt = ((365/12)*24*60*60*1000) / tlOpts.minGridSize
+                    break
+                case /^weeks?$/i.test(tlOpts.scale):
+                    perPxDt = (7*24*60*60*1000) / tlOpts.minGridSize
+                    break
+                case /^(week|)days?$/i.test(tlOpts.scale):
+                    perPxDt = (24*60*60*1000) / tlOpts.minGridSize
+                    break
+                case /^hours?$/i.test(tlOpts.scale):
+                    perPxDt = (60*60*1000) / tlOpts.minGridSize
+                    break
+                case /^minutes?$/i.test(tlOpts.scale):
+                    perPxDt = (60*1000) / tlOpts.minGridSize
+                    break
+                case /^seconds?$/i.test(tlOpts.scale):
+                    perPxDt = 1000 / tlOpts.minGridSize
+                    break
+            }
+            positionDt = new Date(currentStDt + (perPxDt * targetPos.x))
+            newStartDt = `${positionDt.getFullYear()}/${positionDt.getMonth()+1}/${positionDt.getDate()} ${positionDt.getHours()}:${positionDt.getMinutes()}:${positionDt.getSeconds()}`
+
+            // Generate form for new event creation
+            let nodes = {
+                    label: $('<h3></h3>', { class: 'dialog-title' }),
+                    content: $('<form></form>', { id: 'add-event-form' }),
+                    button: $('<button></button>', { type: 'button', id: 'btn-add-event' }),
+                },
+                items = []
+
+            items.push( '<p id="notice-message">Please enter at least the items marked with <span class="required"></span>.</p>' )
+            items.push( makeField( 'Event Id', 'text', 'eventId', '', 'text-medium' ) )
+            items.push( makeField( 'Start Datetime', 'text', 'start', newStartDt, null, { required: true } ) )
+            items.push( makeField( 'End Datetime', 'text', 'end', '' ) )
+            items.push( makeField( 'Row', 'number', 'row', positionRow, 'text-small', { required: true } ) )
+            items.push( makeField( 'Event Label', 'text', 'label', '', 'text-full', { required: true } ) )
+            items.push( makeField( 'Event Content', 'textarea', 'content', '', 'text-full', { rows: 5, required: true } ) )
+            items.push( makeField( 'Text Color', 'text', 'color', '', 'text-medium', { placeholder: '#343A40' } ) )
+            items.push( makeField( 'Background Color', 'text', 'bgColor', '', 'text-medium', { placeholder: '#E7E7E7' } ) )
+            items.push( makeField( 'Border Color', 'text', 'bdColor', '', 'text-medium', { placeholder: '#6C757D' } ) )
+            $(nodes.content).append( ...items )
+            $(nodes.label).text('Add New Event')
+            $(nodes.button).text('Add')
+            openDialog( nodes )
+        }
+    }
+
+    const watchElement = function( selector ) {
+        let targetElm = $(selector).get(0),
+            observer  = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if ( mutation.type === 'childList' && mutation.target.className === 'jqtl-events' ) {
+                        //console.log(mutation)
+                        $('#export-events').prop('disabled', mutation.addedNodes.length == 0)
+                    }
+                })
+            })
+
+        // Start watching
+        observer.observe( targetElm, { childList: true, subtree: true } )
+    }
+
+    $('#change-mode').on('change', function(e){
+      let modeDesc = '',
+          eventContainer = tlElem.find('.jqtl-events').get(0)
+
+      mode = e.target.value
+      eventContainer.style.cursor = 'inherit'
+      eventContainer.removeEventListener('dblclick', handleDblclick, false)
+
+      switch( mode ) {
+        case 'create':
+          modeDesc = 'In this mode, you can add an event by double-clicking on the timeline container.'
+          eventContainer.style.cursor = 'crosshair'
+          eventContainer.addEventListener('dblclick', handleDblclick, false)
+          break
+        case 'update':
+          modeDesc = 'In this mode, you can update the parameters of the clicked event.'
+          break
+        case 'delete':
+          modeDesc = 'In this mode, you can delete the clicked event.'
+          break
+        default:
+          modeDesc = 'This is the normal readonly mode.'
+          break
+      }
+      $('#mode-description').text( modeDesc )
+    })
+
+    $('#put-events').on('click', function(){
+      let _number = parseInt( $('#number-event')[0].value, 10 ),
+          newEvt = createEvents( _number ),
+          evtStr = _number > 1 ? 'events' : 'event'
+
+      tlElem.Timeline( 'addEvent', newEvt, function(elm, opts, usrdata, addedEvents ) {
+        // console.log( elm, opts, usrdata, addedEvents );
+        notification( usrdata.title, usrdata.message )
+      }, { title: 'Put Event(s)', message: `Put new ${_number} ${evtStr}.` } )
+    });
+
+    $(document).on('click', '#btn-add-event', function(e) {
+        let fd        = new FormData( $('#add-event-form').get(0) ),
+            evtParams = {},
+            errors    = [],
+            newId, newRow, newDt
+
+        fd.forEach(function(val, key) {
+            if ( val ) {
+                switch( true ) {
+                    case /^eventID$/i.test(key):
+                        newId = parseInt(val, 10)
+                        if ( eventExists( newId ) ) {
+                            errors.push( 'This event id already exists.' )
+                        } else {
+                            evtParams[key] = newId
+                        }
+                        break
+                    case /^row$/i.test(key):
+                        newRow = parseInt(val, 10)
+                        if ( newRow < 0 || maxList < newRow ) {
+                            errors.push( 'There is set invalid row number.' )
+                        } else {
+                            evtParams[key] = newRow
+                        }
+                        break
+                    case /^(start|end)$/i.test(key):
+                        newDt = new Date(val).getTime()
+                        evtParams[key] = newDt
+                        break
+                    default:
+                        evtParams[key] = val
+                        break
+                }
+            }
+        })
+        if ( ! evtParams.row || ! evtParams.start || ! evtParams.label || ! evtParams.content ) {
+            errors.push( 'The required item is empty.' )
+        }
+        if ( errors.length == 0 ) {
+            tlElem.Timeline( 'addEvent', [evtParams], function(elm, opts, usrdata, addedEvents) {
+                //console.log( 'Added new event', elm, opts, usrdata, addedEvents );
+                closeDialog()
+            }, {} )
+        } else {
+            $('#notice-message').addClass('warn').html( errors.join( '<br>' ) )
+        }
+    })
+
+    $(document).on('click', '#btn-update-event', function(e) {
+        let fd        = new FormData( $('#update-event-form').get(0) ),
+            evtParams = {},
+            errors    = [],
+            modId, modRow, modDt
+
+        fd.forEach(function(val, key) {
+            if ( val ) {
+                switch( true ) {
+                    case /^eventID$/i.test(key):
+                        modId = parseInt(val, 10)
+                        if ( eventExists( modId ) ) {
+                            evtParams[key] = modId
+                        } else {
+                            errors.push( 'That event ID is invalid.' )
+                        }
+                        break
+                    case /^row$/i.test(key):
+                        modRow = parseInt(val, 10)
+                        if ( modRow < 0 || maxList < modRow ) {
+                            errors.push( 'There is set invalid row number.' )
+                        } else {
+                            evtParams[key] = modRow
+                        }
+                        break
+                    case /^(start|end)$/i.test(key):
+                        modDt = new Date(val).getTime()
+                        evtParams[key] = modDt
+                        break
+                    default:
+                        evtParams[key] = val
+                        break
+                }
+            }
+        })
+        if ( ! evtParams.eventId || ! evtParams.row || ! evtParams.start || ! evtParams.label || ! evtParams.content ) {
+            errors.push( 'The required item is empty.' )
+        }
+        if ( errors.length == 0 ) {
+            tlElem.Timeline( 'updateEvent', [evtParams], function(elm, opts, usrdata, updatedEvents) {
+                //console.log( 'Updated an event', elm, opts, usrdata, updatedEvents )
+                closeDialog()
+            }, {} )
+        } else {
+            $('#notice-message').addClass('warn').html( errors.join( '<br>' ) )
+        }
+    })
+
+    $(document).on('click', '#btn-delete-event', function(e) {
+        let fd      = new FormData( $('#delete-event-form').get(0) ),
+            evtIds  = [],
+            errors  = [],
+            remeins = $('.jqtl-events').children().length,
+            delId
+
+        fd.forEach(function(val, key) {
+            if ( val ) {
+                switch( true ) {
+                    case /^eventID$/i.test(key):
+                        delId = parseInt(val, 10)
+                        if ( eventExists( delId ) ) {
+                            evtIds.push( delId )
+                        } else {
+                            errors.push( 'That event ID is invalid.' )
+                        }
+                        break
+                }
+            }
+        })
+        if ( evtIds.length > 0 && errors.length == 0 ) {
+            tlElem.Timeline( 'removeEvent', evtIds, function(elm, opts, usrdata, removedEvents ) {
+                //console.log( 'Deleted an event', elm, opts, usrdata, removedEvents )
+                if ( remeins == 1 && $('.jqtl-events').children().length == remeins ) {
+                    // For Bug?
+                    $('.jqtl-events').empty()
+                }
+                closeDialog()
+            }, {} )
+        } else {
+            $('#notice-message').addClass('warn').html( errors.join( '<br>' ) )
+        }
+    })
+
+    $('#import-events').on('change', function(e){
+        let selector = `${tlElem.get(0).nodeName.toLowerCase()}#${tlElem.get(0).id}`,
+            file     = e.target.files[0],
+            reader   = new FileReader(),
+            data     = null
+
+        reader.readAsText( file )
+        reader.addEventListener( 'load', function() {
+            data = JSON.parse( reader.result )
+            if ( data) {
+                sessionStorage.setItem( selector, JSON.stringify( data ) )
+                tlElem.Timeline( 'reload', { reloadCacheKeep: true }, function(){
+                    notification( arguments[2].label, arguments[2].message )
+                }, { label: 'Imported Events', message: `Completely imported ${data.length} ${data.length > 1 ? 'events' : 'event'}.` } )
+            }
+        }, false )
+    })
+
+    $('#export-events').on('click', function(){
+        if ( !( tlElem.get(0) instanceof Element ) ) {
+            return false
+        }
+        let selector = `${tlElem.get(0).nodeName.toLowerCase()}#${tlElem.get(0).id}`,
+            data     = JSON.parse( sessionStorage.getItem( selector ) ),
+            blob     = new Blob([JSON.stringify(data, null, "\t")], {type: 'application\/json'}),
+            url      = URL.createObjectURL(blob),
+            link     = document.createElement('a')
+
+        if ( data.length > 0 ) {
+            link.href = url
+            link.download = 'events.json'
+            link.click()
+            URL.revokeObjectURL(url)
+        } else {
+            notification( 'Export Error', 'There is no event data to export.' )
+        }
+    })
+
+    $('#change-type').on('change', function(e){
+        tlType = e.target.value
+        tlElem.Timeline( 'reload', { type: tlType, reloadCacheKeep: true }, function( elm ){
+            console.log( arguments[2].message )
+            $(window).scrollTop(0)
+        }, { message: 'Completely Change Type of Timeline' })
+    })
+
+    $('#reload').on('click', function(){
+        // It is necessary to perform a reload with the cache destroyed once in order to 
+        // completely initialize the timeline, and then enable the new cache.
+        let selector = `${tlElem.get(0).nodeName.toLowerCase()}#${tlElem.get(0).id}`
+
+        sessionStorage.removeItem( selector )
+        tlElem.Timeline( 'reload', tlOpts, function() {
+            notification( arguments[2].label, arguments[2].message )
+            $(window).scrollTop(0)
+            $('#export-events').prop('disabled', true)
+        }, { label: 'Timeline Reload', message: 'Completely reloaded this Timeline.' } )
+    })
+
+	$('#dateback').on('click', function(){
+      // For checking the dateback method
+      var methodOpts = {
+        scale: 'day',
+        range: 5,
+        shift: true
+      };
+      tlElem.Timeline( 'dateback', methodOpts, function() {
+        console.log( 'The timeline went back to the past.', arguments );
+      }, methodOpts );
+    });
+
+    $('#dateforth').on('click', function(){
+      // For checking the dateforth method
+      var methodOpts = {
+        scale: 'day',
+        range: 5,
+        shift: true
+      };
+      tlElem.Timeline( 'dateforth', methodOpts, function() {
+        console.log( 'The timeline went forth to the future.', arguments );
+      }, methodOpts );
+    });
+
+
+    /**
+     * Initial fires
+     */
+    let tlElem     = $('#crud-timeline'),// Variable as container to cache timeline instance
+        now        = new Date(),
+        listItems  = [],
+        incr       = 1,
+        pageWidth  = $(window).width(),
+        tlType     = 'mixed',
+        maxList    = 10,// display max rows of sidebar
+        begin      = now.setDate(now.getDate() - ((pageWidth - (28 + 76)) / (48 * 2))),
+        end        = undefined
+
+    now.setMonth(now.getMonth() + 2)
+    end = now.setDate(now.getDate() - 1);
+    for ( incr = 1; incr <= maxList; incr++ ) {
+        listItems.push( '<span>Row ' + incr + '</span>' );
+    }
+
+    // Defined as global variables
+    window.mode    = 'default'
+    window.ticking = false
+    window.tlOpts  = {
+        type: tlType,
+        startDatetime: getModDateString( begin, { h: 0, min: 0, sec: 0 } ),
+        endDatetime: getModDateString( end, { h: 23, min: 59, sec: 59 } ),
+        scale: 'day',
+        minGridSize: 48,
+        headline: {
+            display: true,
+            title:   '<span></span>',
+            range:   true,
+            local:   'en-US',
+            format:  {
+                timeZone: 'UTC',
+                hour12: false,
+            }
+        },
+        sidebar: {
+            list: listItems,
+            sticky: true,
+        },
+        rows: listItems.length,
+        ruler: {
+            top: {
+                lines: [ 'year', 'month', 'day' ],
+                format: {
+                    timeZone: 'UTC',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                }
+            },
+            bottom: {
+                lines: [ 'day' ],
+                format: {
+                    timeZone: 'UTC',
+                    day: 'numeric',
+                }
+            }
+        },
+        hideScrollbar: true,
+        zoom: true,
+    }
+
+    // Start watching an instance of the Timeline
+    watchElement( '#crud-timeline' )
+    initTimeline()
+    //console.log( tlOpts )
+
+}
+
+/**
+ * Various helper functions
+ */
+function throttle() {
+    if ( ! ticking ) {
+        requestAnimationFrame(() => {
+            ticking = false
+        })
+        ticking = true
+    }
+}
+
+function getDateArray( date ) {
+    // Helper to get each elements of Date object as an array
+    let _dt = date instanceof Date ? date : new Date( date )
+
+        return [ _dt.getFullYear(), _dt.getMonth(), _dt.getDate(), _dt.getHours(), _dt.getMinutes(), _dt.getSeconds(), _dt.getMilliseconds() ]
+}
+
+function getDateString( date ) {
+    // Helper to get Date object as a string of "Y-m-d H:i:s" format
+    let _dt = getDateArray( date )
+
+    //return _dt[0] +'-'+ (_dt[1] + 1) +'-'+ _dt[2] +' '+ _dt[3] +':'+ _dt[4] +':'+ _dt[5]
+    return `${_dt[0]}-${_dt[1] + 1}-${_dt[2]} ${_dt[3]}:${_dt[4]}:${_dt[5]}`
+}
+
+function getModDateString( date, mods ) {
+    // Helper to get the date string after updating the date with the specified amount time.
+    let baseDt = date instanceof Date ? new Date( date.getTime() ) : new Date( date ),
+        getRandomInt = function( min, max ) {
+            min = Math.ceil( min )
+            max = Math.floor( max )
+            return Math.floor( Math.random() * (max - min) ) + min
+        },
+        found
+
+    if ( mods && typeof mods === 'object' ) {
+        for ( let _key in mods ) {
+            found = null
+            switch( true ) {
+                case /^y(|ears?)$/i.test( _key ):
+                    if ( typeof mods[_key] === 'string' && /^(-|\+)\d+$/i.test( mods[_key] ) ) {
+                        found = mods[_key].match( /^(-|\+)(\d+)$/ )
+                        if ( found[1] === '-' ) {
+                            baseDt.setFullYear( baseDt.getFullYear() - Number( found[2] ) )
+                        } else {
+                            baseDt.setFullYear( baseDt.getFullYear() + Number( found[2] ) )
+                        }
+                    } else if ( 'rand' === mods[_key] ) {
+                        baseDt.setFullYear( getRandomInt( 1, new Date().getFullYear() ) )
+                    } else {
+                        baseDt.setFullYear( Number( mods[_key] ) )
+                    }
+                    break
+                case /^mon(|ths?)$/i.test( _key ):
+                    if ( typeof mods[_key] === 'string' && /^(-|\+)\d+$/i.test( mods[_key] ) ) {
+                        found = mods[_key].match( /^(-|\+)(\d+)$/ )
+                        if ( found[1] === '-' ) {
+                            baseDt.setMonth( baseDt.getMonth() - Number( found[2] ) )
+                        } else {
+                            baseDt.setMonth( baseDt.getMonth() + Number( found[2] ) )
+                        }
+                    } else if ( 'rand' === mods[_key] ) {
+                        baseDt.setMonth( getRandomInt( 0, 11 ) )
+                    } else {
+                        baseDt.setMonth( Number( mods[_key] ) == 12 ? 11 : Number( mods[_key] ) )
+                    }
+                    break
+                case /^d(|ays?)$/i.test( _key ):
+                    if ( typeof mods[_key] === 'string' && /^(-|\+)\d+$/i.test( mods[_key] ) ) {
+                        found = mods[_key].match( /^(-|\+)(\d+)$/ )
+                        if ( found[1] === '-' ) {
+                            baseDt.setDate( baseDt.getDate() - Number( found[2] ) )
+                        } else {
+                            baseDt.setDate( baseDt.getDate() + Number( found[2] ) )
+                        }
+                    } else if ( 'rand' === mods[_key] ) {
+                        baseDt.setDate( getRandomInt( 1, 31 ) )
+                    } else {
+                        baseDt.setDate( Number( mods[_key] ) )
+                    }
+                    break
+                case /^h(|ours?)$/i.test( _key ):
+                    if ( typeof mods[_key] === 'string' && /^(-|\+)\d+$/i.test( mods[_key] ) ) {
+                        found = mods[_key].match( /^(-|\+)(\d+)$/ )
+                        if ( found[1] === '-' ) {
+                            baseDt.setHours( baseDt.getHours() - Number( found[2] ) )
+                        } else {
+                            baseDt.setHours( baseDt.getHours() + Number( found[2] ) )
+                        }
+                    } else if ( 'rand' === mods[_key] ) {
+                        baseDt.setHours( getRandomInt( 0, 23 ) )
+                    } else {
+                        baseDt.setHours( Number( mods[_key] ) )
+                    }
+                    break
+                case /^min(|utes?)$/i.test( _key ):
+                    if ( typeof mods[_key] === 'string' && /^(-|\+)\d+$/i.test( mods[_key] ) ) {
+                        found = mods[_key].match( /^(-|\+)(\d+)$/ )
+                        if ( found[1] === '-' ) {
+                            baseDt.setMinutes( baseDt.getMinutes() - Number( found[2] ) )
+                        } else {
+                            baseDt.setMinutes( baseDt.getMinutes() + Number( found[2] ) )
+                        }
+                    } else if ( 'rand' === mods[_key] ) {
+                        baseDt.setMinutes( getRandomInt( 0, 59 ) )
+                    } else {
+                        baseDt.setMinutes( Number( mods[_key] ) )
+                    }
+                    break
+                case /^s(|(ec|onds?))$/i.test( _key ):
+                    if ( typeof mods[_key] === 'string' && /^(-|\+)\d+$/i.test( mods[_key] ) ) {
+                        found = mods[_key].match( /^(-|\+)(\d+)$/ )
+                        if ( found[1] === '-' ) {
+                            baseDt.setSeconds( baseDt.getSeconds() - Number( found[2] ) )
+                        } else {
+                            baseDt.setSeconds( baseDt.getSeconds() + Number( found[2] ) )
+                        }
+                    } else if ( 'rand' === mods[_key] ) {
+                        baseDt.setSeconds( getRandomInt( 0, 59 ) )
+                    } else {
+                        baseDt.setSeconds( Number( mods[_key] ) )
+                    }
+                    break
+                default:
+                    break
+            }
+        }
+    }
+    return getDateString( baseDt );
+}
+
+function createEvents( num ) {
+    // Helper to randomly generate a specified number of events
+    let nowDt    = new Date( tlOpts.startDatetime ),
+        _evts    = [],
+        _max     = num || 1,
+        _startId = lastEventId() + 1,
+        _startDt, _endDt, _row, i
+
+    for ( i = 0; i < _max; i++ ) {
+        _startDt = getDateString( nowDt.setDate(nowDt.getDate() + (Math.floor(Math.random() * 10) + 1)) )
+        _endDt   = getDateString( nowDt.getTime() + ((Math.floor(Math.random() * 7) + 1) * 24 * 60 * 60 * 1000) )
+        _row     = Math.floor(Math.random() * tlOpts.rows) + 1
+        _evts.push( {start: _startDt, end: _endDt, row: _row, label: 'Created new event (' + (_startId + i) + ')', content: 'This is an event added by the addEvent method.' } )
+    }
+    return _evts
+}
+
+function openDialog( nodes, dialogWidth='60%', dialogHeight='60%' ) {
+    let $backdrop = $('<div></div>', { id: 'backdrop-overlay' }),
+        $dialog   = $('<div></div>', { id: 'dialog' }),
+        $headline = $('<div></div>', { id: 'dialog-header' }),
+        $body     = $('<div></div>', { id: 'dialog-body' }),
+        $footer   = $('<div></div>', { id: 'dialog-footer' }),
+        $dismiss  = $('<div></div>', { id: 'dialog-dismiss' }),
+        $close    = $('<button></button>', { id: 'btn-dialog-close' })
+
+    if ( $(document).find('#backdrop-overlay').length == 0 ) {
+        $backdrop.on( 'click', function() {
+            closeDialog()
+        });
+        $('body').append( $backdrop )
+    } else {
+        $(document).find('#backdrop-overlay').css({ display: 'block', visibility: 'visible' })
+    }
+    $dialog.css({ width: dialogWidth, height: dialogHeight })
+    $dismiss.append( '<span class="dismiss-icon"></span>' )
+    $(document).on('click', '.dismiss-icon', function() {
+        closeDialog()
+    })
+    $headline.append( nodes.label, $dismiss )
+    $body.append( nodes.content )
+    $close.text('Close')
+    $footer.append( nodes.button, $close )
+    $close.on('click', function() {
+        closeDialog()
+    })
+    $dialog.append( $headline, $body, $footer )
+    $('body').append( $dialog )
+    $dialog.animate({ opacity: 1 }, 300)
+}
+
+function notification( title, message ) {
+    let nodes = {
+            label: `<h3 class="dialog-title">${title}</h3>`,
+            content: `<div style="text-align:center"><p id="notice-message">${message}</p></div>`,
+        }
+
+    openDialog( nodes, '450', '170' )
+}
+
+function closeDialog() {
+    $('#dialog').animate({ opacity: 0 }, 150, 'linear', function() {
+        $(this).remove()
+        $(document).find('#backdrop-overlay').css({ display: 'none', visibility: 'hidden' })
+    })
+}
+
+function eventExists( eventId ) {
+    let $evtElms = $(document).find('.jqtl-event-node'),
+        evtIds   = []
+
+    if ( $evtElms.length > 0 ) {
+        $evtElms.each(function(idx, elm) {
+            evtIds.push( parseInt( elm.id.replace('evt-', ''), 10 ) )
+        })
+        return $.inArray( eventId, evtIds ) !== -1
+    } else {
+        return false
+    }
+}
+
+function lastEventId() {
+    let $evtElms = $(document).find('.jqtl-event-node'),
+        evtIds   = []
+
+    if ( $evtElms.length > 0 ) {
+        $evtElms.each(function(idx, elm) {
+            evtIds.push( parseInt( elm.id.replace('evt-', ''), 10 ) )
+        })
+        return Math.max( ...evtIds )
+    } else {
+        return 0
+    }
+}
+
+function makeField( label, type, name, defval = '', classes = undefined, atts = undefined ) {
+    let $item  = $('<div></div>', { class: 'field-item' }),
+        $label = $('<label></label>', { for: name }),
+        $field
+
+    switch(type) {
+        case 'textarea':
+            $field = $('<textarea></textarea>', { id: name, name: name })
+            $field.html( defval )
+            break
+        default:
+            $field = $('<input />', { type: type, id: name, name: name, value: defval })
+            break
+    }
+    if ( classes ) {
+        $field.attr( 'class', classes )
+    }
+    if ( atts ) {
+        for ( let _k in atts ) {
+            $field.attr( _k, atts[_k] )
+            if ( 'required' === _k && atts[_k] === true ) {
+                $label.append( '<span class="required"></span>' )
+            }
+        }
+    }
+    if ( 'hidden' === type ) {
+        return $field
+    } else {
+        $label.prepend( `<span>${label}</span>` )
+        $item.append( $label, $field )
+        return $item
+    }
+}
+
+/*
+ * Dispatcher
+ */
+if ( document.readyState === 'complete' || ( document.readyState !== 'loading' && ! document.documentElement.doScroll ) ) {
+    init()
+} else
+if ( document.addEventListener ) {
+    document.addEventListener( 'DOMContentLoaded', init, false )
+} else {
+    window.onload = init
+}
+
+</script>
 
 {% endblock calendar %}
 
