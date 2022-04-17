@@ -79,28 +79,12 @@
 
       }
     },
-    eventResize:function(arg)
-    {
-     var start = FullCalendar.formatDate(arg.start, "Y-MM-DD HH:mm:ss");
-     var end = FullCalendar.formatDate(arg.end, "Y-MM-DD HH:mm:ss");
-     var title = arg.title;
-     var id = arg.id;
-     $.ajax({
-      url:"/services/update",
-      type:"POST",
-      data:{title:title, start:start, end:end, id:id},
-      success:function(){
-       calendar.refetchEvents();
-       alert('Event Update');
-      }
-     })
-    },
       
     eventClick:function(arg)
     {
      if(confirm("Are you sure you want to remove it?"))
      {
-      var id = arg.id; <!-- arg.id is missing -->
+      var id = arg.id;
       $.ajax({
        url:"/services/ajax_delete",
        type:"POST",
@@ -409,7 +393,8 @@ const init = () => {
                         if ( eventExists( newId ) ) {
                             errors.push( 'This event id already exists.' )
                         } else {
-                            evtParams[key] = newId
+                            evtParams[key] = newId;
+                            console.log('evtParams[eventId]: ',evtParams[key]);
                         }
                         break
                     case /^row$/i.test(key):
@@ -435,8 +420,20 @@ const init = () => {
         }
         if ( errors.length == 0 ) {
             tlElem.Timeline( 'addEvent', [evtParams], function(elm, opts, usrdata, addedEvents) {
-                //console.log( 'Added new event', elm, opts, usrdata, addedEvents );
-                closeDialog()
+                console.log( 'Added new event', elm, opts, usrdata, addedEvents );
+                console.log('evtParams :', evtParams);
+                closeDialog();
+                $.ajax({
+                  url:"/services/insert",
+                  type:"POST",
+                  data: evtParams,
+                  success:function(data)
+                      {
+                        //alert(data)
+                        alert("Added Successfully");
+                      }
+                  })
+
             }, {} )
         } else {
             $('#notice-message').addClass('warn').html( errors.join( '<br>' ) )

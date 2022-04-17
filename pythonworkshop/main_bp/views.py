@@ -4,7 +4,7 @@ from . import forms
 from . import main_bp
 import jinja2
 import os
-from flask_login import login_required
+from flask_login import login_required, current_user
 
 
 templateLoader = jinja2.PackageLoader('pythonworkshop','templates')
@@ -59,8 +59,9 @@ def user_profile(username):
 def index():
     users_db.connect(reuse_if_open=True)
     events = Event.select().order_by(Event.id.asc())
-    for row in events :
-      print('row id : ' + str(row.id))
+    if events is not None:
+      for row in events :
+        print('row id : ' + str(row.id))
     saved_events = events
     users_db.close()
     print ('url_for(" static") inside main_bp.services :' + str(url_for('static', filename='ufo.jpg')))  
@@ -71,12 +72,16 @@ def index():
 def insert():
     users_db.connect(reuse_if_open=True)
     if request.method == 'POST':
-        title = request.form['title']
+        eventId = request.form['eventId']
+        userId = current_user.id
+        row = request.form['row']
+        print('event userId foregnkey is : '+ str(userId))
+        title = request.form['label']
         start = request.form['start']
         end = request.form['end']
-        print('/services/insert title: '+title)     
+        print('/services/insert title: ' + title)     
         print(start)  
-        Event.create(title=title,start=start,end=end)
+        Event.create(userId=userId, row=row, title=title,start=start,end=end)
         users_db.close()
         msg = 'success' 
     return jsonify(msg)
