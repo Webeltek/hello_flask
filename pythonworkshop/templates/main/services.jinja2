@@ -203,6 +203,7 @@ const init = () => {
     }
 
     const initTimeline = () => {
+          
         tlElem.Timeline( tlOpts )
         .Timeline('initialized', function() {
             //console.log( arguments[2].message )
@@ -214,6 +215,7 @@ const init = () => {
                     $('#change-type').get(0).options.selectedIndex = idx
                 }
             })
+        
         }, { message: 'Initialized Timeline!' } )
         .Timeline('openEvent', function(targetEvent, viewerContents) {
             //console.log( 'openEvent:', `Active Mode: ${mode}`, targetEvent )
@@ -423,6 +425,8 @@ const init = () => {
                 console.log( 'Added new event', elm, opts, usrdata, addedEvents );
                 console.log('evtParams :', evtParams);
                 closeDialog();
+                evtParams.start = getDateString(evtParams.start);
+                evtParams.end = getDateString(evtParams.end);
                 $.ajax({
                   url:"/services/insert",
                   type:"POST",
@@ -639,7 +643,7 @@ const init = () => {
             display: true,
             title:   '<span></span>',
             range:   true,
-            local:   'en-US',
+            local:   'nb-NO',
             format:  {
                 timeZone: 'UTC',
                 hour12: false,
@@ -670,6 +674,7 @@ const init = () => {
         },
         hideScrollbar: true,
         zoom: true,
+        eventData : [{% for row in saved_events %}{ start : '{{row.start}}', end : '{{row.end}}', row : '{{row.row}}', label : '{{row.title}}' ,content: 'content', }, {% endfor %}]
     }
 
     // Start watching an instance of the Timeline

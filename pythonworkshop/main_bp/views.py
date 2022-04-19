@@ -80,7 +80,7 @@ def insert():
         start = request.form['start']
         end = request.form['end']
         print('/services/insert title: ' + title)     
-        print(start)  
+        print('/services/insert start: ' + start)  
         Event.create(userId=userId, row=row, title=title,start=start,end=end)
         users_db.close()
         msg = 'success' 
