@@ -122,6 +122,7 @@ class User(UserMixin,p.Model):
 
 class Event(p.Model):
   id = p.AutoField()
+  uid = p.CharField()
   userId = p.ForeignKeyField(User, backref='events', lazy_load=False)
   row = p.CharField()
   title = p.CharField()

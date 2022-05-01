@@ -72,8 +72,8 @@ def index():
 def insert():
     users_db.connect(reuse_if_open=True)
     if request.method == 'POST':
-        eventId = request.form['eventId']
         userId = current_user.id
+        uid = request.form['uid']
         row = request.form['row']
         print('event userId foregnkey is : '+ str(userId))
         title = request.form['label']
@@ -81,9 +81,9 @@ def insert():
         end = request.form['end']
         print('/services/insert title: ' + title)     
         print('/services/insert start: ' + start)  
-        Event.create(userId=userId, row=row, title=title,start=start,end=end)
+        Event.create(uid=uid,userId=userId, row=row, title=title,start=start,end=end)
         users_db.close()
-        msg = 'success' 
+        msg = 'Record added successfully' 
     return jsonify(msg)
   
 @main_bp.route("/services/update",methods=["POST","GET"])
@@ -91,15 +91,14 @@ def insert():
 def update():
     users_db.connect(reuse_if_open=True)
     if request.method == 'POST':
-        title = request.form['title']
+        uid = request.form['uid']
+        userId = current_user.id
+        title = request.form['label']
         start = request.form['start']
         end = request.form['end']
-        id = request.form['id']
-        print(title)     
-        print(start)  
-        event = Event.update(title=title,start=start,end=end).where(Event.id == id).execute()       
+        event = Event.update(uid=uid,userId=userId, title=title,start=start,end=end).where(Event.uid == uid).execute()       
         users_db.close()
-        msg = 'success' 
+        msg = 'Record updated successfully' 
     return jsonify(msg)    
   
 @main_bp.route("/services/ajax_delete",methods=["POST","GET"])
@@ -107,9 +106,9 @@ def update():
 def ajax_delete():
     users_db.connect(reuse_if_open=True)
     if request.method == 'POST':
-        getid = request.form['id']
-        print('deleted event with id : ' +str(getid))
-        event = Event.delete().where(Event.id == getid).execute()
+        uid = request.form['uid']
+        print('deleted event with uid : ' + uid)
+        event = Event.delete().where(Event.uid == uid).execute()
         users_db.close()
         msg = 'Record deleted successfully' 
     return jsonify(msg)

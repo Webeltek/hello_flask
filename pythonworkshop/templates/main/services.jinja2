@@ -44,41 +44,6 @@
     navLinks: true,        
     selectable:true,
     selectMirror: true,
-    select: function(arg)
-    {
-      var title = prompt("Enter Event Title");
-      if(title) { 
-          var start = FullCalendar.formatDate(arg.start, {
-                           month: 'numeric',
-                           year: 'numeric',
-                           day: 'numeric'           
-                            });
-          var end = FullCalendar.formatDate(arg.end, {
-                           month: 'numeric',
-                           year: 'numeric',
-                           day: 'numeric'
-                            });
-          calendar.addEvent({
-              title: title,
-              start: arg.start,
-              end: arg.end,
-              allDay: arg.allDay
-            })
-
-          $.ajax({
-          url:"/services/insert",
-          type:"POST",
-          data:{title:title, start:start, end:end},
-          success:function(data)
-            {
-            //alert(data)
-            alert("Added Successfully");
-            calendar.refetchEvents();
-            }
-          })
-
-      }
-    },
       
     eventClick:function(arg)
     {
@@ -96,10 +61,8 @@
        }
       })
      }
-    } ,
+    }
     
-      events: [{% for row in saved_events %}{ id : '{{row.id}}', title : '{{row.title}}', start : '{{row.start}}', end : '{{row.end}}', }, {% endfor %}]
-
    });
     
   });
@@ -210,11 +173,14 @@ const init = () => {
             window.addEventListener( 'resize', throttle, {passive: true} )
             window.addEventListener( 'scroll', throttle, {passive: true} )
             tlOpts = arguments[1]
-            $('#change-type').get(0).options.forEach(function(elm,idx){
+              
+            let typeOpts = $('#change-type').get(0).options;
+            Array.from(typeOpts).forEach(function(elm,idx){
                 if ( tlType === elm.value ) {
                     $('#change-type').get(0).options.selectedIndex = idx
                 }
-            })
+            });
+            
         
         }, { message: 'Initialized Timeline!' } )
         .Timeline('openEvent', function(targetEvent, viewerContents) {
@@ -271,7 +237,7 @@ const init = () => {
     }
 
     const handleDblclick = function(evt) {
-        if ( 'create' === mode && evt.target.closest('.jqtl-events') && evt.target.classList.contains('jqtl-events') ) {
+        if ( evt.target.closest('.jqtl-events') && evt.target.classList.contains('jqtl-events') ) {
             let targetPos   = { x: evt.offsetX, y: evt.offsetY },
                 currentStDt = new Date(tlOpts.startDatetime).getTime(),
                 positionRow = Math.ceil(targetPos.y / tlOpts.rowHeight),
@@ -301,7 +267,8 @@ const init = () => {
                     break
             }
             positionDt = new Date(currentStDt + (perPxDt * targetPos.x))
-            newStartDt = `${positionDt.getFullYear()}/${positionDt.getMonth()+1}/${positionDt.getDate()} ${positionDt.getHours()}:${positionDt.getMinutes()}:${positionDt.getSeconds()}`
+          newStartDt = `${positionDt.getFullYear()}/${positionDt.getMonth()+1}/${positionDt.getDate()} 2:0:0`;
+          newEndDt = `${positionDt.getFullYear()}/${positionDt.getMonth()+1}/${positionDt.getDate()} 22:0:0`;
 
             // Generate form for new event creation
             let nodes = {
@@ -312,9 +279,9 @@ const init = () => {
                 items = []
 
             items.push( '<p id="notice-message">Please enter at least the items marked with <span class="required"></span>.</p>' )
-            items.push( makeField( 'Event Id', 'text', 'eventId', '', 'text-medium' ) )
-            items.push( makeField( 'Start Datetime', 'text', 'start', newStartDt, null, { required: true } ) )
-            items.push( makeField( 'End Datetime', 'text', 'end', '' ) )
+            //items.push( makeField( 'Event Id', 'text', 'eventId', '', 'text-medium' ) )
+            items.push( makeField( 'Start Datetime', 'text', 'start', newStartDt, null, { readonly: true } ) )
+          items.push( makeField( 'End Datetime', 'text', 'end', newEndDt, null  , { readonly: true } ) )
             items.push( makeField( 'Row', 'number', 'row', positionRow, 'text-small', { required: true } ) )
             items.push( makeField( 'Event Label', 'text', 'label', '', 'text-full', { required: true } ) )
             items.push( makeField( 'Event Content', 'textarea', 'content', '', 'text-full', { rows: 5, required: true } ) )
@@ -376,7 +343,7 @@ const init = () => {
           evtStr = _number > 1 ? 'events' : 'event'
 
       tlElem.Timeline( 'addEvent', newEvt, function(elm, opts, usrdata, addedEvents ) {
-        // console.log( elm, opts, usrdata, addedEvents );
+        console.log( 'Added multiple events',  addedEvents );
         notification( usrdata.title, usrdata.message )
       }, { title: 'Put Event(s)', message: `Put new ${_number} ${evtStr}.` } )
     });
@@ -422,21 +389,24 @@ const init = () => {
         }
         if ( errors.length == 0 ) {
             tlElem.Timeline( 'addEvent', [evtParams], function(elm, opts, usrdata, addedEvents) {
-                console.log( 'Added new event', elm, opts, usrdata, addedEvents );
-                console.log('evtParams :', evtParams);
+                //console.log( 'Added single event', addedEvents );
+                //console.log('evtParams :', evtParams);
                 closeDialog();
-                evtParams.start = getDateString(evtParams.start);
-                evtParams.end = getDateString(evtParams.end);
+              evtParams.start = getDateString(evtParams.start);           
+              evtParams.end = getDateString(evtParams.end);
+              addedEvent = addedEvents.pop();
+              evtParams.uid = addedEvent.uid;
+              //console.log('Added event uid: ', addedEvent.uid);
                 $.ajax({
                   url:"/services/insert",
                   type:"POST",
                   data: evtParams,
-                  success:function(data)
+                  success:function(result)
                       {
                         //alert(data)
-                        alert("Added Successfully");
+                        alert(result);
                       }
-                  })
+                  });
 
             }, {} )
         } else {
@@ -485,7 +455,19 @@ const init = () => {
         if ( errors.length == 0 ) {
             tlElem.Timeline( 'updateEvent', [evtParams], function(elm, opts, usrdata, updatedEvents) {
                 //console.log( 'Updated an event', elm, opts, usrdata, updatedEvents )
-                closeDialog()
+                closeDialog();
+                evtParams.start = getDateString(evtParams.start);
+                evtParams.end = getDateString(evtParams.end);
+                $.ajax({
+                  url:"/services/update",
+                  type:"POST",
+                  data: evtParams,
+                  success:function(data)
+                      {
+                        //alert(data)
+                        alert("Added Successfully");
+                      }
+                  });
             }, {} )
         } else {
             $('#notice-message').addClass('warn').html( errors.join( '<br>' ) )
@@ -495,6 +477,7 @@ const init = () => {
     $(document).on('click', '#btn-delete-event', function(e) {
         let fd      = new FormData( $('#delete-event-form').get(0) ),
             evtIds  = [],
+            evtParams = {},
             errors  = [],
             remeins = $('.jqtl-events').children().length,
             delId
@@ -515,12 +498,28 @@ const init = () => {
         })
         if ( evtIds.length > 0 && errors.length == 0 ) {
             tlElem.Timeline( 'removeEvent', evtIds, function(elm, opts, usrdata, removedEvents ) {
-                //console.log( 'Deleted an event', elm, opts, usrdata, removedEvents )
+                console.log( 'Deleted an event', elm, opts, usrdata, removedEvents )
                 if ( remeins == 1 && $('.jqtl-events').children().length == remeins ) {
                     // For Bug?
                     $('.jqtl-events').empty()
                 }
-                closeDialog()
+              closeDialog();
+              evtParams.start = getDateString(evtParams.start);
+              evtParams.end = getDateString(evtParams.end);
+              removedEvent = removedEvents.pop();
+              evtParams.uid = removedEvent.uid;
+              console.log('Removed event uid :', evtParams.uid)
+                $.ajax({
+                  url:"/services/ajax_delete",
+                  type:"POST",
+                  data: evtParams,
+                  success:function(result)
+                      {
+                        //alert(data)
+                        alert(result);
+                      }
+                  });
+
             }, {} )
         } else {
             $('#notice-message').addClass('warn').html( errors.join( '<br>' ) )
@@ -627,11 +626,11 @@ const init = () => {
     now.setMonth(now.getMonth() + 2)
     end = now.setDate(now.getDate() - 1);
     for ( incr = 1; incr <= maxList; incr++ ) {
-        listItems.push( '<span>Row ' + incr + '</span>' );
+        listItems.push( '<span>Møterom ' + incr + '</span>' );
     }
 
     // Defined as global variables
-    window.mode    = 'default'
+    window.mode    = 'create'
     window.ticking = false
     window.tlOpts  = {
         type: tlType,
@@ -680,6 +679,7 @@ const init = () => {
     // Start watching an instance of the Timeline
     watchElement( '#crud-timeline' )
     initTimeline()
+      
     //console.log( tlOpts )
 
 }

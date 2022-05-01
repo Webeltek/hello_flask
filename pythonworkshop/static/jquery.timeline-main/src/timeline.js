@@ -1,5 +1,5 @@
-import "core-js/stable"
-import "regenerator-runtime/runtime"
+//import "core-js/stable"
+//import "regenerator-runtime/runtime"
 
 /*!
  * jQuery Timeline
@@ -119,7 +119,7 @@ const Default = {
         event         : {
             text        : "#343A40",
             border      : "#6C757D",
-            background  : "#E7E7E7"
+            background  : "#2CC688"
         },
         hookEventColors : () => null, // Added instead of merging setColorEvent of PR#37 since v2.0.0
     },
@@ -1936,9 +1936,9 @@ class Timeline {
                 _shiftY    = this.numRound( params.y + ( ( params.height - _pointSize ) / 2 ), 2 ) - params.margin
 
 //console.log( '!!_createEventNode::', params, _pointSize, _shiftX, _shiftY )
-            _evt_elem.addClass( ClassName.VIEWER_EVENT_TYPE_POINTER ).css( 'border-color', params.bdColor )
-            .css( 'left', `${_shiftX}px` ).css( 'top', `${_shiftY}px` ).css( 'width', `${_pointSize}px` ).css( 'height', `${_pointSize}px` )
-            .attr( 'data-base-size', _pointSize ).attr( 'data-base-left', _shiftX ).attr( 'data-base-top', _shiftY )
+            //_evt_elem.addClass( ClassName.VIEWER_EVENT_TYPE_POINTER ).css( 'border-color', params.bdColor )
+            //.css( 'left', `${_shiftX}px` ).css( 'top', `${_shiftY}px` ).css( 'width', `${_pointSize}px` ).css( 'height', `${_pointSize}px` )
+            //.attr( 'data-base-size', _pointSize ).attr( 'data-base-left', _shiftX ).attr( 'data-base-top', _shiftY )
         } else {
             // If this event is the bar type
             if ( params.width < 1 ) {
