@@ -23,54 +23,6 @@
 <script src="{{ url_for('static',filename = 'jquery.timeline-main/dist/jquery.timeline.min.js') }} "></script>
 
 
-
-
-
-<!--
-  <script>
-  document.addEventListener('DOMContentLoaded',function() {
-    var calendarEl = document.getElementById('calendar');
-    var calendar = new FullCalendar.Calendar( calendarEl, {
-    
-    editable:true,
-    dayMaxEvents: true,
-    headerToolbar: {
-     left:'prev,next today',
-     center:'title',
-     right:' dayGridMonth,timeGridWeek,timeGridDay'
-    },
-    
-    initialDate: '2022-04-07',
-    navLinks: true,        
-    selectable:true,
-    selectMirror: true,
-      
-    eventClick:function(arg)
-    {
-     if(confirm("Are you sure you want to remove it?"))
-     {
-      var id = arg.id;
-      $.ajax({
-       url:"/services/ajax_delete",
-       type:"POST",
-       data:{id:id},
-       success:function()
-       {
-        calendar.refetchEvents();
-        alert("Event Removed");
-       }
-      })
-     }
-    }
-    
-   });
-    
-  });
-     
-  </script>
--->
- 
-
 {% endblock head %}
 
 {% block form %}
@@ -103,16 +55,16 @@
         </div>
         <div id="mode-description">This is the normal readonly mode.</div>
       </div>
+      <!--
       <div class="d-flex-col">
         <label for="import-events" class="text-caption">Import Events:</label>
-        <!-- form name="import-form" class="btn-upload" -->
         <div class="btn-upload">
           Import File
           <input type="file" id="import-events" accept="application/json,.json">
         </div>
       </div>
       <div class="d-flex-col">
-        <label for="import-events" class="text-caption">Export Events:</label>
+        <label for="export-events" class="text-caption">Export Events:</label>
         <button type="button" id="export-events" disabled>Export File</button>
       </div>
       <div class="d-flex-col">
@@ -129,7 +81,8 @@
           <option value="point">Point</option>
           <option value="mixed">Mixed</option>
         </select>
-      </div>
+        </div>
+      -->
       <div class="d-flex-col">
         <button type="button" id="reload" class="no-label">Reload</button>
       </div>
@@ -174,13 +127,16 @@ const init = () => {
             window.addEventListener( 'scroll', throttle, {passive: true} )
             tlOpts = arguments[1]
               
-            let typeOpts = $('#change-type').get(0).options;
+        /*  let typeOpts = $('#change-type').get(0).options;
             Array.from(typeOpts).forEach(function(elm,idx){
                 if ( tlType === elm.value ) {
                     $('#change-type').get(0).options.selectedIndex = idx
                 }
             });
-            
+         */
+        eventContainer = tlElem.find('.jqtl-events').get(0)
+        eventContainer.style.cursor = 'crosshair'
+        eventContainer.addEventListener('dblclick', handleDblclick, false)
         
         }, { message: 'Initialized Timeline!' } )
         .Timeline('openEvent', function(targetEvent, viewerContents) {
@@ -267,8 +223,8 @@ const init = () => {
                     break
             }
             positionDt = new Date(currentStDt + (perPxDt * targetPos.x))
-          newStartDt = `${positionDt.getFullYear()}/${positionDt.getMonth()+1}/${positionDt.getDate()} 2:0:0`;
-          newEndDt = `${positionDt.getFullYear()}/${positionDt.getMonth()+1}/${positionDt.getDate()} 22:0:0`;
+            newStartDt = `${positionDt.getFullYear()}/${positionDt.getMonth()+1}/${positionDt.getDate()} 2:0:0`;
+            newEndDt = `${positionDt.getFullYear()}/${positionDt.getMonth()+1}/${positionDt.getDate()} 22:0:0`;
 
             // Generate form for new event creation
             let nodes = {
@@ -281,7 +237,7 @@ const init = () => {
             items.push( '<p id="notice-message">Please enter at least the items marked with <span class="required"></span>.</p>' )
             //items.push( makeField( 'Event Id', 'text', 'eventId', '', 'text-medium' ) )
             items.push( makeField( 'Start Datetime', 'text', 'start', newStartDt, null, { readonly: true } ) )
-          items.push( makeField( 'End Datetime', 'text', 'end', newEndDt, null  , { readonly: true } ) )
+            items.push( makeField( 'End Datetime', 'text', 'end', newEndDt, null  , { readonly: true } ) )
             items.push( makeField( 'Row', 'number', 'row', positionRow, 'text-small', { required: true } ) )
             items.push( makeField( 'Event Label', 'text', 'label', '', 'text-full', { required: true } ) )
             items.push( makeField( 'Event Content', 'textarea', 'content', '', 'text-full', { rows: 5, required: true } ) )
@@ -310,6 +266,7 @@ const init = () => {
         observer.observe( targetElm, { childList: true, subtree: true } )
     }
 
+/*
     $('#change-mode').on('change', function(e){
       let modeDesc = '',
           eventContainer = tlElem.find('.jqtl-events').get(0)
@@ -336,6 +293,7 @@ const init = () => {
       }
       $('#mode-description').text( modeDesc )
     })
+*/
 
     $('#put-events').on('click', function(){
       let _number = parseInt( $('#number-event')[0].value, 10 ),
@@ -589,7 +547,7 @@ const init = () => {
       // For checking the dateback method
       var methodOpts = {
         scale: 'day',
-        range: 5,
+        range: 2,
         shift: true
       };
       tlElem.Timeline( 'dateback', methodOpts, function() {
@@ -601,7 +559,7 @@ const init = () => {
       // For checking the dateforth method
       var methodOpts = {
         scale: 'day',
-        range: 5,
+        range: 2,
         shift: true
       };
       tlElem.Timeline( 'dateforth', methodOpts, function() {
@@ -625,9 +583,14 @@ const init = () => {
 
     now.setMonth(now.getMonth() + 2)
     end = now.setDate(now.getDate() - 1);
-    for ( incr = 1; incr <= maxList; incr++ ) {
+    /*for ( incr = 1; incr <= maxList; incr++ ) {
         listItems.push( '<span>Møterom ' + incr + '</span>' );
-    }
+     }*/
+    listItems.push( '<span>Møterom stort</span>' );
+    listItems.push( '<span>Møterom lite</span>' );
+    listItems.push( '<span>Møterom 214</span>' );
+    listItems.push( '<span>Møterom 210</span>' );
+    listItems.push( '<span>Aktivitet plan</span>' );
 
     // Defined as global variables
     window.mode    = 'create'
@@ -673,7 +636,7 @@ const init = () => {
         },
         hideScrollbar: true,
         zoom: true,
-        eventData : [{% for row in saved_events %}{ start : '{{row.start}}', end : '{{row.end}}', row : '{{row.row}}', label : '{{row.title}}' ,content: 'content', }, {% endfor %}]
+        eventData : [{% for row in saved_events %}{ bgColor : '{{ row.bgColor }}',  start : '{{row.start}}', end : '{{row.end}}', row : '{{row.row}}', label : '{{row.title}}' ,content: 'content', }, {% endfor %}]
     }
 
     // Start watching an instance of the Timeline

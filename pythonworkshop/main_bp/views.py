@@ -58,12 +58,17 @@ def user_profile(username):
 @login_required
 def index():
     users_db.connect(reuse_if_open=True)
+    current_userId = current_user.id
     events = Event.select().order_by(Event.id.asc())
     if events is not None:
       for row in events :
         print('row id : ' + str(row.id))
     saved_events = events
     users_db.close()
+    for event in saved_events:
+        event.bgColor = '#F0401D'
+        if(event.userId == current_userId ):
+            event.bgColor = '#2CC688'
     print ('url_for(" static") inside main_bp.services :' + str(url_for('static', filename='ufo.jpg')))  
     return render_template('/main/services.jinja2',saved_events=saved_events)
   
