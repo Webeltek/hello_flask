@@ -69,8 +69,8 @@ def index():
         event.bgColor = '#F0401D'
         if(event.userId == current_userId ):
             event.bgColor = '#2CC688'
-    print ('url_for(" static") inside main_bp.services :' + str(url_for('static', filename='ufo.jpg')))  
-    return render_template('/main/services.jinja2',saved_events=saved_events)
+    print ('current_userId :' + str(current_userId))  
+    return render_template('/main/services.jinja2', saved_events=saved_events, current_userId = current_userId)
   
 @main_bp.route("/services/insert",methods=["POST","GET"])
 @login_required

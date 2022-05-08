@@ -143,13 +143,19 @@ const init = () => {
             //console.log( 'openEvent:', `Active Mode: ${mode}`, targetEvent )
             let nodes = {
                     label: $('<h3></h3>', { class: 'dialog-title' }),
-                    content: $('<form></form>', { id: `${mode}-event-form` }),
-                    button: $('<button></button>', { type: 'button', id: `btn-${mode}-event` }),
+                    content: $('<form></form>', { id: `delete-event-form` }),
+                    button: $('<button></button>', { type: 'button', id: `btn-delete-event` }),
                 },
-                items = []
-
+                items = [],
+          event_userId = targetEvent.userId;
+          //console.log("targetEvent  :" + JSON.stringify(targetEvent));
+          active_userId = {{ current_userId }};
+          //console.log( "event_userId : "+ typeof event_userId + " active_userId : " + typeof active_userId )
+          if ( parseInt(event_userId) == active_userId ) { 
+           // console.log("event_userId == active_userId "+ (event_userId == active_userId).toString() )
             switch ( mode ) {
-                case 'update':
+              case 'update':
+                    console.log("case is update")
                     // Generate form for new event updating
                     items.push( '<p id="notice-message">Please enter at least the items marked with <span class="required"></span>.</p>' )
                     items.push( makeField( 'Event Id', 'text', 'eventId', targetEvent.eventId, 'text-medium', { readonly: true } ) )
@@ -167,6 +173,11 @@ const init = () => {
                     openDialog( nodes )
                     break
                 case 'delete':
+                    
+                    break
+                default:
+                    // Define an event handler for getting event nodes on the timeline
+                    //console.log( 'The event node with eventID: '+ targetEvent.eventId +' was clicked.', targetEvent, viewerContents )
                     // Generate form for new event deletion
                     items.push( '<p id="notice-message">Are you sure you want to delete the following events?</p>' )
                     items.push( makeField( 'Event Id', 'text', 'eventId', targetEvent.eventId, 'text-medium', { readonly: true } ) )
@@ -183,12 +194,8 @@ const init = () => {
                     $(nodes.button).text('Delete')
                     openDialog( nodes )
                     break
-                default:
-                    // Define an event handler for getting event nodes on the timeline
-                    //console.log( 'The event node with eventID: '+ targetEvent.eventId +' was clicked.', targetEvent, viewerContents )
-                    openDialog( viewerContents )
-                    break
             }
+          }
         })
     }
 
@@ -240,10 +247,10 @@ const init = () => {
             items.push( makeField( 'End Datetime', 'text', 'end', newEndDt, null  , { readonly: true } ) )
             items.push( makeField( 'Row', 'number', 'row', positionRow, 'text-small', { required: true } ) )
             items.push( makeField( 'Event Label', 'text', 'label', '', 'text-full', { required: true } ) )
-            items.push( makeField( 'Event Content', 'textarea', 'content', '', 'text-full', { rows: 5, required: true } ) )
-            items.push( makeField( 'Text Color', 'text', 'color', '', 'text-medium', { placeholder: '#343A40' } ) )
-            items.push( makeField( 'Background Color', 'text', 'bgColor', '', 'text-medium', { placeholder: '#E7E7E7' } ) )
-            items.push( makeField( 'Border Color', 'text', 'bdColor', '', 'text-medium', { placeholder: '#6C757D' } ) )
+            //items.push( makeField( 'Event Content', 'textarea', 'content', '', 'text-full', { rows: 5, required: true } ) )
+            //items.push( makeField( 'Text Color', 'text', 'color', '', 'text-medium', { placeholder: '#343A40' } ) )
+            //items.push( makeField( 'Background Color', 'text', 'bgColor', '', 'text-medium', { placeholder: '#E7E7E7' } ) )
+            //items.push( makeField( 'Border Color', 'text', 'bdColor', '', 'text-medium', { placeholder: '#6C757D' } ) )
             $(nodes.content).append( ...items )
             $(nodes.label).text('Add New Event')
             $(nodes.button).text('Add')
@@ -342,9 +349,10 @@ const init = () => {
                 }
             }
         })
-        if ( ! evtParams.row || ! evtParams.start || ! evtParams.label || ! evtParams.content ) {
+        if ( ! evtParams.row || ! evtParams.start || ! evtParams.label  ) {
             errors.push( 'The required item is empty.' )
         }
+        evtParams.userId = {{ current_userId }};
         if ( errors.length == 0 ) {
             tlElem.Timeline( 'addEvent', [evtParams], function(elm, opts, usrdata, addedEvents) {
                 //console.log( 'Added single event', addedEvents );
@@ -636,7 +644,7 @@ const init = () => {
         },
         hideScrollbar: true,
         zoom: true,
-        eventData : [{% for row in saved_events %}{ bgColor : '{{ row.bgColor }}',  start : '{{row.start}}', end : '{{row.end}}', row : '{{row.row}}', label : '{{row.title}}' ,content: 'content', }, {% endfor %}]
+        eventData : [{% for row in saved_events %}  { userId : '{{ row.userId }}', bgColor : '{{ row.bgColor }}',  start : '{{row.start}}', end : '{{row.end}}', row : '{{row.row}}', label : '{{row.title}}' ,content: 'content', }, {% endfor %}]
     }
 
     // Start watching an instance of the Timeline

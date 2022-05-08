@@ -168,6 +168,7 @@ const LimitScaleGrids = {
 
 const EventParams = {
     uid       : "",
+    userId    : "",
     eventId   : "",
     x         : 0,
     y         : Default.marginHeight,
@@ -1633,6 +1634,7 @@ class Timeline {
                             }
                         }
                         break
+                    
                     default:
                         if ( Object.hasOwnProperty.call( params, _prop ) && ! this.is_empty( params[_prop] ) ) {
                             new_event[_prop] = params[_prop]
