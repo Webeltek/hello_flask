@@ -128,6 +128,7 @@ class Event(p.Model):
   title = p.CharField()
   start = p.CharField()
   end = p.CharField()
+  color = p.CharField()
 
   class Meta:
     database = users_db

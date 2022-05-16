@@ -1,17 +1,6 @@
 {% extends "user_page.jinja2" %}
 
 {% block head %}
-  <!-- moment lib 
-<script src='https://cdn.jsdelivr.net/npm/moment@2.27.0/min/moment.min.js'></script>
-
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/main.js" integrity="sha256-3YcmbVFydbcbP+ax1x6VxV1swYap/YsD/+RFVqSGqxk=" crossorigin="anonymous"></script>
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/main.css" integrity="sha256-jLWPhwkAHq1rpueZOKALBno3eKP3m4IMB131kGhAlRQ=" crossorigin="anonymous">
--->
-
-<!-- the moment-to-fullcalendar connector. must go AFTER the moment lib
-<script src='https://cdn.jsdelivr.net/npm/@fullcalendar/moment@5.5.0/main.global.min.js'></script>
--->
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
@@ -21,7 +10,6 @@
 <link rel="stylesheet" href=" {{ url_for('static', filename = 'jquery.timeline-main/dist/jqtl-crud.css') }} ">
 
 <script src="{{ url_for('static',filename = 'jquery.timeline-main/dist/jquery.timeline.min.js') }} "></script>
-
 
 {% endblock head %}
 
@@ -38,7 +26,8 @@
 {% endblock form  %}
 
 {% block calendar %}
-  
+
+        
 <div class="d-flex-col">
   <nav role="banner">
     <h1 id="page-title">CRUD System for jQuery.Timeline</h1>
@@ -154,27 +143,7 @@ const init = () => {
           if ( parseInt(event_userId) == active_userId ) { 
            // console.log("event_userId == active_userId "+ (event_userId == active_userId).toString() )
             switch ( mode ) {
-              case 'update':
-                    console.log("case is update")
-                    // Generate form for new event updating
-                    items.push( '<p id="notice-message">Please enter at least the items marked with <span class="required"></span>.</p>' )
-                    items.push( makeField( 'Event Id', 'text', 'eventId', targetEvent.eventId, 'text-medium', { readonly: true } ) )
-                    items.push( makeField( 'Start Datetime', 'text', 'start', getDateString( targetEvent.start ), null, { required: true } ) )
-                    items.push( makeField( 'End Datetime', 'text', 'end', targetEvent.end ? getDateString( targetEvent.end ) : '', null ) )
-                    items.push( makeField( 'Row', 'number', 'row', targetEvent.row, 'text-small', { required: true } ) )
-                    items.push( makeField( 'Event Label', 'text', 'label', targetEvent.label, 'text-full', { required: true } ) )
-                    items.push( makeField( 'Event Content', 'textarea', 'content', targetEvent.content, 'text-full', { rows: 5, required: true } ) )
-                    items.push( makeField( 'Text Color', 'text', 'color', targetEvent.color, 'text-medium', { placeholder: '#343A40' } ) )
-                    items.push( makeField( 'Background Color', 'text', 'bgColor', targetEvent.bgColor, 'text-medium', { placeholder: '#E7E7E7' } ) )
-                    items.push( makeField( 'Border Color', 'text', 'bdColor', targetEvent.bdColor, 'text-medium', { placeholder: '#6C757D' } ) )
-                    $(nodes.content).append( ...items )
-                    $(nodes.label).text('Update Event Parameters')
-                    $(nodes.button).text('Update')
-                    openDialog( nodes )
-                    break
-                case 'delete':
-                    
-                    break
+              
                 default:
                     // Define an event handler for getting event nodes on the timeline
                     //console.log( 'The event node with eventID: '+ targetEvent.eventId +' was clicked.', targetEvent, viewerContents )
@@ -185,10 +154,10 @@ const init = () => {
                     items.push( makeField( 'End Datetime', 'text', 'end', targetEvent.end ? getDateString( targetEvent.end ) : '', null, { readonly: true } ) )
                     items.push( makeField( 'Row', 'number', 'row', targetEvent.row, 'text-small', { readonly: true } ) )
                     items.push( makeField( 'Event Label', 'text', 'label', targetEvent.label, 'text-full', { readonly: true } ) )
-                    items.push( makeField( 'Event Content', 'textarea', 'content', targetEvent.content, 'text-full', { rows: 5, readonly: true } ) )
-                    items.push( makeField( 'Text Color', 'text', 'color', targetEvent.color, 'text-medium', { readonly: true } ) )
-                    items.push( makeField( 'Background Color', 'text', 'bgColor', targetEvent.bgColor, 'text-medium', { readonly: true } ) )
-                    items.push( makeField( 'Border Color', 'text', 'bdColor', targetEvent.bdColor, 'text-medium', { readonly: true } ) )
+                    //items.push( makeField( 'Event Content', 'textarea', 'content', targetEvent.content, 'text-full', { rows: 5, readonly: true } ) )
+                    //items.push( makeField( 'Text Color', 'text', 'color', targetEvent.color, 'text-medium', { readonly: true } ) )
+                    //items.push( makeField( 'Background Color', 'text', 'bgColor', targetEvent.bgColor, 'text-medium', { readonly: true } ) )
+                    //items.push( makeField( 'Border Color', 'text', 'bdColor', targetEvent.bdColor, 'text-medium', { readonly: true } ) )
                     $(nodes.content).append( ...items )
                     $(nodes.label).text('Delete Event')
                     $(nodes.button).text('Delete')
@@ -230,8 +199,8 @@ const init = () => {
                     break
             }
             positionDt = new Date(currentStDt + (perPxDt * targetPos.x))
-            newStartDt = `${positionDt.getFullYear()}/${positionDt.getMonth()+1}/${positionDt.getDate()} 2:0:0`;
-            newEndDt = `${positionDt.getFullYear()}/${positionDt.getMonth()+1}/${positionDt.getDate()} 22:0:0`;
+            newStartDt = `${positionDt.getFullYear()}/${positionDt.getMonth()+1}/${positionDt.getDate()} `;
+            newEndDt = `${positionDt.getFullYear()}/${positionDt.getMonth()+1}/${positionDt.getDate()} `;
 
             // Generate form for new event creation
             let nodes = {
@@ -241,12 +210,26 @@ const init = () => {
                 },
                 items = []
 
-            items.push( '<p id="notice-message">Please enter at least the items marked with <span class="required"></span>.</p>' )
+            items.push( '<p id="notice-message">Please enter  <span class="required"></span>.</p>' )
             //items.push( makeField( 'Event Id', 'text', 'eventId', '', 'text-medium' ) )
-            items.push( makeField( 'Start Datetime', 'text', 'start', newStartDt, null, { readonly: true } ) )
-            items.push( makeField( 'End Datetime', 'text', 'end', newEndDt, null  , { readonly: true } ) )
-            items.push( makeField( 'Row', 'number', 'row', positionRow, 'text-small', { required: true } ) )
-            items.push( makeField( 'Event Label', 'text', 'label', '', 'text-full', { required: true } ) )
+          items.push( makeField( 'Start Datetime', 'text', 'start', newStartDt, null, { readonly: true } ) )
+          items.push( makeField( 'End Datetime', 'text', 'end', newEndDt, null  , { readonly: true } ) )
+          items.push( makeField( 'Row', 'number', 'row', positionRow, 'text-small', { required: true } ) )
+          items.push( makeField( 'Event Label', 'text', 'label', '', 'text-full', { required: true } ) )
+          $formcheck1 = $('<div></div>', {class : 'form-check' } )
+          $radio1 = $('<input></input>', { type: 'radio', class: 'form-check-input', id: 'radio1', name: 'optradio', value : 'formiddag' } )
+          $label1 = $('<label>Formiddag</label>' , { class: 'form-check-label', for : 'radio1' } )
+          $formcheck1.append($radio1, $label1)
+          $formcheck2 = $('<div></div>', {class : 'form-check' } )
+          $radio2 = $('<input></input>', { type: 'radio', class: 'form-check-input', id: 'radio2', name: 'optradio', value : 'ettermiddag' } )
+          $label2 = $('<label>Ettermiddag</label>' , { class: 'form-check-label', for : 'radio2' } )
+          $formcheck2.append($radio2, $label2)
+
+          $formcheck3 = $('<div></div>', {class : 'form-check' } )
+          $radio3 = $('<input></input>', { type: 'radio', class: 'form-check-input', id: 'radio3', name: 'optradio', value : 'heldag', checked : 'checked' } )
+          $label3 = $('<label>Heldag</label>' , { class: 'form-check-label', for : 'radio3' } )
+          $formcheck3.append($radio3, $label3)
+          items.push($formcheck1, $formcheck2,$formcheck3)
             //items.push( makeField( 'Event Content', 'textarea', 'content', '', 'text-full', { rows: 5, required: true } ) )
             //items.push( makeField( 'Text Color', 'text', 'color', '', 'text-medium', { placeholder: '#343A40' } ) )
             //items.push( makeField( 'Background Color', 'text', 'bgColor', '', 'text-medium', { placeholder: '#E7E7E7' } ) )
@@ -317,7 +300,9 @@ const init = () => {
         let fd        = new FormData( $('#add-event-form').get(0) ),
             evtParams = {},
             errors    = [],
-            newId, newRow, newDt
+        newId, newRow, newDt,newDt2 , startstring, endstring
+          console.log(' fd.start is : ' + fd.get('start') )
+          console.log(' fd.optradio is : ' + fd.get('optradio') )
 
         fd.forEach(function(val, key) {
             if ( val ) {
@@ -331,6 +316,9 @@ const init = () => {
                             console.log('evtParams[eventId]: ',evtParams[key]);
                         }
                         break
+                    case /^label$/i.test(key) :
+                        evtParams[key] = val
+                        break
                     case /^row$/i.test(key):
                         newRow = parseInt(val, 10)
                         if ( newRow < 0 || maxList < newRow ) {
@@ -339,30 +327,65 @@ const init = () => {
                             evtParams[key] = newRow
                         }
                         break
-                    case /^(start|end)$/i.test(key):
-                        newDt = new Date(val).getTime()
+                    case /^start$/i.test(key):
+                        if (/^(formiddag|heldag)$/i.test(fd.get('optradio')) ) {
+                          startstring = `${val} 2:0:0`
+                        } else if (/^ettermiddag$/i.test(fd.get('optradio')) ) {
+                          startstring = `${val} 12:0:0`
+                        } 
+                        newDt = new Date(startstring).getTime()
+                        console.log("in start startstring is : " + newDt)
+
+                        evtParams[key] = newDt
+                        console.log( 'fd key start is: ' + key)
+                        console.log('fd key start value is: ' + val)            
+                        break
+                  case /^end$/i.test(key):
+                        if (/^formiddag$/i.test(fd.get('optradio')) ) {
+                            endstring = `${val} 12:0:0`
+                        } else if (/^(ettermiddag|heldag)$/i.test(fd.get('optradio')) ) {
+                            endstring = `${val} 22:0:0`
+                        }
+                        newDt = new Date(endstring).getTime() 
+                        console.log(' in end endstring  is: ' + newDt)
                         evtParams[key] = newDt
                         break
-                    default:
+                  default :
                         evtParams[key] = val
                         break
-                }
+              } 
             }
         })
-        if ( ! evtParams.row || ! evtParams.start || ! evtParams.label  ) {
-            errors.push( 'The required item is empty.' )
+        if ( ! evtParams.row  || ! evtParams.label  ) {
+             errors.push( 'The required item is empty.' )
+              console.log ('row: ' + evtParams.row +  ' start: ' + evtParams.start , ' label : ' + evtParams.label )
         }
         evtParams.userId = {{ current_userId }};
+        evtParams.start = getDateString(evtParams.start);           
+        evtParams.end = getDateString(evtParams.end);
+        console.log('evtParams.end is : ' + evtParams.end)    
+        
+        switch (true) {
+                case /^formiddag$/i.test(fd.get('optradio')) : 
+                    evtParams.bgColor = '#1E9742'
+                    break
+                case /^ettermiddag$/i.test(fd.get('optradio')) :
+                    evtParams.bgColor = '#FFAE00'   
+                    break
+                case /^heldag$/i.test(fd.get('optradio')) :
+                    evtParams.bgColor = '#009CFF'
+                    break                                                
+        }
+                                                            
         if ( errors.length == 0 ) {
             tlElem.Timeline( 'addEvent', [evtParams], function(elm, opts, usrdata, addedEvents) {
                 //console.log( 'Added single event', addedEvents );
-                //console.log('evtParams :', evtParams);
+                console.log('evtParams :', evtParams);
                 closeDialog();
-              evtParams.start = getDateString(evtParams.start);           
-              evtParams.end = getDateString(evtParams.end);
-              addedEvent = addedEvents.pop();
-              evtParams.uid = addedEvent.uid;
-              //console.log('Added event uid: ', addedEvent.uid);
+                addedEvent = addedEvents.pop();
+                evtParams.uid = addedEvent.uid;
+                evtParams.row = addedEvent.row;
+                                                    
                 $.ajax({
                   url:"/services/insert",
                   type:"POST",
@@ -644,9 +667,9 @@ const init = () => {
         },
         hideScrollbar: true,
         zoom: true,
-        eventData : [{% for row in saved_events %}  { userId : '{{ row.userId }}', bgColor : '{{ row.bgColor }}',  start : '{{row.start}}', end : '{{row.end}}', row : '{{row.row}}', label : '{{row.title}}' ,content: 'content', }, {% endfor %}]
+        eventData : [{% for row in saved_events %}  { userId : '{{ row.userId }}', bgColor : '{{ row.color }}',  start : '{{row.start}}', end : '{{row.end}}', row : '{{row.row}}', label : '{{row.title}}' ,content: 'content', }, {% endfor %}]
     }
-
+   // console.log('eventData array is : ' + JSON.stringify(tlOpts.eventData))
     // Start watching an instance of the Timeline
     watchElement( '#crud-timeline' )
     initTimeline()
@@ -805,14 +828,14 @@ function createEvents( num ) {
     return _evts
 }
 
-function openDialog( nodes, dialogWidth='60%', dialogHeight='60%' ) {
+function openDialog( nodes, dialogWidth='50vw', dialogHeight='50vh' ) {
     let $backdrop = $('<div></div>', { id: 'backdrop-overlay' }),
-        $dialog   = $('<div></div>', { id: 'dialog' }),
+        $dialog   = $('<div></div>', { id: 'dialog'}),
         $headline = $('<div></div>', { id: 'dialog-header' }),
         $body     = $('<div></div>', { id: 'dialog-body' }),
         $footer   = $('<div></div>', { id: 'dialog-footer' }),
         $dismiss  = $('<div></div>', { id: 'dialog-dismiss' }),
-        $close    = $('<button></button>', { id: 'btn-dialog-close' })
+    $close    = $('<button></button>', { id: 'btn-dialog-close' })
 
     if ( $(document).find('#backdrop-overlay').length == 0 ) {
         $backdrop.on( 'click', function() {
@@ -827,8 +850,8 @@ function openDialog( nodes, dialogWidth='60%', dialogHeight='60%' ) {
     $(document).on('click', '.dismiss-icon', function() {
         closeDialog()
     })
-    $headline.append( nodes.label, $dismiss )
-    $body.append( nodes.content )
+  $headline.append( nodes.label, $dismiss )
+      $body.append( nodes.content )
     $close.text('Close')
     $footer.append( nodes.button, $close )
     $close.on('click', function() {

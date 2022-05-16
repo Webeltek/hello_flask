@@ -66,9 +66,8 @@ def index():
     saved_events = events
     users_db.close()
     for event in saved_events:
-        event.bgColor = '#F0401D'
-        if(event.userId == current_userId ):
-            event.bgColor = '#2CC688'
+        if(event.userId != current_userId ):
+            event.color = '#F0401D'
     print ('current_userId :' + str(current_userId))  
     return render_template('/main/services.jinja2', saved_events=saved_events, current_userId = current_userId)
   
@@ -84,9 +83,10 @@ def insert():
         title = request.form['label']
         start = request.form['start']
         end = request.form['end']
+        color = request.form['bgColor']
         print('/services/insert title: ' + title)     
         print('/services/insert start: ' + start)  
-        Event.create(uid=uid,userId=userId, row=row, title=title,start=start,end=end)
+        Event.create(uid=uid,userId=userId, row=row, title=title,start=start,end=end, color=color)
         users_db.close()
         msg = 'Record added successfully' 
     return jsonify(msg)
@@ -117,3 +117,8 @@ def ajax_delete():
         users_db.close()
         msg = 'Record deleted successfully' 
     return jsonify(msg)
+
+@main_bp.route("/angular_page", methods= ['GET','POST'])
+@login_required
+def angular_form():
+        return render_template('/index.html')
