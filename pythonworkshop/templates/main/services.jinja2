@@ -30,7 +30,7 @@
         
 <div class="d-flex-col">
   <nav role="banner">
-    <h1 id="page-title">CRUD System for jQuery.Timeline</h1>
+    <h1 id="page-title">Booking kalender</h1>
     <div id="controller" class="d-flex-row" role="form">
       <div class="d-flex-row">
         <div class="d-flex-col">
@@ -202,7 +202,17 @@ const init = () => {
             newStartDt = `${positionDt.getFullYear()}/${positionDt.getMonth()+1}/${positionDt.getDate()} `;
             newEndDt = `${positionDt.getFullYear()}/${positionDt.getMonth()+1}/${positionDt.getDate()} `;
 
-            // Generate form for new event creation
+            let selectedDate = new Date(positionDt.getFullYear(),positionDt.getMonth(),positionDt.getDate())
+            let cellEvt 
+            let clickOnSavedEvtDate =  tlOpts.eventData.some((evt) => {
+            let evtDateWithHour = new Date(evt.start)
+            let evtDate = new Date(evtDateWithHour.getFullYear(),evtDateWithHour.getMonth(),evtDateWithHour.getDate())
+            let evtRow = evt.row
+            cellEvt = evt
+            return   (evtDate.getTime() == selectedDate.getTime() && evtRow == positionRow)  
+            } )
+
+          // Generate form for new event creation
             let nodes = {
                     label: $('<h3></h3>', { class: 'dialog-title' }),
                     content: $('<form></form>', { id: 'add-event-form' }),
@@ -216,28 +226,54 @@ const init = () => {
           items.push( makeField( 'End Datetime', 'text', 'end', newEndDt, null  , { readonly: true } ) )
           items.push( makeField( 'Row', 'number', 'row', positionRow, 'text-small', { required: true } ) )
           items.push( makeField( 'Event Label', 'text', 'label', '', 'text-full', { required: true } ) )
-          $formcheck1 = $('<div></div>', {class : 'form-check' } )
-          $radio1 = $('<input></input>', { type: 'radio', class: 'form-check-input', id: 'radio1', name: 'optradio', value : 'formiddag' } )
-          $label1 = $('<label>Formiddag</label>' , { class: 'form-check-label', for : 'radio1' } )
-          $formcheck1.append($radio1, $label1)
-          $formcheck2 = $('<div></div>', {class : 'form-check' } )
-          $radio2 = $('<input></input>', { type: 'radio', class: 'form-check-input', id: 'radio2', name: 'optradio', value : 'ettermiddag' } )
-          $label2 = $('<label>Ettermiddag</label>' , { class: 'form-check-label', for : 'radio2' } )
-          $formcheck2.append($radio2, $label2)
 
-          $formcheck3 = $('<div></div>', {class : 'form-check' } )
-          $radio3 = $('<input></input>', { type: 'radio', class: 'form-check-input', id: 'radio3', name: 'optradio', value : 'heldag', checked : 'checked' } )
-          $label3 = $('<label>Heldag</label>' , { class: 'form-check-label', for : 'radio3' } )
-          $formcheck3.append($radio3, $label3)
-          items.push($formcheck1, $formcheck2,$formcheck3)
-            //items.push( makeField( 'Event Content', 'textarea', 'content', '', 'text-full', { rows: 5, required: true } ) )
-            //items.push( makeField( 'Text Color', 'text', 'color', '', 'text-medium', { placeholder: '#343A40' } ) )
-            //items.push( makeField( 'Background Color', 'text', 'bgColor', '', 'text-medium', { placeholder: '#E7E7E7' } ) )
-            //items.push( makeField( 'Border Color', 'text', 'bdColor', '', 'text-medium', { placeholder: '#6C757D' } ) )
-            $(nodes.content).append( ...items )
-            $(nodes.label).text('Add New Event')
-            $(nodes.button).text('Add')
-            openDialog( nodes )
+          if (clickOnSavedEvtDate){
+                  let evtStartDate = new Date(cellEvt.start)
+                  let evtEndDate = new Date(cellEvt.end)
+            if ( evtStartDate.getHours() == 2) {
+                  $formcheck2 = $('<div></div>', {class : 'form-check' } )
+                  $radio2 = $('<input></input>', { type: 'radio', class: 'form-check-input', id: 'radio2', name: 'optradio', value : 'ettermiddag' } )
+                  $label2 = $('<label>Ettermiddag</label>' , { class: 'form-check-label', for : 'radio2' } )
+                  $formcheck2.append($radio2, $label2)
+                  items.push( $formcheck2)
+                  $(nodes.content).append( ...items )
+                  $(nodes.label).text('Add New Event')
+                  $(nodes.button).text('Add')
+                  openDialog( nodes )  
+            } else if ( evtStartDate.getHours() == 12 ) {
+                  $formcheck1 = $('<div></div>', {class : 'form-check' } )
+                  $radio1 = $('<input></input>', { type: 'radio', class: 'form-check-input', id: 'radio1', name: 'optradio', value : 'formiddag' } )
+                  $label1 = $('<label>Formiddag</label>' , { class: 'form-check-label', for : 'radio1' } )
+                  $formcheck1.append($radio1, $label1)
+                  items.push($formcheck1)
+                  $(nodes.content).append( ...items )
+                  $(nodes.label).text('Add New Event')
+                  $(nodes.button).text('Add')
+                  openDialog( nodes )
+            } else if (evtStartDate.getHours() == 2 && evtEndDate.getHours() == 22) {
+                   return
+            }
+          }
+              $formcheck1 = $('<div></div>', {class : 'form-check' } )
+              $radio1 = $('<input></input>', { type: 'radio', class: 'form-check-input', id: 'radio1', name: 'optradio', value : 'formiddag' } )
+              $label1 = $('<label>Formiddag</label>' , { class: 'form-check-label', for : 'radio1' } )
+              $formcheck1.append($radio1, $label1)
+
+              $formcheck2 = $('<div></div>', {class : 'form-check' } )
+              $radio2 = $('<input></input>', { type: 'radio', class: 'form-check-input', id: 'radio2', name: 'optradio', value : 'ettermiddag' } )
+              $label2 = $('<label>Ettermiddag</label>' , { class: 'form-check-label', for : 'radio2' } )
+              $formcheck2.append($radio2, $label2)
+
+              $formcheck3 = $('<div></div>', {class : 'form-check' } )
+              $radio3 = $('<input></input>', { type: 'radio', class: 'form-check-input', id: 'radio3', name: 'optradio', value : 'heldag', checked : 'checked' } )
+              $label3 = $('<label>Heldag</label>' , { class: 'form-check-label', for : 'radio3' } )
+              $formcheck3.append($radio3, $label3)
+
+              items.push($formcheck1, $formcheck2,$formcheck3)
+              $(nodes.content).append( ...items )
+              $(nodes.label).text('Add New Event')
+              $(nodes.button).text('Add')
+              openDialog( nodes )
         }
     }
 
@@ -301,8 +337,8 @@ const init = () => {
             evtParams = {},
             errors    = [],
         newId, newRow, newDt,newDt2 , startstring, endstring
-          console.log(' fd.start is : ' + fd.get('start') )
-          console.log(' fd.optradio is : ' + fd.get('optradio') )
+          //console.log(' fd.start is : ' + fd.get('start') )
+          //console.log(' fd.optradio is : ' + fd.get('optradio') )
 
         fd.forEach(function(val, key) {
             if ( val ) {
@@ -334,7 +370,7 @@ const init = () => {
                           startstring = `${val} 12:0:0`
                         } 
                         newDt = new Date(startstring).getTime()
-                        console.log("in start startstring is : " + newDt)
+                        //console.log("in start startstring is : " + newDt)
 
                         evtParams[key] = newDt
                         console.log( 'fd key start is: ' + key)
@@ -347,7 +383,7 @@ const init = () => {
                             endstring = `${val} 22:0:0`
                         }
                         newDt = new Date(endstring).getTime() 
-                        console.log(' in end endstring  is: ' + newDt)
+                        //console.log(' in end endstring  is: ' + newDt)
                         evtParams[key] = newDt
                         break
                   default :
@@ -828,7 +864,7 @@ function createEvents( num ) {
     return _evts
 }
 
-function openDialog( nodes, dialogWidth='50vw', dialogHeight='50vh' ) {
+function openDialog( nodes, dialogWidth='50vw', dialogHeight='40vh' ) {
     let $backdrop = $('<div></div>', { id: 'backdrop-overlay' }),
         $dialog   = $('<div></div>', { id: 'dialog'}),
         $headline = $('<div></div>', { id: 'dialog-header' }),
