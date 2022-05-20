@@ -3,12 +3,14 @@ import {src, dest, parallel, series, watch} from 'gulp'
 import autoprefixer  from 'gulp-autoprefixer'
 import eslint        from 'gulp-eslint'
 import rename        from 'gulp-rename'
-import sass          from 'gulp-sass'
+import dartSass from 'sass';
+import gulpSass from 'gulp-sass';
 import sourcemaps    from 'gulp-sourcemaps'
 import webpackStream from 'webpack-stream'
 import webpack       from 'webpack'
 
 const webpackConfig = require('./webpack.config')
+const sass = gulpSass( dartSass )
 const configDev     = { mode: 'development', devtool: 'source-map', output: { filename: 'jquery.timeline.js' } }
 const configProd    = { mode: 'production' }
 
