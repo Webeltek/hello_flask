@@ -2,9 +2,6 @@
 
 {% block head %}
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-
-
 <link rel="stylesheet"  href="{{ url_for('static',filename = 'jquery.timeline-main/dist/jquery.timeline.min.css') }}" >
 
 <link rel="stylesheet" href=" {{ url_for('static', filename = 'jquery.timeline-main/dist/jqtl-crud.css') }} ">
@@ -26,16 +23,15 @@
 {% endblock form  %}
 
 {% block calendar %}
-
-        
 <div class="d-flex-col">
   <nav role="banner">
-    <h1 id="page-title">Booking kalender</h1>
+    <h2 id="page-title">Booking kalender</h2>
     <div id="controller" class="d-flex-row" role="form">
       <div class="d-flex-row">
-        <div class="d-flex-col">
+      <!--
+        <div class="d-flex-col" id="mode-column">
           <label for="change-mode" class="text-caption">Change Mode:</label>
-          <select id="change-mode">
+          <select id="change-mode" >
             <option value="read"  >Default</option>
             <option value="create">Create Event</option>
             <option value="update">Update Event</option>
@@ -44,6 +40,7 @@
         </div>
         <div id="mode-description">This is the normal readonly mode.</div>
       </div>
+      -->
       <!--
       <div class="d-flex-col">
         <label for="import-events" class="text-caption">Import Events:</label>
@@ -123,6 +120,7 @@ const init = () => {
                 }
             });
         */
+
         eventContainer = tlElem.find('.jqtl-events').get(0)
         eventContainer.style.cursor = 'crosshair'
         eventContainer.addEventListener('dblclick', handleDblclick, false)
@@ -202,12 +200,16 @@ const init = () => {
         
             clickOnSavedEvtDate = false
             console.log(" tlOpts.eventData :" + JSON.stringify(tlOpts.eventData))
+            
+                let clickedDateEvents = []
+            
                 tlOpts.eventData.forEach((savedEvent) => {
                     evtDateWithHour = new Date(savedEvent.start)
                     evtDate = new Date(evtDateWithHour.getFullYear(),evtDateWithHour.getMonth(),evtDateWithHour.getDate())
                     evtRow = savedEvent.row
                     console.log("loop Saved event date : " +JSON.stringify(savedEvent) )
-                    if (evtDate.getTime() == selectedDate.getTime() && evtRow == positionRow) { 
+                    if (evtDate.getTime() == selectedDate.getTime() && evtRow == positionRow) {
+                        clickedDateEvents.push(savedEvent)    
                         cellEvt = savedEvent
                         clickOnSavedEvtDate = true
                         console.log(" clicked and saved event : " + JSON.stringify(savedEvent)) 
@@ -231,7 +233,7 @@ const init = () => {
             items.push( makeField( 'Dato', 'text', 'date', newStartDt, null, { readonly: true } ) )
             items.push( makeField( 'Row', 'number', 'row', positionRow, 'text-small', { required: true } ) )
                     
-          if (clickOnSavedEvtDate){
+          if (clickOnSavedEvtDate && clickedDateEvents.length==1){
             console.log('cellEvt.start : ' + cellEvt.start)
             console.log('cellEvt.end  : ' + cellEvt.end ) 
               let evtStartDate = new Date(cellEvt.start)
@@ -260,7 +262,8 @@ const init = () => {
                    return
             }
             clickOnSavedEvtDate = false
-          } else {
+          } else if (clickOnSavedEvtDate && clickedDateEvents.length == 2) {} 
+          else {
               $formcheck1 = $('<div></div>', {class : 'form-check' } )
               $radio1 = $('<input></input>', { type: 'radio', class: 'form-check-input', id: 'radio1', name: 'optradio', value : 'formiddag' } )
               $label1 = $('<label>Formiddag</label>' , { class: 'form-check-label', for : 'radio1' } )
@@ -618,8 +621,11 @@ const init = () => {
         sessionStorage.removeItem( selector )
         tlElem.Timeline( 'reload', tlOpts, function() {
             notification( arguments[2].label, arguments[2].message )
-            $(window).scrollTop(0)
+            //$(window).scrollTop(0)
             $('#export-events').prop('disabled', true)
+        eventContainer = tlElem.find('.jqtl-events').get(0)
+        eventContainer.style.cursor = 'crosshair'
+        eventContainer.addEventListener('dblclick', handleDblclick, false)
         }, { label: 'Timeline Reload', message: 'Completely reloaded this Timeline.' } )
     })
 

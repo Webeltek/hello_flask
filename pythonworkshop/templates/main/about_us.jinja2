@@ -1,22 +1,5 @@
 {% extends "user_page.jinja2" %}
 
-{% block navbar %}
-{{ super() }}
-{% endblock navbar %}
-
-
-{% block profilecard %}
-<div class="col-lg-2 d-flex flex-row-reverse bg-success">
-  <div class="p2 card">
-    <img class="card-img-top rounded" style="max" src="img/card_avatar.jpg" alt="Card image">
-    <div class="card-body text-center">
-      <h4 class="card-title">Bond Street AS</h4>
-      <p class="card-text">Some example text.</p>
-      <a href="#" class="btn btn-secondary">Logut</a>
-{% endblock profilecard %}
-
-
-
 {% block form %}
     <div class="col-lg-9 border-start">
       <form class="container" action="/">
@@ -41,4 +24,4 @@
       </form>
     </div>
 {{ super() }}
-{% endblock %}
+{% endblock form%}

@@ -56,8 +56,8 @@ class User(UserMixin,p.Model):
     table_name = 'nf_user'
   
   def generate_confirmation_token(self, expiration=3600):
-        encodeed = jwt.encode({'confirm': self.id},current_app.config['SECRET_KEY'], algorithm='HS256')
-        return encodeed
+        encoded = jwt.encode({'confirm': self.id},current_app.config['SECRET_KEY'], algorithm='HS256')
+        return encoded
 
   def confirm(self, token):
     secret_key = current_app.config['SECRET_KEY']

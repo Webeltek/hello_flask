@@ -24,14 +24,6 @@ def contact_form():
             return F'I got your autodata!!!'
         return render_template('/main/contact.jinja2', contact=contact_form)
 
-@main_bp.route("/persons", methods= ['GET','POST'])
-@login_required
-def persons_form():
-        persons = forms.PersonsForm(request.form)
-        if request.method == 'POST' and persons.validate():
-            print(F'I got UFO name is {myform.ufoname.data}')
-            return F'I got your autodata!!!'
-        return render_template('/main/persons.jinja2', persons=persons)
 
 
 @main_bp.route("/about_us", methods= ['GET','POST'])
