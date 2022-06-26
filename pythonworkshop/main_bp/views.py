@@ -4,6 +4,9 @@ from . import forms
 from . import main_bp
 import jinja2
 import os
+import json
+from peewee import *
+from playhouse.shortcuts import model_to_dict
 from flask_login import login_required, current_user
 
 
@@ -45,7 +48,43 @@ def user_profile(username):
             return F'I got your autodata!!!'
         return render_template('/main/user_profile.jinja2',user=user)  
 
+@main_bp.route("/services_old", methods= ['GET'])
+@login_required
+def index_old():
+    users_db.connect(reuse_if_open=True)
+    current_userId = current_user.id
+    events = Event.select().order_by(Event.id.asc())
+    if events is not None:
+      for row in events :
+        print('row id : ' + str(row.id))
+    saved_events = events
+    users_db.close()
+    for event in saved_events:
+        if(event.userId != current_userId ):
+            event.color = '#F0401D'
+    print ('current_userId :' + str(current_userId))
+    return render_template('/main/services_old.jinja2', saved_events=saved_events, current_userId = current_userId)
   
+@main_bp.route("/services/events", methods= ['GET'])
+@login_required
+def index_events():
+    users_db.connect(reuse_if_open=True)
+    current_userId = current_user.id
+    events = Event.select().order_by(Event.id.asc())
+    if events is not None:
+      for row in events :
+        print('row id : ' + str(row.id))
+    saved_events = events
+    users_db.close()
+    for event in saved_events:
+        if(event.userId != current_userId ):
+            event.color = '#F0401D'
+    print ('current_userId :' + str(current_userId))
+    s_events =list( saved_events.dicts())
+    json_events = json.dumps(s_events)
+    return jsonify( json_events)
+
+
 @main_bp.route("/services", methods= ['GET'])
 @login_required
 def index():

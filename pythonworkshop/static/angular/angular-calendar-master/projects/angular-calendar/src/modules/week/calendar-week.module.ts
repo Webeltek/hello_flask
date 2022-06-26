@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { LOCALE_ID, NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ResizableModule } from 'angular-resizable-element';
 import { DragAndDropModule } from 'angular-draggable-droppable';
@@ -6,14 +6,16 @@ import { CalendarWeekViewComponent } from './calendar-week-view.component';
 import { CalendarWeekViewHeaderComponent } from './calendar-week-view-header.component';
 import { CalendarWeekViewEventComponent } from './calendar-week-view-event.component';
 import { CalendarCommonModule } from '../common/calendar-common.module';
-import { CalendarWeekViewHourSegmentComponent, RadioNgModelExample } from './calendar-week-view-hour-segment.component';
+import { CalendarWeekViewHourSegmentComponent } from './calendar-week-view-hour-segment.component';
 import { EventDialog } from './calendar-week-view-hour-segment.component';
 import { CalendarWeekViewCurrentTimeMarkerComponent } from './calendar-week-view-current-time-marker.component';
-import {BrowserModule} from '@angular/platform-browser';
-import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import { BrowserModule} from '@angular/platform-browser';
+import { BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatRadioModule } from '@angular/material/radio';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 export {
   CalendarWeekViewComponent,
@@ -43,6 +45,8 @@ export { CalendarWeekViewCurrentTimeMarkerComponent as ɵCalendarWeekViewCurrent
     MatDialogModule,
     MatRadioModule,
     FormsModule,
+    ReactiveFormsModule,
+    HttpClientModule,
   ],
   declarations: [
     CalendarWeekViewComponent,
@@ -51,7 +55,6 @@ export { CalendarWeekViewCurrentTimeMarkerComponent as ɵCalendarWeekViewCurrent
     CalendarWeekViewHourSegmentComponent,
     CalendarWeekViewCurrentTimeMarkerComponent,
     EventDialog,
-    RadioNgModelExample,
   ],
   exports: [
     ResizableModule,
@@ -63,7 +66,6 @@ export { CalendarWeekViewCurrentTimeMarkerComponent as ɵCalendarWeekViewCurrent
     CalendarWeekViewCurrentTimeMarkerComponent,
     MatDialogModule,
     EventDialog,
-    RadioNgModelExample,
-  ],
+  ]
 })
 export class CalendarWeekModule {}

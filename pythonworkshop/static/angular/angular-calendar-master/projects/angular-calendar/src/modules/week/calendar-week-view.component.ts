@@ -378,6 +378,7 @@ export interface CalendarWeekViewBeforeRenderEvent extends WeekView {
             <div
               *ngFor="
                 let hour of column.hours;
+                let roomIndex = index;
                 trackBy: trackByHour;
                 let odd = odd
               "
@@ -395,6 +396,7 @@ export interface CalendarWeekViewBeforeRenderEvent extends WeekView {
                 [locale]="locale"
                 [customTemplate]="hourSegmentTemplate"
                 [daysInWeek]="daysInWeek"
+                [roomInd] = "roomIndex"
                 (mwlClick)="
                   hourSegmentClicked.emit({
                     date: segment.date,

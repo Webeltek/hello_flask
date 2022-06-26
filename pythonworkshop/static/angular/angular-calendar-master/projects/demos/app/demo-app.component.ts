@@ -3,16 +3,26 @@ import { Component, Input,
   ChangeDetectionStrategy,
   OnDestroy,
   ChangeDetectorRef } from '@angular/core';
-  import { BreakpointObserver, BreakpointState } from '@angular/cdk/layout';
-import { CalendarView, CalendarEvent } from 'angular-calendar';
+import { BreakpointObserver, BreakpointState } from '@angular/cdk/layout';
+import { 
+  CalendarDateFormatter,
+  CalendarView, CalendarEvent, DAYS_OF_WEEK } from 'angular-calendar';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+
+import { CustomDateFormatter } from './custom-date-formatter.provider';
 
 @Component({
   selector: 'app-root',
   templateUrl: './demo-app.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styleUrls: ['./demo-app.css']
+  styleUrls: ['./demo-app.css'],
+  providers: [
+    {
+      provide: CalendarDateFormatter,
+      useClass: CustomDateFormatter,
+    },
+  ],
 })
 export class DemoAppComponent implements OnInit, OnDestroy{
 
@@ -20,8 +30,14 @@ export class DemoAppComponent implements OnInit, OnDestroy{
   view: CalendarView = CalendarView.Week;
   CalendarView = CalendarView;
   daysInWeek = 14;
-  locale = "en";
-  scroll = "scroll";
+  locale : string = "nb";
+  weekStartsOn: number = DAYS_OF_WEEK.MONDAY;
+  weekendDays: number[] = [DAYS_OF_WEEK.FRIDAY, DAYS_OF_WEEK.SATURDAY];
+
+  setView(view: CalendarView) {
+    this.view = view;
+  }
+
   
   colors: any = {
     red: {
