@@ -9,6 +9,7 @@ import { DemoAppComponent } from './demo-app.component';
 import { CalendarModule, DateAdapter } from 'angular-calendar';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { HttpEventService } from 'projects/angular-calendar/src/modules/week/http-service.service';
 
 
 @NgModule({
@@ -17,7 +18,6 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
   ],
   imports: [
     BrowserModule,
-
     CalendarModule.forRoot({
       provide: DateAdapter,
       useFactory: adapterFactory,
@@ -25,7 +25,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
     BrowserAnimationsModule
   ],
-  providers : [{ provide: LOCALE_ID, useValue: 'nb' } ],
+  providers : [{ provide: LOCALE_ID, useValue: 'nb' }],
   bootstrap: [DemoAppComponent]
 })
 export class DemoAppModule { 

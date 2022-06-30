@@ -396,7 +396,7 @@ export interface CalendarWeekViewBeforeRenderEvent extends WeekView {
                 [locale]="locale"
                 [customTemplate]="hourSegmentTemplate"
                 [daysInWeek]="daysInWeek"
-                [roomInd] = "roomIndex"
+                [roomInd] = "roomIndex+1"
                 (mwlClick)="
                   hourSegmentClicked.emit({
                     date: segment.date,

@@ -107,14 +107,15 @@ def index():
 def insert():
     users_db.connect(reuse_if_open=True)
     if request.method == 'POST':
+        req_json = request.get_json()
         userId = current_user.id
-        uid = request.form['uid']
-        row = request.form['row']
+        uid = req_json['uid']
+        row = req_json['row']
         print('event userId foregnkey is : '+ str(userId))
-        title = request.form['label']
-        start = request.form['start']
-        end = request.form['end']
-        color = request.form['bgColor']
+        title = req_json['label']
+        start = req_json['start']
+        end = req_json['end']
+        color = req_json['bgColor']
         print('/services/insert title: ' + title)     
         print('/services/insert start: ' + start)  
         Event.create(uid=uid,userId=userId, row=row, title=title,start=start,end=end, color=color)

@@ -11,6 +11,11 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { CustomDateFormatter } from './custom-date-formatter.provider';
+import { HttpEventService } from 'projects/angular-calendar/src/modules/week/http-service.service';
+import { PythEvent } from 'projects/angular-calendar/src/modules/week/calendar-week-view-hour-segment.component';
+import { CalendarEventActionsComponent } from 'dist/angular-calendar/modules/common/calendar-event-actions.component';
+import { addDays } from 'date-fns';
+import { HttpResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-root',
@@ -54,27 +59,40 @@ export class DemoAppComponent implements OnInit, OnDestroy{
     },
   };
 
-  events: CalendarEvent[] = [
-    {
-      title: 'Click me',
-      color: this.colors.yellow,
-      start: new Date(2022,5,12,1),
-      end: new Date(2022,5,12,3),
-    },
-    {
-      title: 'Or click me',
-      color: this.colors.blue,
-      start: new Date(2022,5,13,4),
-      end: new Date(2022,5,13,6),
-    },
-  ];
+  events : CalendarEvent[] = []; 
 
   private destroy$ = new Subject<void>();
 
   constructor(
     private breakpointObserver: BreakpointObserver,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
+    private httpService: HttpEventService
   ) {}
+
+  getDbEvents(){
+    this.httpService.getEvents().subscribe((response ) => {
+      console.log("Response body follows:");
+      let responseObj = JSON.parse(response.body) as Array<PythEvent>;
+      console.log("ResponseObj first member:");
+      console.log(responseObj[0]);
+      for (let pythEvt of  responseObj){
+        let calEvent : CalendarEvent=  {
+            id : pythEvt.uid,
+            start : new Date(parseInt(pythEvt.start,10)),
+            end : new Date(parseInt(pythEvt.end,10)),
+            title : pythEvt.label,
+            color : this.colors.blue
+          }
+        this.events.push(calEvent);    
+      }
+      console.log("Follows events : ")  
+      console.log(this.events) 
+  })
+  }
+
+  ngOnChanges(){
+  
+  }
 
   ngOnInit() {
     const CALENDAR_RESPONSIVE = {
@@ -91,6 +109,12 @@ export class DemoAppComponent implements OnInit, OnDestroy{
         daysInWeek: 5,
       },
     };
+
+    this.getDbEvents();
+
+    this.httpService.addedEvent.subscribe((eventVal) => {
+        this.getDbEvents()
+    })
 
     /* this.breakpointObserver
       .observe(

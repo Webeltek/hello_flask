@@ -6,7 +6,7 @@ import { FormControl,FormBuilder, FormGroup } from '@angular/forms';
 import { Observable, throwError } from 'rxjs';
 import { catchError, retry } from 'rxjs/operators';
 import { Console } from 'console';
-import { HttpService } from './http-service.service';
+import { HttpEventService } from './http-service.service';
 
 
 export interface DialogData {
@@ -16,10 +16,10 @@ export interface DialogData {
 export interface PythEvent {
   uid : string;
   row : string;
-  title : string;
+  label : string;
   start : string;
   end : string;
-  color : string;
+  bgColor : string;
 }
 
 @Component({
@@ -99,7 +99,7 @@ export interface PythEvent {
 })
 
 export class CalendarWeekViewHourSegmentComponent {
-  constructor(public dialog: MatDialog, private httpService: HttpService) {}
+  constructor(public dialog: MatDialog, private httpService: HttpEventService) {}
 
   @Input() roomInd : number;
 
@@ -143,24 +143,39 @@ export class CalendarWeekViewHourSegmentComponent {
     return new Date().getTime().toString(16) + Math.floor( digit * Math.random() ).toString(16)
   }
 
+getDateArray( date ) {
+    // Helper to get each elements of Date object as an array
+    let _dt = date instanceof Date ? date : new Date( date )
+
+        return [ _dt.getFullYear(), _dt.getMonth(), _dt.getDate(), _dt.getHours(), _dt.getMinutes(), _dt.getSeconds(), _dt.getMilliseconds() ]
+}
+
+getDateString( date ) {
+    // Helper to get Date object as a string of "Y-m-d H:i:s" format
+    let _dt = this.getDateArray( date )
+
+    //return _dt[0] +'-'+ (_dt[1] + 1) +'-'+ _dt[2] +' '+ _dt[3] +':'+ _dt[4] +':'+ _dt[5]
+    return `${_dt[0]}-${_dt[1] + 1}-${_dt[2]} ${_dt[3]}:${_dt[4]}:${_dt[5]}`
+}
+
   generatePythStartEndDate(dayPeriod : string){
-    let clickedDate = this.segment.date;
-    let startDate, endDate;
+    let clickDate = new Date(this.segment.date);
+    let startDate: number , endDate : number ;
     switch (dayPeriod) {
         case "Formiddag" : {
-            startDate = clickedDate.setHours(2);
-            endDate = clickedDate.setHours(11); 
+            startDate = clickDate.setHours(2);
+            endDate = clickDate.setHours(11);
         }
         case "Ettermiddag" : {
-          startDate = clickedDate.setHours(13);
-          endDate = clickedDate.setHours(22); 
+          startDate = clickDate.setHours(13);
+          endDate = clickDate.setHours(22); 
         }
         case "Heldag" : {
-          startDate = clickedDate.setHours(2);
-          endDate = clickedDate.setHours(22);   
+          startDate = clickDate.setHours(2);
+          endDate = clickDate.setHours(22);   
         }
     }
-    return {start : startDate, end : endDate};
+    return { start : startDate.toString(), end : endDate.toString() };
   }
 
   openDialog(){
@@ -173,17 +188,17 @@ export class CalendarWeekViewHourSegmentComponent {
 
     dialogRef.afterClosed().subscribe(
       (result) => {
-      let startStr = this.generatePythStartEndDate(result); 
+      let uniqueId = this.generateUniqueID();
       this.pythEvt =  
         {
-          uid : this.generateUniqueID(),
+          uid : uniqueId,
           row : this.roomInd.toString(),
-          title: result.dayPeriodVal,
-          start: this.generatePythStartEndDate(result).start,
-          end: this.generatePythStartEndDate(result).end,
-          color: this.colors.yellow
+          label: result.dayPeriodVal,
+          start: this.generatePythStartEndDate(result.dayPeriodVal).start,
+          end: this.generatePythStartEndDate(result.dayPeriodVal).end,
+          bgColor: "#FFAE00"
         };
-      console.log("afterClosed() result:"+ JSON.stringify(this.pythEvt));
+      console.log("afterClosed() result:", this.pythEvt);
       this.addEvent(this.pythEvt);
     },
     (error) => {
@@ -194,7 +209,9 @@ export class CalendarWeekViewHourSegmentComponent {
 
   addEvent(pythEvt : PythEvent) : void {
     this.httpService.insertEvent(pythEvt).subscribe(
-      (response) => { console.log("addEvent() response: " + JSON.stringify(response));},
+      (response) => { 
+        console.log("addEvent() response: " + JSON.stringify(response));
+      },
         (error) => { console.log("addEvent() error : " + JSON.stringify(error)) ; }
     )
   }
