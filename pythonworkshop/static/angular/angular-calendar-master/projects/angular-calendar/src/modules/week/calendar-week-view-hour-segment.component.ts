@@ -14,12 +14,14 @@ export interface DialogData {
 }
 
 export interface PythEvent {
+  id? : number;
   uid : string;
+  userId? : number;
   row : string;
-  label : string;
+  title : string;
   start : string;
   end : string;
-  bgColor : string;
+  color : string;
 }
 
 @Component({
@@ -158,21 +160,24 @@ getDateString( date ) {
     return `${_dt[0]}-${_dt[1] + 1}-${_dt[2]} ${_dt[3]}:${_dt[4]}:${_dt[5]}`
 }
 
-  generatePythStartEndDate(dayPeriod : string){
+  generatePythStartEndDate(dayPeriod : string, roomInd : number){
     let clickDate = new Date(this.segment.date);
     let startDate: number , endDate : number ;
     switch (dayPeriod) {
         case "Formiddag" : {
-            startDate = clickDate.setHours(2);
-            endDate = clickDate.setHours(11);
+          startDate = clickDate.setHours(roomInd);
+          endDate = clickDate.setHours(roomInd,30);
+          break;
         }
         case "Ettermiddag" : {
-          startDate = clickDate.setHours(13);
-          endDate = clickDate.setHours(22); 
+          startDate = clickDate.setHours(roomInd,30);
+          endDate = clickDate.setHours(roomInd+1);
+          break; 
         }
         case "Heldag" : {
-          startDate = clickDate.setHours(2);
-          endDate = clickDate.setHours(22);   
+          startDate = clickDate.setHours(roomInd);
+          endDate = clickDate.setHours(roomInd+1);
+          break;   
         }
     }
     return { start : startDate.toString(), end : endDate.toString() };
@@ -193,10 +198,10 @@ getDateString( date ) {
         {
           uid : uniqueId,
           row : this.roomInd.toString(),
-          label: result.dayPeriodVal,
-          start: this.generatePythStartEndDate(result.dayPeriodVal).start,
-          end: this.generatePythStartEndDate(result.dayPeriodVal).end,
-          bgColor: "#FFAE00"
+          title: result.dayPeriodVal,
+          start: this.generatePythStartEndDate(result.dayPeriodVal,this.roomInd).start,
+          end: this.generatePythStartEndDate(result.dayPeriodVal,this.roomInd).end,
+          color: "#FFAE00"
         };
       console.log("afterClosed() result:", this.pythEvt);
       this.addEvent(this.pythEvt);

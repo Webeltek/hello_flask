@@ -1,5 +1,5 @@
 import { Component, Input,
-  OnInit,
+  OnInit, Output, EventEmitter,
   ChangeDetectionStrategy,
   OnDestroy,
   ChangeDetectorRef } from '@angular/core';
@@ -16,11 +16,11 @@ import { PythEvent } from 'projects/angular-calendar/src/modules/week/calendar-w
 import { CalendarEventActionsComponent } from 'dist/angular-calendar/modules/common/calendar-event-actions.component';
 import { addDays } from 'date-fns';
 import { HttpResponse } from '@angular/common/http';
+import { DateAdapter } from 'projects/angular-calendar/src/date-adapters/date-adapter';
 
 @Component({
   selector: 'app-root',
   templateUrl: './demo-app.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./demo-app.css'],
   providers: [
     {
@@ -59,39 +59,57 @@ export class DemoAppComponent implements OnInit, OnDestroy{
     },
   };
 
-  events : CalendarEvent[] = []; 
+  events : CalendarEvent[] = [
+    {
+      color: this.colors.blue,
+      start : new Date(2022,7,2,0),
+      id: "181b4eacef31b",
+      end: new Date(2022,7,2,1),
+      title: "Formiddag",
+    }
+  ];
+  
+  @Output() viewDateChange: EventEmitter<Date> = new EventEmitter();
+
+  
 
   private destroy$ = new Subject<void>();
 
   constructor(
     private breakpointObserver: BreakpointObserver,
     private cd: ChangeDetectorRef,
-    private httpService: HttpEventService
+    private httpService: HttpEventService,
+    private dateAdapter: DateAdapter
   ) {}
 
   getDbEvents(){
     this.httpService.getEvents().subscribe((response ) => {
-      console.log("Response body follows:");
-      let responseObj = JSON.parse(response.body) as Array<PythEvent>;
-      console.log("ResponseObj first member:");
-      console.log(responseObj[0]);
+      //console.log("Response type: "+ typeof response);
+      let responseObj =  JSON.parse(response);
       for (let pythEvt of  responseObj){
         let calEvent : CalendarEvent=  {
             id : pythEvt.uid,
             start : new Date(parseInt(pythEvt.start,10)),
             end : new Date(parseInt(pythEvt.end,10)),
-            title : pythEvt.label,
+            title : pythEvt.title,
             color : this.colors.blue
           }
         this.events.push(calEvent);    
       }
-      console.log("Follows events : ")  
-      console.log(this.events) 
+      this.events = [...this.events]; 
+      console.log("Follows events : ");  
+      console.log(this.events);
   })
   }
 
+  subscribeToInsertEvt() {
+    this.httpService.addedEvent.subscribe((emitedValue: any) => { 
+        this.getDbEvents();
+    })
+  }
+
   ngOnChanges(){
-  
+
   }
 
   ngOnInit() {
@@ -111,10 +129,7 @@ export class DemoAppComponent implements OnInit, OnDestroy{
     };
 
     this.getDbEvents();
-
-    this.httpService.addedEvent.subscribe((eventVal) => {
-        this.getDbEvents()
-    })
+    this.subscribeToInsertEvt();
 
     /* this.breakpointObserver
       .observe(

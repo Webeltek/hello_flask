@@ -112,10 +112,10 @@ def insert():
         uid = req_json['uid']
         row = req_json['row']
         print('event userId foregnkey is : '+ str(userId))
-        title = req_json['label']
+        title = req_json['title']
         start = req_json['start']
         end = req_json['end']
-        color = req_json['bgColor']
+        color = req_json['color']
         print('/services/insert title: ' + title)     
         print('/services/insert start: ' + start)  
         Event.create(uid=uid,userId=userId, row=row, title=title,start=start,end=end, color=color)

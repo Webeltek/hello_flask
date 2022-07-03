@@ -12,6 +12,7 @@ import {
   TemplateRef,
   ElementRef,
   AfterViewInit,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { Subject, Subscription } from 'rxjs';
 import {
@@ -396,7 +397,7 @@ export interface CalendarWeekViewBeforeRenderEvent extends WeekView {
                 [locale]="locale"
                 [customTemplate]="hourSegmentTemplate"
                 [daysInWeek]="daysInWeek"
-                [roomInd] = "roomIndex+1"
+                [roomInd] = "roomIndex"
                 (mwlClick)="
                   hourSegmentClicked.emit({
                     date: segment.date,
@@ -808,6 +809,7 @@ export class CalendarWeekViewComponent
     }
 
     if (changes.events) {
+      console.log("event changes detected")
       validateEvents(this.events);
     }
 
