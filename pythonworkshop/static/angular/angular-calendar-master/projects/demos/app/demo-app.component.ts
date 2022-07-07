@@ -59,15 +59,7 @@ export class DemoAppComponent implements OnInit, OnDestroy{
     },
   };
 
-  events : CalendarEvent[] = [
-    {
-      color: this.colors.blue,
-      start : new Date(2022,7,2,0),
-      id: "181b4eacef31b",
-      end: new Date(2022,7,2,1),
-      title: "Formiddag",
-    }
-  ];
+  events : CalendarEvent[] = [];
   
   @Output() viewDateChange: EventEmitter<Date> = new EventEmitter();
 
@@ -85,6 +77,7 @@ export class DemoAppComponent implements OnInit, OnDestroy{
   getDbEvents(){
     this.httpService.getEvents().subscribe((response ) => {
       //console.log("Response type: "+ typeof response);
+      this.events = [];
       let responseObj =  JSON.parse(response);
       for (let pythEvt of  responseObj){
         let calEvent : CalendarEvent=  {
