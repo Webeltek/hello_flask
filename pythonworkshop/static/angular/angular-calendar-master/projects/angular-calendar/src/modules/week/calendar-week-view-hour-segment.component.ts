@@ -187,52 +187,15 @@ getDateString( date ) {
     return { start : startDate.toString(), end : endDate.toString() };
   }
 
-  openDialog(){
-    let clickedSegmDate = this.segment.date;
-    let dbEventsAndAvail = this.getDbEventsAndAvail();
-    if (dbEventsAndAvail.isAvailable){
-      const dialogRef = this.dialog.open(EventDialog, {
-        data: {
-          date: clickedSegmDate,
-          romIndex: this.roomInd,
-        },
-      });
-
-      dialogRef.afterClosed().subscribe(
-        (result) => {
-          if (typeof result !== 'undefined') {
-            let uniqueId = this.generateUniqueID();
-            let startEndDate = this.generatePythStartEndDate(result.dayPeriodVal,this.roomInd);
-            //console.log("roomInd : " + this.roomInd.toString(10));
-            this.pythEvt =  
-              {
-                uid : uniqueId,
-                row : this.roomInd.toString(),
-                title: result.dayPeriodVal,
-                start: startEndDate.start,
-                end: startEndDate.end,
-                color: "#FFAE00"
-              };
-            //console.log("afterClosed() result:", this.pythEvt);
-            this.addEvent(this.pythEvt);
-          }
-      },
-      (error) => {
-        console.log("afterClosed() error : " + error); 
-      }
-      );
-  }
-  }
-
   addEvent(pythEvt : PythEvent) : void {
     this.httpService.insertEvent(pythEvt);
   }
 
   private events : CalendarEvent[] = [];
 
-  getDbEventsAndAvail() : { dbEvents: CalendarEvent[], isAvailable : boolean} {
-    let isAvailable = false;
-    this.httpService.getEvents().subscribe( (response) =>{
+  openDialog()  {
+    let clickedSegmDate = this.segment.date;
+    this.httpService.getEvents().subscribe( (response) => {
       this.events = [];
       let responseObj =  JSON.parse(response);
       for (let pythEvt of  responseObj){
@@ -245,19 +208,48 @@ getDateString( date ) {
           }
         this.events.push(calEvent);    
       }
-      isAvailable = this.events.some((dbEvent : CalendarEvent) =>{
+      
+      if (!this.events.some((dbEvent : CalendarEvent) =>{
         let eventDate =  dbEvent.start.getDate();
         let eventHour = dbEvent.start.getHours();
         let clickedDate = this.segment.date.getDate();
         let clickedHour = this.segment.date.getHours();
         let clickedMinute = this.segment.date.getMinutes();
-        console.log(" isAv elements ",clickedDate,eventDate, clickedHour,eventHour);
-        console.log(" isAv = ",(clickedDate == eventDate && clickedHour==eventHour));
+        console.log(" isAv logical construct = ",(clickedDate == eventDate && clickedHour==eventHour));
         return (clickedDate == eventDate && clickedHour==eventHour); 
-      })
+      })){
+        const dialogRef = this.dialog.open(EventDialog, {
+          data: {
+            date: clickedSegmDate,
+            romIndex: this.roomInd,
+          },
+        });
+
+        dialogRef.afterClosed().subscribe(
+          (result) => {
+            if (typeof result !== 'undefined') {
+              let uniqueId = this.generateUniqueID();
+              let startEndDate = this.generatePythStartEndDate(result.dayPeriodVal,this.roomInd);
+              //console.log("roomInd : " + this.roomInd.toString(10));
+              this.pythEvt =  
+                {
+                  uid : uniqueId,
+                  row : this.roomInd.toString(),
+                  title: result.dayPeriodVal,
+                  start: startEndDate.start,
+                  end: startEndDate.end,
+                  color: "#FFAE00"
+                };
+              //console.log("afterClosed() result:", this.pythEvt);
+              this.addEvent(this.pythEvt);
+            }
+        },
+        (error) => {
+          console.log("afterClosed() error : " + error); 
+        }
+        );
+      }  
     });
-    console.log("getDbEvents() isAvailable = ",isAvailable);
-    return {dbEvents: this.events, isAvailable: isAvailable};
   }
 
 }
