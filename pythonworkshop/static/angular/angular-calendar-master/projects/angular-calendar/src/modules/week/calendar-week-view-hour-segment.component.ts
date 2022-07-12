@@ -1,4 +1,7 @@
-import { Component, Inject, Input, Output, TemplateRef , EventEmitter, OnInit} from '@angular/core';
+import { 
+  Component, Inject, Input, Output,
+  TemplateRef , ElementRef, EventEmitter,
+  OnInit, AfterViewInit, AfterContentInit, ViewChild } from '@angular/core';
 import { WeekViewHourSegment } from 'calendar-utils';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CalendarEvent } from 'calendar-utils';
@@ -64,7 +67,7 @@ export interface PythEvent {
         </div>
     </ng-template>
     <ng-template #eventTemplate>
-        <div
+        <div #divEventTempl
           [attr.aria-hidden]="
             {}
               | calendarA11y
@@ -101,8 +104,10 @@ export interface PythEvent {
   `,
 })
 
-export class CalendarWeekViewHourSegmentComponent {
-  constructor(public dialog: MatDialog, private httpService: HttpEventService) {}
+export class CalendarWeekViewHourSegmentComponent implements AfterContentInit{
+  constructor(
+    public dialog: MatDialog, 
+    private httpService: HttpEventService) {}
 
   @Input() roomInd : number;
 
@@ -252,6 +257,19 @@ getDateString( date ) {
     });
   }
 
+  @Output() hourSegmWidthChange =new EventEmitter<number>();
+
+  @ViewChild('divEventTempl' )
+      evtTempl : ElementRef;
+
+  ngAfterContentInit(): void {
+    if (this.evtTempl){
+      var width = this.evtTempl.nativeElement.offsetWidth;
+    console.log("eventTemplate width :", width);
+    this.hourSegmWidthChange.emit(width);
+    }
+    
+  }
 }
 
 @Component({
