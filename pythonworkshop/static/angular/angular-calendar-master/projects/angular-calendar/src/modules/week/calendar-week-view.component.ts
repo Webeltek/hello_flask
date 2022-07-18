@@ -12,6 +12,8 @@ import {
   TemplateRef,
   ElementRef,
   AfterViewInit,
+  ViewChild,
+  HostListener,
   ChangeDetectionStrategy
 } from '@angular/core';
 import { Subject, Subscription } from 'rxjs';
@@ -418,7 +420,6 @@ export interface CalendarWeekViewBeforeRenderEvent extends WeekView {
                 (drop)="eventDropped($event, segment.date, false)"
                 (dragEnter)="dateDragEnter(segment.date)"
                 [isTimeLabel]="daysInWeek === 1"
-                (hourSegmWidthChange) = processHourSegmWidth($event)
               >
               </mwl-calendar-week-view-hour-segment>
             </div>
@@ -641,14 +642,6 @@ export class CalendarWeekViewComponent
     sourceEvent: MouseEvent;
   }>();
 
-  processHourSegmWidth(widthVal){
-      this.hourSegmentWidth = widthVal;
-  }
-  /**
-   * @hidden
-   */
-   hourSegmentWidth: number;
-
   /**
    * @hidden
    */
@@ -781,6 +774,10 @@ export class CalendarWeekViewComponent
    * @hidden
    */
   ngOnInit(): void {
+    this.windowWidth = window.innerWidth;
+    this.hourSegmentWidth = (this.windowWidth-70) / this.daysInWeek
+    console.log("onInit() hourSegmWidth: ", this.hourSegmentWidth)
+    console.log("onInit() windowWidth: ", this.windowWidth)
     if (this.refresh) {
       this.refreshSubscription = this.refresh.subscribe(() => {
         this.refreshAll();
@@ -788,6 +785,20 @@ export class CalendarWeekViewComponent
       });
     }
   }
+
+   /**
+   * @hidden
+   */
+    hourSegmentWidth: number;
+    windowWidth : number;
+ 
+   @HostListener('window:resize', ['$event'])
+   onResize(event) {
+     this.windowWidth = window.innerWidth;
+     this.hourSegmentWidth = (this.windowWidth-70) / this.daysInWeek
+     //console.log("onResize  hourSegmWidth:", this.hourSegmentWidth);
+     //console.log("onResize  windowWidth:", this.windowWidth);
+   }
 
   /**
    * @hidden
@@ -821,7 +832,7 @@ export class CalendarWeekViewComponent
     }
 
     if (changes.events) {
-      console.log("event changes detected")
+      //console.log("event changes detected")
       validateEvents(this.events);
     }
 
@@ -842,6 +853,9 @@ export class CalendarWeekViewComponent
       this.refreshSubscription.unsubscribe();
     }
   }
+
+  @ViewChild('singleDayColumn' )
+      singleDayColumnRef : ElementRef;
 
   /**
    * @hidden

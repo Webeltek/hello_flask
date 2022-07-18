@@ -85,15 +85,24 @@ export class CalendarWeekViewCurrentTimeMarkerComponent implements OnChanges {
         (this.hourSegments * this.hourSegmentHeight) /
         (this.hourDuration || 60);
       const now = new Date();
+      if(this.dateAdapter.isSameDay(columnDate, now) && now >= startOfDay &&  now <= endOfDay) 
+        {
+        //console.log("marker now-startOfDay diff in minutes",this.dateAdapter.differenceInMinutes(now, startOfDay))
+        //console.log("marker start-end of day diff in min: ", this.dateAdapter.differenceInMinutes(endOfDay, startOfDay))
+        console.log("pixels from start of day: ",
+        this.hourSegmentWidth * 
+            (this.dateAdapter.differenceInMinutes(now, startOfDay) /
+            this.dateAdapter.differenceInMinutes(endOfDay, startOfDay)))
+        }
       return {
         isVisible:
           this.dateAdapter.isSameDay(columnDate, now) &&
           now >= startOfDay &&
           now <= endOfDay,
         left:
-          (this.columnIndex +1) * this.hourSegmentWidth * 
+          this.hourSegmentWidth * 
           this.dateAdapter.differenceInMinutes(now, startOfDay) /
-          this.dateAdapter.differenceInMinutes(startOfDay,endOfDay),
+          this.dateAdapter.differenceInMinutes(endOfDay, startOfDay),
       };
     })
   );
@@ -104,9 +113,8 @@ export class CalendarWeekViewCurrentTimeMarkerComponent implements OnChanges {
     if (changes.columnDate) {
       this.columnDate$.next(changes.columnDate.currentValue);
     }
-  }
-
-  ngAfterViewInit(): void {
-    console.log("timeMarkerComp hourSegmWidth : ",this.hourSegmentWidth);
+    if(changes.hourSegmentWidth){
+      this.columnDate$.next(this.columnDate)
+    }
   }
 }

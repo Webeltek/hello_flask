@@ -1,7 +1,6 @@
 import { 
   Component, Inject, Input, Output,
-  TemplateRef , ElementRef, EventEmitter,
-  OnInit, AfterViewInit, AfterContentInit, ViewChild } from '@angular/core';
+  TemplateRef  } from '@angular/core';
 import { WeekViewHourSegment } from 'calendar-utils';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CalendarEvent } from 'calendar-utils';
@@ -11,6 +10,7 @@ import { catchError, retry } from 'rxjs/operators';
 import { Console } from 'console';
 import { HttpEventService } from './http-service.service';
 import { strictEqual } from 'assert';
+import { DateAdapter } from '../../date-adapters/date-adapter';
 
 
 export interface DialogData {
@@ -104,7 +104,7 @@ export interface PythEvent {
   `,
 })
 
-export class CalendarWeekViewHourSegmentComponent implements AfterContentInit{
+export class CalendarWeekViewHourSegmentComponent {
   constructor(
     public dialog: MatDialog, 
     private httpService: HttpEventService) {}
@@ -213,63 +213,60 @@ getDateString( date ) {
           }
         this.events.push(calEvent);    
       }
-      
-      if (!this.events.some((dbEvent : CalendarEvent) =>{
-        let eventDate =  dbEvent.start.getDate();
-        let eventHour = dbEvent.start.getHours();
-        let clickedDate = this.segment.date.getDate();
-        let clickedHour = this.segment.date.getHours();
-        let clickedMinute = this.segment.date.getMinutes();
-        console.log(" isAv logical construct = ",(clickedDate == eventDate && clickedHour==eventHour));
-        return (clickedDate == eventDate && clickedHour==eventHour); 
-      })){
-        const dialogRef = this.dialog.open(EventDialog, {
-          data: {
-            date: clickedSegmDate,
-            romIndex: this.roomInd,
-          },
-        });
+      let isBisyDay = false;
+      let bisyPeriod = "";
 
-        dialogRef.afterClosed().subscribe(
-          (result) => {
-            if (typeof result !== 'undefined') {
-              let uniqueId = this.generateUniqueID();
-              let startEndDate = this.generatePythStartEndDate(result.dayPeriodVal,this.roomInd);
-              //console.log("roomInd : " + this.roomInd.toString(10));
-              this.pythEvt =  
-                {
-                  uid : uniqueId,
-                  row : this.roomInd.toString(),
-                  title: result.dayPeriodVal,
-                  start: startEndDate.start,
-                  end: startEndDate.end,
-                  color: "#FFAE00"
-                };
-              //console.log("afterClosed() result:", this.pythEvt);
-              this.addEvent(this.pythEvt);
+      //console.log("clicked date", this.segment.date)
+      
+      if (this.events.some((dbEvent : CalendarEvent) => {
+          let isClickedDateInsideDbEvent  = this.segment.date >= dbEvent.start && 
+                this.segment.date <= dbEvent.end;
+          isBisyDay = this.segment.date.getHours() == dbEvent.start.getHours();
+          if(isBisyDay){
+              bisyPeriod = dbEvent.title;
+              console.log("bisyPeriod string: ",bisyPeriod);
+          }  
+          return !isClickedDateInsideDbEvent; 
+          }
+        ))
+          {
+            const dialogRef = this.dialog.open(EventDialog, {
+              data: {
+                date: clickedSegmDate,
+                romIndex: this.roomInd,
+                isBisyDay: isBisyDay,
+                bisyPeriod : bisyPeriod 
+              },
+            });
+
+            dialogRef.afterClosed().subscribe(
+              (result) => {
+                if (typeof result !== 'undefined') {
+                  let uniqueId = this.generateUniqueID();
+                  let startEndDate = this.generatePythStartEndDate(result.dayPeriodVal,this.roomInd);
+                  //console.log("roomInd : " + this.roomInd.toString(10));
+                  this.pythEvt =  
+                    {
+                      uid : uniqueId,
+                      row : this.roomInd.toString(),
+                      title: result.dayPeriodVal,
+                      start: startEndDate.start,
+                      end: startEndDate.end,
+                      color: "#FFAE00"
+                    };
+                  //console.log("afterClosed() result:", this.pythEvt);
+                  this.addEvent(this.pythEvt);
+                }
+            },
+            (error) => {
+              console.log("afterClosed() error : " + error); 
             }
-        },
-        (error) => {
-          console.log("afterClosed() error : " + error); 
-        }
-        );
-      }  
+            );
+          }  
     });
   }
 
-  @Output() hourSegmWidthChange =new EventEmitter<number>();
-
-  @ViewChild('divEventTempl' )
-      evtTempl : ElementRef;
-
-  ngAfterContentInit(): void {
-    if (this.evtTempl){
-      var width = this.evtTempl.nativeElement.offsetWidth;
-    console.log("eventTemplate width :", width);
-    this.hourSegmWidthChange.emit(width);
-    }
-    
-  }
+  
 }
 
 @Component({

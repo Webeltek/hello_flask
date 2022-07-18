@@ -1,6 +1,6 @@
 import sys
 
-sys.path.append("/home/willy/work/pythonworkshop")
+sys.path.append("/home/st5/work/pythonworkshop")
 
 from flaskbase import app
 

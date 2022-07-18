@@ -13,7 +13,7 @@ import { takeUntil } from 'rxjs/operators';
 import { CustomDateFormatter } from './custom-date-formatter.provider';
 import { HttpEventService } from 'projects/angular-calendar/src/modules/week/http-service.service';
 import { PythEvent } from 'projects/angular-calendar/src/modules/week/calendar-week-view-hour-segment.component';
-import { CalendarEventActionsComponent } from 'dist/angular-calendar/modules/common/calendar-event-actions.component';
+import { CalendarEventActionsComponent } from 'projects/angular-calendar/src/modules/common/calendar-event-actions.component';
 import { addDays } from 'date-fns';
 import { HttpResponse } from '@angular/common/http';
 import { DateAdapter } from 'projects/angular-calendar/src/date-adapters/date-adapter';
@@ -61,7 +61,9 @@ export class DemoAppComponent implements OnInit, OnDestroy{
 
   events : CalendarEvent[] = [];
   
-  @Output() viewDateChange: EventEmitter<Date> = new EventEmitter();
+  registerViewDateChange(){
+    
+  };
 
   
 

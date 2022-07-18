@@ -2,13 +2,15 @@
 
   <div class="col-md-4">
       <div class="btn-group">
-          <div class="btn btn-primary" mwlCalendarPreviousView [view]="view" [(viewDate)]="viewDate">
+          <div class="btn btn-primary" mwlCalendarPreviousView 
+          [view]="view" [(viewDate)]="viewDate">
               Previous
           </div>
           <div class="btn btn-outline-secondary" mwlCalendarToday [(viewDate)]="viewDate">
               Today
           </div>
-          <div class="btn btn-primary" mwlCalendarNextView [view]="view" [(viewDate)]="viewDate">
+          <div class="btn btn-primary" mwlCalendarNextView 
+          [view]="view" [(viewDate)]="viewDate">
               Next
           </div>
       </div>
@@ -18,8 +20,8 @@
 
 <mwl-calendar-week-view  
 [locale]="locale"
-[dayStartHour]="12" 
-[dayEndHour]="18" 
+[dayStartHour]="0" 
+[dayEndHour]="6" 
 [viewDate]="viewDate" 
 [daysInWeek]="daysInWeek" 
 [events]="events">
