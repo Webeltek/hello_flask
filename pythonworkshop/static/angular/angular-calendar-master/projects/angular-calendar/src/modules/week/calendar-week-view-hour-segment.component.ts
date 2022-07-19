@@ -200,6 +200,8 @@ getDateString( date ) {
 
   openDialog()  {
     let clickedSegmDate = this.segment.date;
+    var hourContainedEvTitle = ""; 
+    console.log("segment Date in openDialog(): ",this.segment.date ) ;
     this.httpService.getEvents().subscribe( (response) => {
       this.events = [];
       let responseObj =  JSON.parse(response);
@@ -213,29 +215,36 @@ getDateString( date ) {
           }
         this.events.push(calEvent);    
       }
-      let isBisyDay = false;
-      let bisyPeriod = "";
 
-      //console.log("clicked date", this.segment.date)
+      console.log("saved events", this.events)
       
-      if (this.events.some((dbEvent : CalendarEvent) => {
-          let isClickedDateInsideDbEvent  = this.segment.date >= dbEvent.start && 
-                this.segment.date <= dbEvent.end;
-          isBisyDay = this.segment.date.getHours() == dbEvent.start.getHours();
-          if(isBisyDay){
-              bisyPeriod = dbEvent.title;
-              console.log("bisyPeriod string: ",bisyPeriod);
-          }  
-          return !isClickedDateInsideDbEvent; 
-          }
-        ))
-          {
+      if (this.events.some( (dbEvent : CalendarEvent) => {
+        
+        let clickedSegmEndDate = new Date(this.segment.date);
+        clickedSegmEndDate.setMinutes(clickedSegmDate.getMinutes() + 30);
+        let isClickedOverEvent = dbEvent.start >= this.segment.date &&
+        dbEvent.end <= clickedSegmEndDate;  
+        return !isClickedOverEvent; 
+        })) 
+        {
+          for (var dbEvt of this.events) {
+          let segmStartHour = this.segment.date.getHours();
+          let modifiedSegmentDate = new Date(this.segment.date);
+          let segmStartHourDate = new Date(modifiedSegmentDate.setHours(segmStartHour,0));
+          let segmEndHourDate = new Date(modifiedSegmentDate.setHours(segmStartHour+1,0));
+          var isDbEventContainedHour  = 
+              dbEvt.start >= segmStartHourDate && 
+              dbEvt.end <= segmEndHourDate; 
+        if ( isDbEventContainedHour){
+        hourContainedEvTitle =  dbEvt.title;
+        console.log("hourContainedEvtTtl", hourContainedEvTitle);
+        }
+      }
             const dialogRef = this.dialog.open(EventDialog, {
               data: {
                 date: clickedSegmDate,
                 romIndex: this.roomInd,
-                isBisyDay: isBisyDay,
-                bisyPeriod : bisyPeriod 
+                hourContainedEvTitle : hourContainedEvTitle
               },
             });
 
@@ -275,20 +284,38 @@ getDateString( date ) {
 })
 export class EventDialog {
   constructor( public dialogRef: MatDialogRef<EventDialog>,
-     @Inject(MAT_DIALOG_DATA) public data: { date:Date,romIndex:number },
-     public fb: FormBuilder) { 
-    }
+     @Inject(MAT_DIALOG_DATA) public data: { date:Date,romIndex:number, hourContainedEvTitle: string },
+     public fb: FormBuilder) {}
 
+    containedEvTitle = this.data.hourContainedEvTitle;
     valgtPerCtrl = this.fb.control("");
     userForm  = this.fb.group({
         valgtPer : this.valgtPerCtrl
-      }); 
+      });
+      
+  
 
   closeDialog(){
     this.dialogRef.close({ dayPeriodVal : this.valgtPerCtrl.value} )
-  } 
+  }
+  
+  
 
   perioder: string[] = ['Formiddag','Ettermiddag','Heldag'];
+  remPerioder = () => {
+    console.log("containedEvtTitl", this.data.hourContainedEvTitle);
+    for (let perVal of this.perioder){
+        if(perVal === this.containedEvTitle){
+          console.log("perVal equal", perVal);
+          let toRemoveInd = this.perioder.indexOf(perVal);
+          this.perioder.splice(toRemoveInd,1);
+        }
+    }
+    console.log("perioder : ",this.perioder);
+    return this.perioder;
+  }
+  modPerioder : string []= this.remPerioder(); 
+  
 
   onSubmit(){
     console.log("onSibmit dialod form value: " + JSON.stringify(this.valgtPerCtrl.value) )

@@ -89,10 +89,6 @@ export class CalendarWeekViewCurrentTimeMarkerComponent implements OnChanges {
         {
         //console.log("marker now-startOfDay diff in minutes",this.dateAdapter.differenceInMinutes(now, startOfDay))
         //console.log("marker start-end of day diff in min: ", this.dateAdapter.differenceInMinutes(endOfDay, startOfDay))
-        console.log("pixels from start of day: ",
-        this.hourSegmentWidth * 
-            (this.dateAdapter.differenceInMinutes(now, startOfDay) /
-            this.dateAdapter.differenceInMinutes(endOfDay, startOfDay)))
         }
       return {
         isVisible:
