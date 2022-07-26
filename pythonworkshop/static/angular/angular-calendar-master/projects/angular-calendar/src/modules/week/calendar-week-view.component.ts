@@ -233,7 +233,8 @@ export interface CalendarWeekViewBeforeRenderEvent extends WeekView {
             [class.cal-hour-odd]="odd"
           >
 
-              <ng-container *ngFor="let segment of hour.segments;let index = index; trackBy: trackByHourSegment">   
+              <ng-container *ngFor="let segment of hour.segments;
+                let index = index; trackBy: trackByHourSegment">   
                     <mwl-calendar-week-view-hour-segment
                       *ngIf="index == 0"
                       [style.height.px]="hourSegmentHeight*2"

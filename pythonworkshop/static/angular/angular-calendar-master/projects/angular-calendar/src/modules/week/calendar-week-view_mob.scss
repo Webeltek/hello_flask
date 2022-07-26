@@ -9,11 +9,12 @@ $cal-week-view-vars: map-merge($cal-vars, $cal-week-view-vars);
   .cal-week-view {
     background-color: map-get($theme, bg-primary);
     border-top: solid 1px map-get($theme, border-color);
-    display: flex;
     
     .cal-day-headers {
       border-color: map-get($theme, border-color);
       border-top: 0;
+      display: flex;
+      flex-direction: column;
     }
 
     .cal-day-headers .cal-header {
@@ -74,8 +75,7 @@ $cal-week-view-vars: map-merge($cal-vars, $cal-week-view-vars);
 
     .cal-time-events {
       border-color: map-get($theme, border-color);
-      display: flex;
-      flex-direction: column;
+      
 
       .cal-day-columns {
         &:not(.cal-resize-active) {
@@ -96,7 +96,7 @@ $cal-week-view-vars: map-merge($cal-vars, $cal-week-view-vars);
 
     .cal-hour:not(:last-child) .cal-hour-segment,
     .cal-hour:last-child :not(:last-child) .cal-hour-segment {
-      width: 70px;
+      
       border-bottom: 1px solid map-get($theme, border-color);
       border-right-color: map-get($theme, border-color);
     }
@@ -117,13 +117,12 @@ $cal-week-view-vars: map-merge($cal-vars, $cal-week-view-vars);
     padding-left: 0px;
     border-left: 1px solid;
     border-bottom: 1px solid;
-    flex-direction: column;
-    width: 70px;
+    width: 60px;
 
 
     [dir='rtl'] & {
       padding-left: initial;
-      padding-right: 70px;
+      padding-right: 0px;
     }
   }
 
@@ -132,7 +131,7 @@ $cal-week-view-vars: map-merge($cal-vars, $cal-week-view-vars);
     text-align: center;
     padding: 5px;
     height : 60px;
-    width: 70px;
+    width: 60px;
 
     &:not(:last-child) {
       border-bottom: 1px solid;
@@ -177,6 +176,7 @@ $cal-week-view-vars: map-merge($cal-vars, $cal-week-view-vars);
   .cal-time-label-column {
     width: 100%;
     height: 60px;
+    padding-left: 60px;
     display : flex;
   }
 
@@ -206,11 +206,11 @@ $cal-week-view-vars: map-merge($cal-vars, $cal-week-view-vars);
     .cal-events-row {
       position: relative;
       height: 31px;
-      margin-left: 70px;
+      margin-left: 60px;
 
       [dir='rtl'] & {
         margin-left: initial;
-        margin-right: 70px;
+        margin-right: 0px;
       }
     }
 
@@ -312,6 +312,7 @@ $cal-week-view-vars: map-merge($cal-vars, $cal-week-view-vars);
     .cal-day-column {
       position: relative;
       display: flex;
+      height: 60px;
     }
 
     .cal-events-container {
@@ -362,7 +363,11 @@ $cal-week-view-vars: map-merge($cal-vars, $cal-week-view-vars);
   /* stylelint-disable-next-line selector-type-no-unknown */
   mwl-calendar-week-view-hour-segment, /* fix for https://github.com/mattlewis92/angular-calendar/issues/260*/
   .cal-hour-segment {
-    display: block;
+    //display: block;
+  }
+
+  .cal-hour { 
+    display: flex;
   }
 
   .cal-hour:not(:last-child) .cal-hour-segment,
@@ -374,7 +379,7 @@ $cal-week-view-vars: map-merge($cal-vars, $cal-week-view-vars);
   .cal-time {
     font-weight: bold;
     padding-top: 5px;
-    width: 70px;
+    width: 60px;
     text-align: center;
   }
 
@@ -396,3 +401,14 @@ $cal-week-view-vars: map-merge($cal-vars, $cal-week-view-vars);
 }
 
 @include cal-week-view-theme($cal-week-view-vars);
+
+.example-radio-group {
+  display: flex;
+  flex-direction: column;
+  margin: 15px 0;
+  align-items: flex-start;
+}
+
+.example-radio-button {
+  margin: 5px;
+}

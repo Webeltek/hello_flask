@@ -34,7 +34,7 @@ export class DemoAppComponent implements OnInit, OnDestroy{
   viewDate: Date = new Date();
   view: CalendarView = CalendarView.Week;
   CalendarView = CalendarView;
-  daysInWeek = 14;
+  daysInWeek = 7;
   locale : string = "nb";
   weekStartsOn: number = DAYS_OF_WEEK.MONDAY;
   weekendDays: number[] = [DAYS_OF_WEEK.FRIDAY, DAYS_OF_WEEK.SATURDAY];

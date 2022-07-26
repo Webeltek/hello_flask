@@ -79,20 +79,41 @@ export interface CalendarWeekViewBeforeRenderEvent extends WeekView {
  * ```
  */
 @Component({
-  selector: 'mwl-calendar-week-view',
+  selector: 'mwl-calendar-week-view-mob',
+  styleUrls : ['./calendar-week-view_mob.scss'],
   template: `
     <div class="cal-week-view" role="grid">
-      <mwl-calendar-week-view-header       
-        [days]="days"
-        [locale]="locale"
-        [customTemplate]="headerTemplate"
-        (dayHeaderClicked)="dayHeaderClicked.emit($event)"
-        (eventDropped)="
-          eventDropped({ dropData: $event }, $event.newStart, true)
-        "
-        (dragEnter)="dateDragEnter($event.date)"
-      >
-      </mwl-calendar-week-view-header>
+    <div
+          class="cal-time-label-column"
+          *ngIf="view.hourColumns.length > 0 && daysInWeek !== 1"
+        >
+          <div
+          *ngFor="
+            let hour of view.hourColumns[0].hours;
+            trackBy: trackByHour;
+            let odd = odd;
+            let roomIndex = index;
+          "
+          class="cal-hour"
+          [class.cal-hour-odd]="odd"
+          >
+            <mwl-calendar-week-view-hour-segment
+              *ngFor="let segment of hour.segments; trackBy: trackByHourSegment"
+              [style.height.px]="hourSegmentHeight"
+              [segment]="segment"
+              [segmentHeight]="hourSegmentHeight"
+              [segmentWidth]="hourSegmentWidth"
+              [locale]="locale"
+              [customTemplate]="hourSegmentTemplate"
+              [isTimeLabel]="true"
+              [daysInWeek]="daysInWeek"
+              [currentRoomIndex] = "roomIndex"
+              > 
+            </mwl-calendar-week-view-hour-segment>
+          </div>
+        </div>
+      
+      
       <div
         class="cal-all-day-events"
         #allDayEventsContainer
@@ -217,34 +238,18 @@ export interface CalendarWeekViewBeforeRenderEvent extends WeekView {
         (dragEnter)="dragEnter('time')"
         (dragLeave)="dragLeave('time')"
       >
-        <div
-          class="cal-time-label-column"
-          *ngIf="view.hourColumns.length > 0 && daysInWeek !== 1"
-        >
-          <div
-          *ngFor="
-            let hour of view.hourColumns[0].hours;
-            trackBy: trackByHour;
-            let odd = odd;
-            let roomIndex = index;
+        <mwl-calendar-week-view-header       
+          [days]="days"
+          [locale]="locale"
+          [customTemplate]="headerTemplate"
+          (dayHeaderClicked)="dayHeaderClicked.emit($event)"
+          (eventDropped)="
+            eventDropped(null, $event.newStart, true)
           "
-          class="cal-hour"
-          [class.cal-hour-odd]="odd"
-          >
-            <mwl-calendar-week-view-hour-segment
-              *ngFor="let segment of hour.segments; trackBy: trackByHourSegment"
-              [style.height.px]="hourSegmentHeight"
-              [segment]="segment"
-              [segmentHeight]="hourSegmentHeight"
-              [locale]="locale"
-              [customTemplate]="hourSegmentTemplate"
-              [isTimeLabel]="true"
-              [daysInWeek]="daysInWeek"
-              [currentRoomIndex] = "roomIndex"
-              > 
-            </mwl-calendar-week-view-hour-segment>
-          </div>
-        </div>
+          (dragEnter)="dateDragEnter($event.date)"
+        >
+        </mwl-calendar-week-view-header>
+        
         <div
           class="cal-day-columns"
           [class.cal-resize-active]="timeEventResizes.size > 0"
@@ -252,7 +257,8 @@ export interface CalendarWeekViewBeforeRenderEvent extends WeekView {
         >
           <div
             class="cal-day-column"
-            *ngFor="let column of view.hourColumns; trackBy: trackByHourColumn"
+            *ngFor="let column of view.hourColumns; 
+            trackBy: trackByHourColumn"
           >
             <mwl-calendar-week-view-current-time-marker
               [columnDate]="column.date"
@@ -377,6 +383,7 @@ export interface CalendarWeekViewBeforeRenderEvent extends WeekView {
             <div
               *ngFor="
                 let hour of column.hours;
+                let roomIndex = index;
                 trackBy: trackByHour;
                 let odd = odd
               "
@@ -389,11 +396,13 @@ export interface CalendarWeekViewBeforeRenderEvent extends WeekView {
                   trackBy: trackByHourSegment
                 "
                 [style.height.px]="hourSegmentHeight"
+                [segmentWidth]="hourSegmentWidth"
                 [segment]="segment"
                 [segmentHeight]="hourSegmentHeight"
                 [locale]="locale"
                 [customTemplate]="hourSegmentTemplate"
                 [daysInWeek]="daysInWeek"
+                [roomInd] = "roomIndex"
                 (mwlClick)="
                   hourSegmentClicked.emit({
                     date: segment.date,
@@ -420,7 +429,7 @@ export interface CalendarWeekViewBeforeRenderEvent extends WeekView {
     </div>
   `,
 })
-export class CalendarWeekViewComponent
+export class CalendarWeekViewComponentMob
   implements OnChanges, OnInit, OnDestroy, AfterViewInit
 {
 
@@ -542,7 +551,12 @@ export class CalendarWeekViewComponent
   /**
    * The height in pixels of each hour segment
    */
-  @Input() hourSegmentHeight: number = 30;
+  @Input() hourSegmentHeight: number = 60;
+
+  /**
+   * The height in pixels of each hour segment
+   */
+   @Input() hourSegmentWidth: number = 30;
 
   /**
    * The minimum height in pixels of each event

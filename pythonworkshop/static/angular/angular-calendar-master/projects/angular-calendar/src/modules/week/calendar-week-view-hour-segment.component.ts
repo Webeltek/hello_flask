@@ -36,6 +36,7 @@ export interface PythEvent {
       let-segment="segment"
       let-locale="locale"
       let-segmentHeight="segmentHeight"
+      let-segmentWidth="segmentWidth"
       let-isTimeLabel="isTimeLabel"
       let-daysInWeek="daysInWeek"
     >
@@ -53,6 +54,7 @@ export interface PythEvent {
           "
           class="cal-hour-segment"
           [style.height.px]="segmentHeight"
+          [style.width.px]="segmentWidth"
           [class.cal-hour-start]="segment.isStart"
           [class.cal-after-hour-start]="!segment.isStart"
           [ngClass]="segment.cssClass"
@@ -77,6 +79,7 @@ export interface PythEvent {
           "
           class="cal-hour-segment"
           [style.height.px]="segmentHeight"
+          [style.width.px]="segmentWidth"
           [class.cal-hour-start]="segment.isStart"
           [class.cal-after-hour-start]="!segment.isStart"
           [ngClass]="segment.cssClass"
@@ -118,6 +121,8 @@ export class CalendarWeekViewHourSegmentComponent {
   @Input() locale: string;
 
   @Input() isTimeLabel: boolean;
+
+  @Input() segmentWidth: number;
 
   @Input() daysInWeek: number;
 
@@ -216,15 +221,15 @@ getDateString( date ) {
         this.events.push(calEvent);    
       }
 
-      console.log("saved events", this.events)
+      //console.log("saved events", this.events);
+      //console.log("saved events is length==0",this.events.length==0);
       
-      if (this.events.some( (dbEvent : CalendarEvent) => {
-        
+      if (this.events.length==0 || this.events.some( (dbEvent : CalendarEvent) => {
         let clickedSegmEndDate = new Date(this.segment.date);
         clickedSegmEndDate.setMinutes(clickedSegmDate.getMinutes() + 30);
         let isClickedOverEvent = dbEvent.start >= this.segment.date &&
         dbEvent.end <= clickedSegmEndDate;  
-        return !isClickedOverEvent; 
+        return !isClickedOverEvent ; 
         })) 
         {
           for (var dbEvt of this.events) {
@@ -299,26 +304,27 @@ export class EventDialog {
     this.dialogRef.close({ dayPeriodVal : this.valgtPerCtrl.value} )
   }
   
-  
+  ngOnInit(){} 
 
-  perioder: string[] = ['Formiddag','Ettermiddag','Heldag'];
-  remPerioder = () => {
-    console.log("containedEvtTitl", this.data.hourContainedEvTitle);
-    for (let perVal of this.perioder){
-        if(perVal === this.containedEvTitle){
-          console.log("perVal equal", perVal);
-          let toRemoveInd = this.perioder.indexOf(perVal);
-          this.perioder.splice(toRemoveInd,1);
-        }
+  get remPerioder() {
+    let perioder = ['Formiddag','Ettermiddag','Heldag'];
+    //console.log("containedEvtTitl", this.data.hourContainedEvTitle);
+    if (this.containedEvTitle!="") {
+      perioder = perioder.filter( (perVal) =>{
+        let containedEvtTitle = this.containedEvTitle;
+        //console.log("remPerCondition :",perVal != containedEvtTitle && perVal !='Heldag');
+           return perVal != containedEvtTitle && perVal !='Heldag';
+         })
+       return perioder;
+    } else {
+      return perioder;
     }
-    console.log("perioder : ",this.perioder);
-    return this.perioder;
+    
   }
-  modPerioder : string []= this.remPerioder(); 
   
 
   onSubmit(){
-    console.log("onSibmit dialod form value: " + JSON.stringify(this.valgtPerCtrl.value) )
+    //console.log("onSibmit dialod form value: " + JSON.stringify(this.valgtPerCtrl.value) )
   }
 
 }
