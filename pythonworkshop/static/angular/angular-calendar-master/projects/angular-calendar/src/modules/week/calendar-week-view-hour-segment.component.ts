@@ -1,6 +1,6 @@
 import { 
   Component, Inject, Input, Output,
-  TemplateRef  } from '@angular/core';
+  TemplateRef, ViewEncapsulation  } from '@angular/core';
 import { WeekViewHourSegment } from 'calendar-utils';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CalendarEvent } from 'calendar-utils';
@@ -35,12 +35,13 @@ export interface PythEvent {
       #defaultTemplate
       let-segment="segment"
       let-locale="locale"
+      let-isOdd="isOdd"
       let-segmentHeight="segmentHeight"
       let-segmentWidth="segmentWidth"
-      let-isTimeLabel="isTimeLabel"
+      let-isTimeLabels="isTimeLabel"
       let-daysInWeek="daysInWeek"
     >
-      <ng-container *ngIf="isTimeLabel; then hourTemplate else eventTemplate">
+      <ng-container *ngIf="isTimeLabels; then hourTemplate else eventTemplate">
       </ng-container>  
     </ng-template>
     <ng-template #hourTemplate>
@@ -53,6 +54,7 @@ export interface PythEvent {
                     : 'hideWeekHourSegment')
           "
           class="cal-hour-segment"
+          [class.cal-hour-segment-odd]="isOdd"
           [style.height.px]="segmentHeight"
           [style.width.px]="segmentWidth"
           [class.cal-hour-start]="segment.isStart"
@@ -116,6 +118,8 @@ export class CalendarWeekViewHourSegmentComponent {
 
   @Input() segment: WeekViewHourSegment;
 
+  @Input() isOdd: boolean;
+
   @Input() segmentHeight: number;
 
   @Input() locale: string;
@@ -133,7 +137,7 @@ export class CalendarWeekViewHourSegmentComponent {
   }
 
   currentRoom : string;
-  rooms : string[] = ["Møterom stort", "Møterom lite", "Møterom 214", "Møterom 210" , "Aktivitet plan"];
+  rooms : string[] = ["Møterom stort", "Møterom lite", "Møterom 214", "Møterom 210" , "Aktivitets plan"];
 
   colors: any = {
     red: {
@@ -206,7 +210,7 @@ getDateString( date ) {
   openDialog()  {
     let clickedSegmDate = this.segment.date;
     var hourContainedEvTitle = ""; 
-    console.log("segment Date in openDialog(): ",this.segment.date ) ;
+    //console.log("segment Date in openDialog(): ",this.segment.date ) ;
     this.httpService.getEvents().subscribe( (response) => {
       this.events = [];
       let responseObj =  JSON.parse(response);
@@ -240,11 +244,11 @@ getDateString( date ) {
           var isDbEventContainedHour  = 
               dbEvt.start >= segmStartHourDate && 
               dbEvt.end <= segmEndHourDate; 
-        if ( isDbEventContainedHour){
-        hourContainedEvTitle =  dbEvt.title;
-        console.log("hourContainedEvtTtl", hourContainedEvTitle);
-        }
-      }
+          if ( isDbEventContainedHour){
+            hourContainedEvTitle =  dbEvt.title;
+            console.log("hourContainedEvtTtl", hourContainedEvTitle);
+            }
+          }
             const dialogRef = this.dialog.open(EventDialog, {
               data: {
                 date: clickedSegmDate,
@@ -271,12 +275,42 @@ getDateString( date ) {
                   //console.log("afterClosed() result:", this.pythEvt);
                   this.addEvent(this.pythEvt);
                 }
-            },
-            (error) => {
+              },
+              (error) => {
               console.log("afterClosed() error : " + error); 
-            }
+              }
             );
-          }  
+          } else {
+            const dialogRef = this.dialog.open(EventDialog, {
+              data: {
+                clickedDbEvt: dbEvt,
+                romIndex: this.roomInd,
+              },
+            });
+            dialogRef.afterClosed().subscribe(
+              (result) => {
+                if (typeof result !== 'undefined') {
+                  let uniqueId = this.generateUniqueID();
+                  let startEndDate = this.generatePythStartEndDate(result.dayPeriodVal,this.roomInd);
+                  //console.log("roomInd : " + this.roomInd.toString(10));
+                  this.pythEvt =  
+                    {
+                      uid : uniqueId,
+                      row : this.roomInd.toString(),
+                      title: result.dayPeriodVal,
+                      start: startEndDate.start,
+                      end: startEndDate.end,
+                      color: "#FFAE00"
+                    };
+                  //console.log("afterClosed() result:", this.pythEvt);
+                  this.addEvent(this.pythEvt);
+                }
+              },
+              (error) => {
+              console.log("afterClosed() error : " + error); 
+              }
+            );  
+          } 
     });
   }
 
@@ -286,6 +320,7 @@ getDateString( date ) {
 @Component({
   selector: 'event-dialog',
   templateUrl: 'event-dialog.html',
+  styleUrls: ['event-dialog.scss']
 })
 export class EventDialog {
   constructor( public dialogRef: MatDialogRef<EventDialog>,

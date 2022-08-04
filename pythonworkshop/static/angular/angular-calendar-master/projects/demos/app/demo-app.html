@@ -1,37 +1,50 @@
-<div class="row text-center">
-
-  <div class="col-md-4">
-      <div class="btn-group">
-          <div class="btn btn-primary" mwlCalendarPreviousView 
-          [view]="view" [(viewDate)]="viewDate">
-              Previous
-          </div>
-          <div class="btn btn-outline-secondary" mwlCalendarToday [(viewDate)]="viewDate">
-              Today
-          </div>
-          <div class="btn btn-primary" mwlCalendarNextView 
-          [view]="view" [(viewDate)]="viewDate">
-              Next
-          </div>
-      </div>
-  </div>
-
-</div>
-
-<!-- <mwl-calendar-week-view  
-[locale]="locale"
-[dayStartHour]="0" 
-[dayEndHour]="6" 
-[viewDate]="viewDate" 
-[daysInWeek]="daysInWeek" 
-[events]="events">
-</mwl-calendar-week-view> -->
-
-<mwl-calendar-week-view-mob  
-[locale]="locale"
-[dayStartHour]="0" 
-[dayEndHour]="6" 
-[viewDate]="viewDate" 
-[daysInWeek]="daysInWeek"
-[events]="events">
-</mwl-calendar-week-view-mob>
+<ng-template 
+    #weekTemplate
+    let-isML="isMobL"
+>
+    <div class="row text-center">
+        <div class="col-md-4">
+            <div class="btn-group">
+                <div class="btn btn-primary" mwlCalendarPreviousView 
+                [view]="view" [(viewDate)]="viewDate">
+                    Previous
+                </div>
+                <div class="btn btn-outline-secondary" mwlCalendarToday [(viewDate)]="viewDate">
+                    Today
+                </div>
+                <div class="btn btn-primary" mwlCalendarNextView 
+                [view]="view" [(viewDate)]="viewDate">
+                    Next
+                </div>
+            </div>
+        </div>
+    </div>
+    <ng-container *ngIf="isML; then mobWeekTempl else wideWeekTempl">
+    </ng-container>     
+</ng-template>
+<ng-template #wideWeekTempl>
+    <mwl-calendar-week-view  
+            [locale]="locale"
+            [dayStartHour]="0" 
+            [dayEndHour]="6" 
+            [viewDate]="viewDate" 
+            [daysInWeek]="daysInWeek" 
+            [events]="events">
+        </mwl-calendar-week-view>
+</ng-template>
+<ng-template #mobWeekTempl >
+    <mwl-calendar-week-view-mob
+            [locale]="locale"
+            [dayStartHour]="0" 
+            [dayEndHour]="6" 
+            [viewDate]="viewDate" 
+            [daysInWeek]="daysInWeek" 
+            [events]="events">
+        </mwl-calendar-week-view-mob>
+</ng-template>
+<ng-template
+    [ngTemplateOutlet]="weekTemplate"
+    [ngTemplateOutletContext]="{
+       isMobL : isMobLayout 
+    }"
+></ng-template>

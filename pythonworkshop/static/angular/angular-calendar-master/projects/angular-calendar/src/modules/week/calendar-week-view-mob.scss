@@ -1,9 +1,9 @@
-@import '../../variables';
+@import '../../variables.scss';
 
 $cal-week-view-vars: () !default;
 $cal-week-view-vars: map-merge($cal-vars, $cal-week-view-vars);
 
-@mixin cal-week-view-theme($overrides) {
+@mixin cal-week-view-theme-mob($overrides) {
   $theme: map-merge($cal-week-view-vars, $overrides);
 
   .cal-week-view {
@@ -12,15 +12,11 @@ $cal-week-view-vars: map-merge($cal-vars, $cal-week-view-vars);
     
     .cal-day-headers {
       border-color: map-get($theme, border-color);
-      border-top: 0;
-      display: flex;
-      flex-direction: column;
     }
 
     .cal-day-headers .cal-header {
       &:not(:last-child) {
-        
-        border-bottom-color: map-get($theme, border-color);
+        border-right-color: map-get($theme, border-color);
 
         [dir='rtl'] & {
           border-right-color: initial;
@@ -96,9 +92,7 @@ $cal-week-view-vars: map-merge($cal-vars, $cal-week-view-vars);
 
     .cal-hour:not(:last-child) .cal-hour-segment,
     .cal-hour:last-child :not(:last-child) .cal-hour-segment {
-      
-      border-bottom: 1px solid map-get($theme, border-color);
-      border-right-color: map-get($theme, border-color);
+      border-bottom-color: map-get($theme, border-color);
     }
 
     .cal-current-time-marker {
@@ -114,10 +108,13 @@ $cal-week-view-vars: map-merge($cal-vars, $cal-week-view-vars);
 
   .cal-day-headers {
     display: flex;
+    flex-direction: column;
     padding-left: 0px;
     border-left: 1px solid;
+    border-top: 1px solid;
     border-bottom: 1px solid;
-    width: 60px;
+    width: 70px;
+    border-color:  #e1e1e1 ;
 
 
     [dir='rtl'] & {
@@ -131,23 +128,28 @@ $cal-week-view-vars: map-merge($cal-vars, $cal-week-view-vars);
     text-align: center;
     padding: 5px;
     height : 60px;
-    width: 60px;
+    width: 70px;
 
     &:not(:last-child) {
-      border-bottom: 1px solid;
+      border-bottom: 1px solid  #e1e1e1 ;
+      border-right-color:  #e1e1e1;
 
       [dir='rtl'] & {
         border-right: initial;
-        border-left: 1px solid;
+        border-left: 1px solid #e1e1e1;
+        border-right-color: initial;
       }
     }
 
     &:first-child {
-      border-left: 1px solid;
+      border-left: 1px solid #e1e1e1;
+      border-top-color: #e1e1e1 ;
+        height : 60px;
 
       [dir='rtl'] & {
         border-left: initial;
-        border-right: 1px solid;
+        border-left-color: initial;
+        border-right: 1px solid #e1e1e1;
       }
     }
   }
@@ -157,26 +159,36 @@ $cal-week-view-vars: map-merge($cal-vars, $cal-week-view-vars);
     opacity: 0.5;
   }
 
+  .cal-day-headers .cal-header:hover,
+    .cal-day-headers .cal-drag-over {
+      background-color: $cal-bg-active;
+    }
+
   .cal-day-column {
     flex-grow: 1;
-    
+    border-left: solid 1px $cal-border-color;
+    border-top-color : $cal-border-color ;
 
     [dir='rtl'] & {
       border-left: initial;
-      border-right: solid 1px;
+      border-right: solid 1px $cal-border-color ;
     }
   }
 
   .cal-event {
     font-size: 12px;
-    border: 1px solid;
+    background-color: $cal-event-color-secondary;
+    border: 1px solid $cal-event-color-primary;
+    color: $cal-event-color-primary;
     direction: ltr;
   }
 
   .cal-time-label-column {
     width: 100%;
     height: 60px;
-    padding-left: 60px;
+    margin-left: 71px;
+    border-left: solid 1px;
+    border-left-color: #e1e1e1;
     display : flex;
   }
 
@@ -187,8 +199,16 @@ $cal-week-view-vars: map-merge($cal-vars, $cal-week-view-vars);
     z-index: 2;
   }
 
+  .cal-header.cal-today {
+    background-color: $cal-today-bg;
+  }
+
+  .cal-header.cal-weekend span {
+    color: $cal-weekend-color;
+  }
+
   .cal-all-day-events {
-    border: solid 1px;
+    border: solid 1px $cal-border-color;
     border-top: 0;
     border-bottom-width: 3px;
     padding-top: 3px;
@@ -299,14 +319,22 @@ $cal-week-view-vars: map-merge($cal-vars, $cal-week-view-vars);
 
   .cal-time-events {
     position: relative;
-    border: solid 1px;
+    border: solid 1px $cal-bg-active;
     border-top: 0;
     display: flex;
 
     .cal-day-columns {
-      display: flex;
+      display: flex ;
       flex-grow: 1;
       flex-direction: column;
+    }
+
+    .cal-day-columns {
+      &:not(.cal-resize-active) {
+        .cal-hour-segment:hover {
+          background-color: $cal-bg-active;
+        }
+      }
     }
 
     .cal-day-column {
@@ -352,6 +380,8 @@ $cal-week-view-vars: map-merge($cal-vars, $cal-week-view-vars);
     }
   }
 
+
+
   .cal-event-container:not(.cal-draggable) {
     cursor: pointer;
   }
@@ -361,19 +391,48 @@ $cal-week-view-vars: map-merge($cal-vars, $cal-week-view-vars);
   }
 
   /* stylelint-disable-next-line selector-type-no-unknown */
-  mwl-calendar-week-view-hour-segment, /* fix for https://github.com/mattlewis92/angular-calendar/issues/260*/
+  /* mwl-calendar-week-view-hour-segment, /* fix for https://github.com/mattlewis92/angular-calendar/issues/260
   .cal-hour-segment {
-    //display: block;
+    display: block;
   }
+  */
 
   .cal-hour { 
     display: flex;
   }
 
-  .cal-hour:not(:last-child) .cal-hour-segment,
-  .cal-hour:last-child :not(:last-child) .cal-hour-segment {
-    border-right: thin dashed;
+  .cal-hour-odd {
+    background-color: $cal-bg-secondary;
+  }
 
+  .cal-drag-over .cal-hour-segment {
+    background-color: $cal-bg-active;
+  }
+
+  .cal-hour:not(:last-child) .cal-hour-segment,
+    .cal-hour:last-child :not(:last-child) .cal-hour-segment {
+      
+      border-bottom: 1px solid $cal-border-color;
+      border-right-color: $cal-border-color;
+    }
+
+  .cal-day-column .cal-hour:not(:last-child) .cal-hour-segment,
+  .cal-day-column .cal-hour:last-child :not(:last-child) .cal-hour-segment {
+    border-right: thin dashed;
+    border-right-color: $cal-border-color;
+  }
+
+  .cal-time-label-column .cal-hour .cal-hour-segment:nth-child(even) :not(:first-child) {
+    border-right: 0px;
+  }
+
+  .cal-hour-segment-odd {
+    border-right: 1px solid;
+    border-right-color: #e1e1e1;
+  }
+
+  .cal-time-label-column .cal-hour {
+    box-sizing: border-box;
   }
 
   .cal-time {
@@ -400,15 +459,4 @@ $cal-week-view-vars: map-merge($cal-vars, $cal-week-view-vars);
   }
 }
 
-@include cal-week-view-theme($cal-week-view-vars);
-
-.example-radio-group {
-  display: flex;
-  flex-direction: column;
-  margin: 15px 0;
-  align-items: flex-start;
-}
-
-.example-radio-button {
-  margin: 5px;
-}
+//@include cal-week-view-theme-mob($cal-week-view-vars);

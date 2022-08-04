@@ -1,5 +1,5 @@
 diff --git a/node_modules/calendar-utils/calendar-utils.js b/node_modules/calendar-utils/calendar-utils.js
-index 5c83ff8..2ffbe71 100644
+index 5c83ff8..961f487 100644
 --- a/node_modules/calendar-utils/calendar-utils.js
 +++ b/node_modules/calendar-utils/calendar-utils.js
 @@ -108,6 +108,7 @@ function getWeekViewEventSpan(dateAdapter, _a) {
@@ -51,9 +51,9 @@ index 5c83ff8..2ffbe71 100644
          var startsBeforeDay = eventStart < startOfView;
          var endsAfterDay = eventEnd > endOfView;
 -        var hourHeightModifier = (hourSegments * segmentHeight) / (hourDuration || MINUTES_IN_HOUR);
-+        console.log("cal-utils segmHeight",segmentHeight)
++        //console.log("cal-utils segmHeight",segmentHeight)
 +        var hourHeightModifier = (hourSegments * segmentHeight/2) / (hourDuration || MINUTES_IN_HOUR);
-+        console.log("hourHeightmodifier",hourHeightModifier)
++        //console.log("hourHeightmodifier",hourHeightModifier)
          var top = 0;
          if (eventStart > startOfView) {
              // adjust the difference in minutes if the user's offset is different between the start of the day and the event (e.g. when going to or from DST)
@@ -62,16 +62,22 @@ index 5c83ff8..2ffbe71 100644
          var timezoneOffset = dateAdapter.getTimezoneOffset(startDate) -
              dateAdapter.getTimezoneOffset(endDate);
 +        console.log("eventStart,eventEnd",eventStart,eventEnd);  
-+        console.log("endDate,startDate",eventStart,eventEnd);
++        console.log("hourHeightModifier",hourHeightModifier);
          var height = differenceInMinutes(endDate, startDate) + timezoneOffset;
          if (!event.end) {
              height = segmentHeight;
-@@ -550,10 +564,12 @@ function getDayView(dateAdapter, _a) {
-         while (overlappingPreviousEvents.some(function (previousEvent) { return previousEvent.left === left; })) {
-             left += eventWidth;
-         }
-+        console.log("event width",height)
-+        console.log("event left",top)
+@@ -547,13 +561,15 @@ function getDayView(dateAdapter, _a) {
+         var bottom = top + height;
+         var overlappingPreviousEvents = getOverLappingWeekViewEvents(previousDayEvents, top, bottom);
+         var left = 0;
+-        while (overlappingPreviousEvents.some(function (previousEvent) { return previousEvent.left === left; })) {
+-            left += eventWidth;
+-        }
++        //while (overlappingPreviousEvents.some(function (previousEvent) { return previousEvent.left === left; })) {
++            //left += eventWidth;
++        //}
++        //console.log("event width",height)
++        //console.log("event left",top)
          var dayEvent = {
              event: event,
              height: height,

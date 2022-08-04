@@ -80,7 +80,7 @@ def index_events():
         if(event.userId != current_userId ):
             event.color = '#F0401D'
     print ('current_userId :' + str(current_userId))
-    s_events =list( saved_events.dicts())
+    s_events = list( saved_events.dicts())
     json_events = json.dumps(s_events)
     return jsonify( json_events)
 

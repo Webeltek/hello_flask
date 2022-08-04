@@ -12,6 +12,7 @@ import {
   TemplateRef,
   ElementRef,
   AfterViewInit,
+  ViewEncapsulation,
 } from '@angular/core';
 import { Subject, Subscription } from 'rxjs';
 import {
@@ -80,7 +81,8 @@ export interface CalendarWeekViewBeforeRenderEvent extends WeekView {
  */
 @Component({
   selector: 'mwl-calendar-week-view-mob',
-  styleUrls : ['./calendar-week-view_mob.scss'],
+  encapsulation : ViewEncapsulation.ShadowDom,
+  styleUrls: ['./calendar-week-view-mob.scss'],
   template: `
     <div class="cal-week-view" role="grid">
     <div
@@ -98,7 +100,7 @@ export interface CalendarWeekViewBeforeRenderEvent extends WeekView {
           [class.cal-hour-odd]="odd"
           >
             <mwl-calendar-week-view-hour-segment
-              *ngFor="let segment of hour.segments; trackBy: trackByHourSegment"
+              *ngFor="let segment of hour.segments;let odd=odd ; trackBy: trackByHourSegment"
               [style.height.px]="hourSegmentHeight"
               [segment]="segment"
               [segmentHeight]="hourSegmentHeight"
@@ -106,6 +108,7 @@ export interface CalendarWeekViewBeforeRenderEvent extends WeekView {
               [locale]="locale"
               [customTemplate]="hourSegmentTemplate"
               [isTimeLabel]="true"
+              [isOdd]= "odd"
               [daysInWeek]="daysInWeek"
               [currentRoomIndex] = "roomIndex"
               > 
@@ -546,7 +549,7 @@ export class CalendarWeekViewComponentMob
   /**
    * The duration of each segment group in minutes
    */
-  @Input() hourDuration: number;
+  @Input() hourDuration: number = 60;
 
   /**
    * The height in pixels of each hour segment

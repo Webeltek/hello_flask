@@ -14,7 +14,8 @@ import {
   AfterViewInit,
   ViewChild,
   HostListener,
-  ChangeDetectionStrategy
+  ChangeDetectionStrategy,
+  ViewEncapsulation,
 } from '@angular/core';
 import { Subject, Subscription } from 'rxjs';
 import {
@@ -83,6 +84,8 @@ export interface CalendarWeekViewBeforeRenderEvent extends WeekView {
  */
 @Component({
   selector: 'mwl-calendar-week-view',
+  encapsulation : ViewEncapsulation.ShadowDom,
+  styleUrls: ['./calendar-week-view.scss'],
   template: `
     <div class="cal-week-view" role="grid">
       <mwl-calendar-week-view-header
@@ -540,7 +543,7 @@ export class CalendarWeekViewComponent
   /**
    * The duration of each segment group in minutes
    */
-  @Input() hourDuration: number;
+  @Input() hourDuration: number = 30;
 
   /**
    * The height in pixels of each hour segment

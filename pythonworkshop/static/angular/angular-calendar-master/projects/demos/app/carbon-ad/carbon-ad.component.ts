@@ -17,7 +17,7 @@ export class CarbonAdComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     const script = document.createElement('script');
     script.src =
-      '//cdn.carbonads.com/carbon.js?serve=CESIVK3U&placement=mattlewis92githubio';
+     // '//cdn.carbonads.com/carbon.js?serve=CESIVK3U&placement=mattlewis92githubio';
     script.id = '_carbonads_js';
     this.elementRef.nativeElement.append(script);
   }

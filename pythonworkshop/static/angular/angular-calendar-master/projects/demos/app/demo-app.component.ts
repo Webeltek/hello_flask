@@ -17,11 +17,13 @@ import { CalendarEventActionsComponent } from 'projects/angular-calendar/src/mod
 import { addDays } from 'date-fns';
 import { HttpResponse } from '@angular/common/http';
 import { DateAdapter } from 'projects/angular-calendar/src/date-adapters/date-adapter';
+import { Router, ActivatedRoute, ParamMap  } from '@angular/router';
 
 @Component({
   selector: 'app-root',
   templateUrl: './demo-app.html',
   styleUrls: ['./demo-app.css'],
+  changeDetection : ChangeDetectionStrategy.Default,
   providers: [
     {
       provide: CalendarDateFormatter,
@@ -31,6 +33,7 @@ import { DateAdapter } from 'projects/angular-calendar/src/date-adapters/date-ad
 })
 export class DemoAppComponent implements OnInit, OnDestroy{
 
+  isMobLayout = false;
   viewDate: Date = new Date();
   view: CalendarView = CalendarView.Week;
   CalendarView = CalendarView;
@@ -60,20 +63,14 @@ export class DemoAppComponent implements OnInit, OnDestroy{
   };
 
   events : CalendarEvent[] = [];
-  
-  registerViewDateChange(){
-    
-  };
-
-  
 
   private destroy$ = new Subject<void>();
 
   constructor(
-    private breakpointObserver: BreakpointObserver,
-    private cd: ChangeDetectorRef,
     private httpService: HttpEventService,
-    private dateAdapter: DateAdapter
+    private breakpointObserver: BreakpointObserver,
+    private cd: ChangeDetectorRef
+    
   ) {}
 
   getDbEvents(){
@@ -103,30 +100,31 @@ export class DemoAppComponent implements OnInit, OnDestroy{
     })
   }
 
-  ngOnChanges(){
-
-  }
+  ngOnChanges(){}
 
   ngOnInit() {
+    this.getDbEvents();
+    this.subscribeToInsertEvt();
+    
     const CALENDAR_RESPONSIVE = {
       small: {
         breakpoint: '(max-width: 576px)',
         daysInWeek: 2,
+        isMobile : true
       },
       medium: {
         breakpoint: '(max-width: 768px)',
         daysInWeek: 3,
+        isMobile : true
       },
       large: {
         breakpoint: '(max-width: 960px)',
         daysInWeek: 5,
+        isMobile : false
       },
     };
 
-    this.getDbEvents();
-    this.subscribeToInsertEvt();
-
-    /* this.breakpointObserver
+    this.breakpointObserver
       .observe(
         Object.values(CALENDAR_RESPONSIVE).map(({ breakpoint }) => breakpoint)
       )
@@ -135,13 +133,17 @@ export class DemoAppComponent implements OnInit, OnDestroy{
         const foundBreakpoint = Object.values(CALENDAR_RESPONSIVE).find(
           ({ breakpoint }) => !!state.breakpoints[breakpoint]
         );
+        this.isMobLayout = false;
         if (foundBreakpoint) {
-          this.daysInWeek = foundBreakpoint.daysInWeek;
+          //this.daysInWeek = foundBreakpoint.daysInWeek;
+          this.isMobLayout = foundBreakpoint.isMobile;
+          console.log("is Mob Layout",foundBreakpoint.isMobile);
         } else {
-          this.daysInWeek = 7;
+          //this.daysInWeek = 7;
+          //console.log("between Mob Layout state",foundBreakpoint.isMobile)
         }
         this.cd.markForCheck();
-      }); */
+      }); 
   }
 
   ngOnDestroy() {

@@ -30,7 +30,7 @@
   {% endblock head %} 
 </head>
 
-<body>
+<body class="overflow-scroll">
   <div class="row mb-4">
     <div class="col-lg-10 d-flex flex-row bp-10 bg-success text-white">
       <h2 class="mx-auto display-1 block text-center">Hovden </h2>
@@ -95,9 +95,10 @@
     {% block form %} 
     {% endblock form %}
   </div>
-  <!-- Calendar -->
-    {% block calendar %}
-    {% endblock calendar %}
- 
+  <div>
+      <!-- Calendar -->
+      {% block calendar %}
+      {% endblock calendar %}
+  </div>
   </body>
 </html>
