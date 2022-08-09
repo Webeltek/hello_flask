@@ -12,6 +12,8 @@ import { takeUntil } from 'rxjs/operators';
 
 import { CustomDateFormatter } from './custom-date-formatter.provider';
 import { HttpEventService } from 'projects/angular-calendar/src/modules/week/http-service.service';
+import { EventDialog } from 'projects/angular-calendar/src/modules/week/calendar-week-view-hour-segment.component';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { PythEvent } from 'projects/angular-calendar/src/modules/week/calendar-week-view-hour-segment.component';
 import { CalendarEventActionsComponent } from 'projects/angular-calendar/src/modules/common/calendar-event-actions.component';
 import { addDays } from 'date-fns';
@@ -63,11 +65,13 @@ export class DemoAppComponent implements OnInit, OnDestroy{
   };
 
   events : CalendarEvent[] = [];
+  toBeDeletedPythEvt : PythEvent;
 
   private destroy$ = new Subject<void>();
 
   constructor(
     private httpService: HttpEventService,
+    public dialog: MatDialog,
     private breakpointObserver: BreakpointObserver,
     private cd: ChangeDetectorRef
     
@@ -137,13 +141,60 @@ export class DemoAppComponent implements OnInit, OnDestroy{
         if (foundBreakpoint) {
           //this.daysInWeek = foundBreakpoint.daysInWeek;
           this.isMobLayout = foundBreakpoint.isMobile;
-          console.log("is Mob Layout",foundBreakpoint.isMobile);
+          //console.log("is Mob Layout",foundBreakpoint.isMobile);
         } else {
           //this.daysInWeek = 7;
           //console.log("between Mob Layout state",foundBreakpoint.isMobile)
         }
         this.cd.markForCheck();
       }); 
+  }
+
+  deleteEvent(uid : string){
+    this.httpService.deleteEvent(uid);
+  }
+
+  rooms : string[] = ["Møterom stort", "Møterom lite", "Møterom 214", "Møterom 210" , "Aktivitets plan"];
+
+  openDialog(clickedWeekViewEvent : {
+    event: CalendarEvent;
+    sourceEvent: MouseEvent | KeyboardEvent;
+  }) {
+    var hourContainedEvTitle = "";
+    //console.log("segment Date in openDialog(): ",this.segment.date ) ;
+    this.httpService.getEvents().subscribe((response) => {
+      let responseObj = JSON.parse(response);
+      let clickedPythEvtStart = clickedWeekViewEvent.event.start.getTime().toString();
+      //console.log("clickedWeekViewEvent.event.start",clickedWeekViewEvent.event.start)
+      for (let pythEvt of responseObj) {
+        if ( pythEvt.start == clickedPythEvtStart){
+          this.toBeDeletedPythEvt = pythEvt;
+          //console.log("this.toBeDeletedPythEvt",this.toBeDeletedPythEvt)
+        }
+        
+      }
+
+      
+      
+      const dialogRef = this.dialog.open(EventDialog, {
+        data: {
+          toBeDeleted : true,
+          toBeDeletedPythEvt : this.toBeDeletedPythEvt
+        },
+      });
+      dialogRef.afterClosed().subscribe(
+        (result) => {
+          if (typeof result !== 'undefined') {
+            //console.log("result object",result)
+            this.deleteEvent(result.toBeDeletedPythEvt.uid);
+          }
+        },
+        (error) => {
+          console.log("afterClosed() error : " + error);
+        }
+      );
+      
+    });
   }
 
   ngOnDestroy() {

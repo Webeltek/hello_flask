@@ -1,30 +1,63 @@
-<h1 mat-dialog-title>Velg reservasjon</h1>
-<mat-dialog-content class="mat-typography">
-<form
-[formGroup]="userForm"
-(ngSubmit) = "closeDialog()">
-  <div mat-dialog-content
-  >{{data.date | date:'dd/MM/yyyy'}}
+<ng-template #mainTempl
+  let-isToBeDeleted="isToBeDeleted"
+>
+  <ng-container *ngIf="isToBeDeleted; then deleteTempl else insertTempl">
+  </ng-container>
+</ng-template>
+<ng-template #deleteTempl>
+  <h1 mat-dialog-title>Slett reservasjon av
+  </h1>
+  <mat-dialog-content class="mat-typography">
+    <div>{{ rooms[data.toBeDeletedPythEvt.row]}}</div>
+    <div>{{data.toBeDeletedPythEvt.title}} den {{ data.toBeDeletedPythEvt.start | date:'dd/MM/yyyy'}}</div>
+    <div mat-dialog-actions>
+      <button mat-button 
+      mat-dialog-close
+      color="primary" 
+      type="submit"
+      (click)="closeDialog()">Bekreft</button>
+    </div>
+  </mat-dialog-content>
+</ng-template>
+<ng-template #insertTempl>
+  <h1 mat-dialog-title>Velg reservasjon av
     <br/>
-    <label id="example-radio-group-label">Velg periode</label>
-    <br/>
-    <mat-radio-group 
-      aria-labelledby="example-radio-group-label"
-      class="example-radio-group"
-      formControlName="valgtPer">
-      <mat-radio-button class="example-radio-button" 
-        *ngFor="let periode of remPerioder"
-          [value]="periode">
-          {{periode}}
-      </mat-radio-button>
-    </mat-radio-group>
-  </div>
-  <div>Ditt valg er: {{valgtPerCtrl.value}} den {{ data.date | date:'dd/MM/yyyy'}}</div>
-  <div mat-dialog-actions>
-    <button mat-button 
-    mat-dialog-close
-    color="primary" 
-    type="submit">Bekreft</button>
-  </div>
-</form>
-</mat-dialog-content>
+  {{ rooms[data.romIndex]}}
+  <br/>
+  </h1>
+  <mat-dialog-content class="mat-typography">
+  <form
+  [formGroup]="userForm"
+  (ngSubmit) = "closeDialog()">
+    <div mat-dialog-content
+    >{{data.date | date:'dd/MM/yyyy'}}
+      <br/>
+      <label id="example-radio-group-label">Velg periode</label>
+      <br/>
+      <mat-radio-group 
+        aria-labelledby="example-radio-group-label"
+        class="example-radio-group"
+        formControlName="valgtPer">
+        <mat-radio-button class="example-radio-button" 
+          *ngFor="let periode of remPerioder"
+            [value]="periode">
+            {{periode}}
+        </mat-radio-button>
+      </mat-radio-group>
+    </div>
+    <div>Ditt valg er: {{valgtPerCtrl.value}} den {{ data.date | date:'dd/MM/yyyy'}}</div>
+    <div mat-dialog-actions>
+      <button mat-button 
+      mat-dialog-close
+      color="primary" 
+      type="submit">Bekreft</button>
+    </div>
+  </form>
+  </mat-dialog-content>
+</ng-template>
+<ng-template
+  [ngTemplateOutlet]="mainTempl"
+  [ngTemplateOutletContext]="{
+  isToBeDeleted: toBeDeleted }"
+  >
+</ng-template>

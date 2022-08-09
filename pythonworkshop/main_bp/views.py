@@ -47,23 +47,6 @@ def user_profile(username):
             print(F'I got UFO name is {myform.ufoname.data}')
             return F'I got your autodata!!!'
         return render_template('/main/user_profile.jinja2',user=user)  
-
-@main_bp.route("/services_old", methods= ['GET'])
-@login_required
-def index_old():
-    users_db.connect(reuse_if_open=True)
-    current_userId = current_user.id
-    events = Event.select().order_by(Event.id.asc())
-    if events is not None:
-      for row in events :
-        print('row id : ' + str(row.id))
-    saved_events = events
-    users_db.close()
-    for event in saved_events:
-        if(event.userId != current_userId ):
-            event.color = '#F0401D'
-    print ('current_userId :' + str(current_userId))
-    return render_template('/main/services_old.jinja2', saved_events=saved_events, current_userId = current_userId)
   
 @main_bp.route("/services/events", methods= ['GET'])
 @login_required
@@ -138,19 +121,16 @@ def update():
         msg = 'Record updated successfully' 
     return jsonify(msg)    
   
-@main_bp.route("/services/ajax_delete",methods=["POST","GET"])
+@main_bp.route("/services/delete",methods=["POST","GET"])
 @login_required
 def ajax_delete():
     users_db.connect(reuse_if_open=True)
     if request.method == 'POST':
-        uid = request.form['uid']
+        req_json = request.get_json()
+        uid = req_json['uid']
         print('deleted event with uid : ' + uid)
         event = Event.delete().where(Event.uid == uid).execute()
         users_db.close()
         msg = 'Record deleted successfully' 
     return jsonify(msg)
 
-@main_bp.route("/angular_page", methods= ['GET','POST'])
-@login_required
-def angular_form():
-        return render_template('/index.html')

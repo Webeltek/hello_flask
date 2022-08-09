@@ -12,6 +12,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 import { ROUTES } from './demo-app.routes';
 
+
 @NgModule({
   declarations: [
     DemoAppComponent
@@ -26,7 +27,8 @@ import { ROUTES } from './demo-app.routes';
 
     BrowserAnimationsModule
   ],
-  providers : [{ provide: LOCALE_ID, useValue: 'nb' }],
+  providers : [
+    { provide: LOCALE_ID, useValue: 'nb' }],
   bootstrap: [DemoAppComponent]
 })
 export class DemoAppModule { 

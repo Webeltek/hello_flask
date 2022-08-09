@@ -114,4 +114,7 @@ export class CalendarWeekViewEventComponent {
   @Output() eventClicked = new EventEmitter<{
     sourceEvent: MouseEvent | KeyboardEvent;
   }>();
+
+  constructor() {}
+
 }

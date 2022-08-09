@@ -29,7 +29,8 @@
             [dayEndHour]="6" 
             [viewDate]="viewDate" 
             [daysInWeek]="daysInWeek" 
-            [events]="events">
+            [events]="events"
+            (eventClicked)="openDialog($event)">
         </mwl-calendar-week-view>
 </ng-template>
 <ng-template #mobWeekTempl >
@@ -39,7 +40,8 @@
             [dayEndHour]="6" 
             [viewDate]="viewDate" 
             [daysInWeek]="daysInWeek" 
-            [events]="events">
+            [events]="events"
+            (eventClicked)="openDialog($event)">
         </mwl-calendar-week-view-mob>
 </ng-template>
 <ng-template

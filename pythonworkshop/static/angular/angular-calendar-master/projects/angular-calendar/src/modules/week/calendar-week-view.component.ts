@@ -780,8 +780,8 @@ export class CalendarWeekViewComponent
   ngOnInit(): void {
     this.windowWidth = window.innerWidth;
     this.hourSegmentWidth = (this.windowWidth-70) / this.daysInWeek
-    console.log("onInit() hourSegmWidth: ", this.hourSegmentWidth)
-    console.log("onInit() windowWidth: ", this.windowWidth)
+    //console.log("onInit() hourSegmWidth: ", this.hourSegmentWidth)
+    //console.log("onInit() windowWidth: ", this.windowWidth)
     if (this.refresh) {
       this.refreshSubscription = this.refresh.subscribe(() => {
         this.refreshAll();

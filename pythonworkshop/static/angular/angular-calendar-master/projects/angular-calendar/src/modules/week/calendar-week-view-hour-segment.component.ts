@@ -1,5 +1,5 @@
 import { 
-  Component, Inject, Input, Output,
+  Component, Inject, Input, Output, OnInit,
   TemplateRef, ViewEncapsulation  } from '@angular/core';
 import { WeekViewHourSegment } from 'calendar-utils';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -205,112 +205,92 @@ getDateString( date ) {
     this.httpService.insertEvent(pythEvt);
   }
 
+  ngOnInit(){
+    this.httpService.clickedEvent.subscribe((clickedEvt) =>{
+      this.openDialog();
+    })
+  }
+
   private events : CalendarEvent[] = [];
 
-  openDialog()  {
+  isClickedOverEvent(){
     let clickedSegmDate = this.segment.date;
-    var hourContainedEvTitle = ""; 
+    return this.events.length==0 || this.events.some( (dbEvent : CalendarEvent) => {
+      let clickedSegmEndDate = new Date(this.segment.date);
+      //console.log("clickedSEGMDATE",this.segment.date);
+      clickedSegmEndDate.setMinutes(clickedSegmDate.getMinutes() + 30);
+      //console.log("clickedSegmEndDate",clickedSegmEndDate);
+      let isClickedOverEvent = dbEvent.start >= this.segment.date &&
+      dbEvent.end <= clickedSegmEndDate;  
+      return isClickedOverEvent ; 
+      })
+  }
+
+  openDialog() {
+    var hourContainedEvTitle = "";
     //console.log("segment Date in openDialog(): ",this.segment.date ) ;
-    this.httpService.getEvents().subscribe( (response) => {
+    this.httpService.getEvents().subscribe((response) => {
       this.events = [];
-      let responseObj =  JSON.parse(response);
-      for (let pythEvt of  responseObj){
-        let calEvent : CalendarEvent=  {
-            id : pythEvt.uid,
-            start : new Date(parseInt(pythEvt.start,10)),
-            end : new Date(parseInt(pythEvt.end,10)),
-            title : pythEvt.title,
-            color : this.colors.blue
-          }
-        this.events.push(calEvent);    
+      let responseObj = JSON.parse(response);
+      for (let pythEvt of responseObj) {
+        let calEvent: CalendarEvent = {
+          id: pythEvt.uid,
+          start: new Date(parseInt(pythEvt.start, 10)),
+          end: new Date(parseInt(pythEvt.end, 10)),
+          title: pythEvt.title,
+          color: this.colors.blue
+        }
+        this.events.push(calEvent);
       }
 
-      //console.log("saved events", this.events);
-      //console.log("saved events is length==0",this.events.length==0);
-      
-      if (this.events.length==0 || this.events.some( (dbEvent : CalendarEvent) => {
-        let clickedSegmEndDate = new Date(this.segment.date);
-        clickedSegmEndDate.setMinutes(clickedSegmDate.getMinutes() + 30);
-        let isClickedOverEvent = dbEvent.start >= this.segment.date &&
-        dbEvent.end <= clickedSegmEndDate;  
-        return !isClickedOverEvent ; 
-        })) 
-        {
-          for (var dbEvt of this.events) {
+      if (!this.isClickedOverEvent()) {
+        console.log("calWVhourSegm isClick",this.isClickedOverEvent());
+        for (var dbEvt of this.events) {
           let segmStartHour = this.segment.date.getHours();
           let modifiedSegmentDate = new Date(this.segment.date);
-          let segmStartHourDate = new Date(modifiedSegmentDate.setHours(segmStartHour,0));
-          let segmEndHourDate = new Date(modifiedSegmentDate.setHours(segmStartHour+1,0));
-          var isDbEventContainedHour  = 
-              dbEvt.start >= segmStartHourDate && 
-              dbEvt.end <= segmEndHourDate; 
-          if ( isDbEventContainedHour){
-            hourContainedEvTitle =  dbEvt.title;
+          let segmStartHourDate = new Date(modifiedSegmentDate.setHours(segmStartHour, 0));
+          let segmEndHourDate = new Date(modifiedSegmentDate.setHours(segmStartHour + 1, 0));
+          var isDbEventContainedHour =
+            dbEvt.start >= segmStartHourDate &&
+            dbEvt.end <= segmEndHourDate;
+          if (isDbEventContainedHour) {
+            hourContainedEvTitle = dbEvt.title;
             console.log("hourContainedEvtTtl", hourContainedEvTitle);
-            }
           }
-            const dialogRef = this.dialog.open(EventDialog, {
-              data: {
-                date: clickedSegmDate,
-                romIndex: this.roomInd,
-                hourContainedEvTitle : hourContainedEvTitle
-              },
-            });
+        }
+        const dialogRef = this.dialog.open(EventDialog, {
+          data: {
+            date: this.segment.date,
+            rooms: this.rooms,
+            romIndex: this.roomInd,
+            hourContainedEvTitle: hourContainedEvTitle
+          },
+        });
 
-            dialogRef.afterClosed().subscribe(
-              (result) => {
-                if (typeof result !== 'undefined') {
-                  let uniqueId = this.generateUniqueID();
-                  let startEndDate = this.generatePythStartEndDate(result.dayPeriodVal,this.roomInd);
-                  //console.log("roomInd : " + this.roomInd.toString(10));
-                  this.pythEvt =  
-                    {
-                      uid : uniqueId,
-                      row : this.roomInd.toString(),
-                      title: result.dayPeriodVal,
-                      start: startEndDate.start,
-                      end: startEndDate.end,
-                      color: "#FFAE00"
-                    };
-                  //console.log("afterClosed() result:", this.pythEvt);
-                  this.addEvent(this.pythEvt);
-                }
-              },
-              (error) => {
-              console.log("afterClosed() error : " + error); 
-              }
-            );
-          } else {
-            const dialogRef = this.dialog.open(EventDialog, {
-              data: {
-                clickedDbEvt: dbEvt,
-                romIndex: this.roomInd,
-              },
-            });
-            dialogRef.afterClosed().subscribe(
-              (result) => {
-                if (typeof result !== 'undefined') {
-                  let uniqueId = this.generateUniqueID();
-                  let startEndDate = this.generatePythStartEndDate(result.dayPeriodVal,this.roomInd);
-                  //console.log("roomInd : " + this.roomInd.toString(10));
-                  this.pythEvt =  
-                    {
-                      uid : uniqueId,
-                      row : this.roomInd.toString(),
-                      title: result.dayPeriodVal,
-                      start: startEndDate.start,
-                      end: startEndDate.end,
-                      color: "#FFAE00"
-                    };
-                  //console.log("afterClosed() result:", this.pythEvt);
-                  this.addEvent(this.pythEvt);
-                }
-              },
-              (error) => {
-              console.log("afterClosed() error : " + error); 
-              }
-            );  
-          } 
+        dialogRef.afterClosed().subscribe(
+          (result) => {
+            if (typeof result !== 'undefined') {
+              let uniqueId = this.generateUniqueID();
+              let startEndDate = this.generatePythStartEndDate(result.dayPeriodVal, this.roomInd);
+              //console.log("roomInd : " + this.roomInd.toString(10));
+              this.pythEvt =
+              {
+                uid: uniqueId,
+                row: this.roomInd.toString(),
+                title: result.dayPeriodVal,
+                start: startEndDate.start,
+                end: startEndDate.end,
+                color: "#FFAE00"
+              };
+              //console.log("afterClosed() result:", this.pythEvt);
+              this.addEvent(this.pythEvt);
+            }
+          },
+          (error) => {
+            console.log("afterClosed() error : " + error);
+          }
+        );
+      }
     });
   }
 
@@ -324,10 +304,18 @@ getDateString( date ) {
 })
 export class EventDialog {
   constructor( public dialogRef: MatDialogRef<EventDialog>,
-     @Inject(MAT_DIALOG_DATA) public data: { date:Date,romIndex:number, hourContainedEvTitle: string },
+     @Inject(MAT_DIALOG_DATA) public data: {
+      clickedDbEvt : CalendarEvent, 
+      toBeDeleted : boolean,
+      toBeDeletedPythEvt : PythEvent,
+      date:Date,romIndex:number,
+      hourContainedEvTitle: string },
      public fb: FormBuilder) {}
 
     containedEvTitle = this.data.hourContainedEvTitle;
+    toBeDeleted = this.data.toBeDeleted;
+    rooms : string[] = ["Møterom stort", "Møterom lite", "Møterom 214", "Møterom 210" , "Aktivitets plan"];
+
     valgtPerCtrl = this.fb.control("");
     userForm  = this.fb.group({
         valgtPer : this.valgtPerCtrl
@@ -336,7 +324,12 @@ export class EventDialog {
   
 
   closeDialog(){
-    this.dialogRef.close({ dayPeriodVal : this.valgtPerCtrl.value} )
+    this.dialogRef.close({
+      clickedDbEvt: this.data.clickedDbEvt, 
+      dayPeriodVal : this.valgtPerCtrl.value, 
+      toBeDeleted : this.data.toBeDeleted, 
+      toBeDeletedPythEvt : this.data.toBeDeletedPythEvt
+      } )
   }
   
   ngOnInit(){} 

@@ -410,14 +410,16 @@ $cal-week-view-vars: map-merge($cal-vars, $cal-week-view-vars);
   }
 
   .cal-hour:not(:last-child) .cal-hour-segment,
-    .cal-hour:last-child :not(:last-child) .cal-hour-segment {
+    .cal-hour:last-child :not(:last-child) .cal-hour-segment,
+    .cal-hour:last-child :last-child .cal-hour-segment {
       
       border-bottom: 1px solid $cal-border-color;
       border-right-color: $cal-border-color;
     }
 
   .cal-day-column .cal-hour:not(:last-child) .cal-hour-segment,
-  .cal-day-column .cal-hour:last-child :not(:last-child) .cal-hour-segment {
+  .cal-day-column .cal-hour:last-child :not(:last-child) .cal-hour-segment,
+  .cal-day-column .cal-hour:last-child .cal-hour-segment  {
     border-right: thin dashed;
     border-right-color: $cal-border-color;
   }

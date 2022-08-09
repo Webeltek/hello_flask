@@ -12,8 +12,9 @@ import { EventDialog } from './calendar-week-view-hour-segment.component';
 import { CalendarWeekViewCurrentTimeMarkerComponent } from './calendar-week-view-current-time-marker.component';
 import { BrowserModule} from '@angular/platform-browser';
 import { BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import { MatDialogModule } from '@angular/material/dialog';
+import { MatDialogModule, MAT_DIALOG_DEFAULT_OPTIONS } from '@angular/material/dialog';
 import { MatRadioModule } from '@angular/material/radio';
+import { MatDialogConfig } from '@angular/material/dialog';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -70,6 +71,7 @@ export { CalendarWeekViewCurrentTimeMarkerComponent as ɵCalendarWeekViewCurrent
     CalendarWeekViewCurrentTimeMarkerComponent,
     MatDialogModule,
     EventDialog,
-  ]
+  ],
+  providers : [ {provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: {hasBackdrop: true}}]
 })
 export class CalendarWeekModule {}
