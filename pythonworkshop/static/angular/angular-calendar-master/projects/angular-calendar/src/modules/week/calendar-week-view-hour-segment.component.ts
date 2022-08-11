@@ -280,7 +280,7 @@ getDateString( date ) {
                 title: result.dayPeriodVal,
                 start: startEndDate.start,
                 end: startEndDate.end,
-                color: "#FFAE00"
+                color: this.getUniqueColor(10)
               };
               //console.log("afterClosed() result:", this.pythEvt);
               this.addEvent(this.pythEvt);
@@ -294,7 +294,17 @@ getDateString( date ) {
     });
   }
 
+  getUniqueColor(n) {
+    const rgb = [0, 0, 0];
   
+  for (let i = 0; i < 24; i++) {
+    rgb[i%3] <<= 1;
+    rgb[i%3] |= n & 0x01;
+    n >>= 1;
+  }
+  
+  return '#' + rgb.reduce((a, c) => (c > 0x0f ? c.toString(16) : '0' + c.toString(16)) + a, '')
+}
 }
 
 @Component({

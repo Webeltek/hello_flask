@@ -10,6 +10,7 @@ import { CalendarCommonModule } from '../common/calendar-common.module';
 import { CalendarWeekViewHourSegmentComponent } from './calendar-week-view-hour-segment.component';
 import { EventDialog } from './calendar-week-view-hour-segment.component';
 import { CalendarWeekViewCurrentTimeMarkerComponent } from './calendar-week-view-current-time-marker.component';
+import { CalendarWeekViewCurrentTimeMarkerComponentMob } from './calendar-week-view-current-time-marker-mob.component';
 import { BrowserModule} from '@angular/platform-browser';
 import { BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import { MatDialogModule, MAT_DIALOG_DEFAULT_OPTIONS } from '@angular/material/dialog';
@@ -58,6 +59,7 @@ export { CalendarWeekViewCurrentTimeMarkerComponent as ɵCalendarWeekViewCurrent
     CalendarWeekViewEventComponent,
     CalendarWeekViewHourSegmentComponent,
     CalendarWeekViewCurrentTimeMarkerComponent,
+    CalendarWeekViewCurrentTimeMarkerComponentMob,
     EventDialog,
   ],
   exports: [
@@ -69,6 +71,7 @@ export { CalendarWeekViewCurrentTimeMarkerComponent as ɵCalendarWeekViewCurrent
     CalendarWeekViewEventComponent,
     CalendarWeekViewHourSegmentComponent,
     CalendarWeekViewCurrentTimeMarkerComponent,
+    CalendarWeekViewCurrentTimeMarkerComponentMob,
     MatDialogModule,
     EventDialog,
   ],

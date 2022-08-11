@@ -263,7 +263,7 @@ export interface CalendarWeekViewBeforeRenderEvent extends WeekView {
             *ngFor="let column of view.hourColumns; 
             trackBy: trackByHourColumn"
           >
-            <mwl-calendar-week-view-current-time-marker
+            <mwl-calendar-week-view-current-time-marker-mob
               [columnDate]="column.date"
               [dayStartHour]="dayStartHour"
               [dayStartMinute]="dayStartMinute"
@@ -272,8 +272,9 @@ export interface CalendarWeekViewBeforeRenderEvent extends WeekView {
               [hourSegments]="hourSegments"
               [hourDuration]="hourDuration"
               [hourSegmentHeight]="hourSegmentHeight"
+              [hourSegmentWidth]="hourSegmentWidth"
               [customTemplate]="currentTimeMarkerTemplate"
-            ></mwl-calendar-week-view-current-time-marker>
+            ></mwl-calendar-week-view-current-time-marker-mob>
             <div class="cal-events-container">
               <div
                 *ngFor="
@@ -557,7 +558,7 @@ export class CalendarWeekViewComponentMob
   @Input() hourSegmentHeight: number = 60;
 
   /**
-   * The height in pixels of each hour segment
+   * The width in pixels of each hour segment
    */
    @Input() hourSegmentWidth: number = 30;
 

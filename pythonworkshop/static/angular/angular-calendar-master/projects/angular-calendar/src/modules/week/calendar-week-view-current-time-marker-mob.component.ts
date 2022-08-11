@@ -12,7 +12,7 @@ import { switchMapTo, startWith, map, switchMap } from 'rxjs/operators';
 import { DateAdapter } from '../../date-adapters/date-adapter';
 
 @Component({
-  selector: 'mwl-calendar-week-view-current-time-marker',
+  selector: 'mwl-calendar-week-view-current-time-marker-mob',
   template: `
     <ng-template
       #defaultTemplate
@@ -22,12 +22,12 @@ import { DateAdapter } from '../../date-adapters/date-adapter';
       let-dayEndHour="dayEndHour"
       let-dayEndMinute="dayEndMinute"
       let-isVisible="isVisible"
-      let-leftPx="leftPx"
+      let-topPx="topPx"
     >
       <div
         class="cal-current-time-marker"
         *ngIf="isVisible"
-        [style.left.px]="leftPx"
+        [style.top.px]="topPx"
       ></div>
     </ng-template>
     <ng-template
@@ -39,13 +39,13 @@ import { DateAdapter } from '../../date-adapters/date-adapter';
         dayEndHour: dayEndHour,
         dayEndMinute: dayEndMinute,
         isVisible: (marker$ | async)?.isVisible,
-        leftPx: (marker$ | async)?.left
+        topPx: (marker$ | async)?.top
       }"
     >
     </ng-template>
   `,
 })
-export class CalendarWeekViewCurrentTimeMarkerComponent implements OnChanges {
+export class CalendarWeekViewCurrentTimeMarkerComponentMob implements OnChanges {
   @Input() columnDate: Date;
 
   @Input() dayStartHour: number;
@@ -70,7 +70,7 @@ export class CalendarWeekViewCurrentTimeMarkerComponent implements OnChanges {
 
   columnDate$ = new BehaviorSubject<Date>(undefined);
 
-  marker$: Observable<{isVisible: boolean; left: number;}> 
+  marker$: Observable<{isVisible: boolean; top: number;}> 
   = this.zone.onStable.pipe(
     switchMap(() => interval(60 * 1000)),
     startWith(0),
@@ -79,24 +79,25 @@ export class CalendarWeekViewCurrentTimeMarkerComponent implements OnChanges {
       const startOfDay = this.dateAdapter.setMinutes(
         this.dateAdapter.setHours(columnDate, 0),0);
       const endOfDay = this.dateAdapter.setMinutes(
-        this.dateAdapter.setHours(columnDate, 23),59);
+        this.dateAdapter.setHours(columnDate, 5),59);
       const hourWidthModifier = 1;
       const hourHeightModifier =
-        (this.hourSegments * this.hourSegmentHeight) /
+        (this.hourSegments * this.hourSegmentWidth) /
         (this.hourDuration || 60);
-      const now = new Date();
+      const nowHours = new Date().getHours();  
+      const now = new Date(new Date().setHours(6*nowHours/24));
       if(this.dateAdapter.isSameDay(columnDate, now) && now >= startOfDay &&  now <= endOfDay) 
         {
-        console.log("marker now-startOfDay diff in minutes",this.dateAdapter.differenceInMinutes(now, startOfDay))
-        console.log("marker start-end of day diff in min: ", this.dateAdapter.differenceInMinutes(endOfDay, startOfDay))
+        //console.log("marker now-startOfDay diff in minutes",this.dateAdapter.differenceInMinutes(now, startOfDay))
+        //console.log("marker start-end of day diff in min: ", this.dateAdapter.differenceInMinutes(endOfDay, startOfDay))
         }
       return {
         isVisible:
           this.dateAdapter.isSameDay(columnDate, now) &&
           now >= startOfDay &&
           now <= endOfDay,
-        left:
-          this.hourSegmentWidth * 
+        top:
+          this.hourSegmentHeight * 
           this.dateAdapter.differenceInMinutes(now, startOfDay) /
           this.dateAdapter.differenceInMinutes(endOfDay, startOfDay),
       };

@@ -2,23 +2,45 @@
     #weekTemplate
     let-isML="isMobL"
 >
-    <div class="row text-center">
-        <div class="col-md-4">
-            <div class="btn-group">
-                <div class="btn btn-primary" mwlCalendarPreviousView 
-                [view]="view" [(viewDate)]="viewDate">
-                    Previous
-                </div>
-                <div class="btn btn-outline-secondary" mwlCalendarToday [(viewDate)]="viewDate">
-                    Today
-                </div>
-                <div class="btn btn-primary" mwlCalendarNextView 
-                [view]="view" [(viewDate)]="viewDate">
-                    Next
+    <ng-container *ngIf="isML; then vertBtnGrp else horBtnGrp"></ng-container>
+    <ng-template #vertBtnGrp>
+        <div class="row text-center">
+            <div class="col-md-4">
+                <div  class="btn-group-vertical">
+                    <div class="btn btn-primary" mwlCalendarPreviousView 
+                    [view]="view" [(viewDate)]="viewDate">
+                        Forrige uke
+                    </div>
+                    <div class="btn btn-outline-secondary" mwlCalendarToday [(viewDate)]="viewDate">
+                        I dag
+                    </div>
+                    <div class="btn btn-primary" mwlCalendarNextView 
+                    [view]="view" [(viewDate)]="viewDate">
+                        Neste uke
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    </ng-template>
+    <ng-template #horBtnGrp>
+        <div class="row text-center">
+            <div class="col-md-4">
+                <div  class="btn-group">
+                    <div class="btn btn-primary" mwlCalendarPreviousView 
+                    [view]="view" [(viewDate)]="viewDate">
+                        Previous
+                    </div>
+                    <div class="btn btn-outline-secondary" mwlCalendarToday [(viewDate)]="viewDate">
+                        Today
+                    </div>
+                    <div class="btn btn-primary" mwlCalendarNextView 
+                    [view]="view" [(viewDate)]="viewDate">
+                        Next
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ng-template>
     <ng-container *ngIf="isML; then mobWeekTempl else wideWeekTempl">
     </ng-container>     
 </ng-template>

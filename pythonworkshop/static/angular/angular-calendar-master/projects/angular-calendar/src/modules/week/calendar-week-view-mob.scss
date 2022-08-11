@@ -111,8 +111,6 @@ $cal-week-view-vars: map-merge($cal-vars, $cal-week-view-vars);
     flex-direction: column;
     padding-left: 0px;
     border-left: 1px solid;
-    border-top: 1px solid;
-    border-bottom: 1px solid;
     width: 70px;
     border-color:  #e1e1e1 ;
 
@@ -129,10 +127,11 @@ $cal-week-view-vars: map-merge($cal-vars, $cal-week-view-vars);
     padding: 5px;
     height : 60px;
     width: 70px;
+    border-top: 1px solid  #e1e1e1 ;
+    border-bottom: 1px solid  #e1e1e1 ;
+    border-right-color:  #e1e1e1;
 
     &:not(:last-child) {
-      border-bottom: 1px solid  #e1e1e1 ;
-      border-right-color:  #e1e1e1;
 
       [dir='rtl'] & {
         border-right: initial;
@@ -185,10 +184,9 @@ $cal-week-view-vars: map-merge($cal-vars, $cal-week-view-vars);
 
   .cal-time-label-column {
     width: 100%;
-    height: 60px;
+    height: 62px;
     margin-left: 71px;
-    border-left: solid 1px;
-    border-left-color: #e1e1e1;
+    border-left: solid 1px #e1e1e1;
     display : flex;
   }
 
@@ -399,6 +397,8 @@ $cal-week-view-vars: map-merge($cal-vars, $cal-week-view-vars);
 
   .cal-hour { 
     display: flex;
+    border-bottom: 1px solid $cal-border-color;
+      border-top: 1px solid $cal-border-color;
   }
 
   .cal-hour-odd {
@@ -413,7 +413,6 @@ $cal-week-view-vars: map-merge($cal-vars, $cal-week-view-vars);
     .cal-hour:last-child :not(:last-child) .cal-hour-segment,
     .cal-hour:last-child :last-child .cal-hour-segment {
       
-      border-bottom: 1px solid $cal-border-color;
       border-right-color: $cal-border-color;
     }
 
@@ -435,6 +434,10 @@ $cal-week-view-vars: map-merge($cal-vars, $cal-week-view-vars);
 
   .cal-time-label-column .cal-hour {
     box-sizing: border-box;
+  }
+
+  .cal-current-time-marker {
+    background-color: $cal-current-time-marker-color;
   }
 
   .cal-time {
