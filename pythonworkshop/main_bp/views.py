@@ -59,11 +59,12 @@ def index_events():
         print('row id : ' + str(row.id))
     saved_events = events
     users_db.close()
-    for event in saved_events:
-        if(event.userId != current_userId ):
-            event.color = '#F0401D'
+    
     print ('current_userId :' + str(current_userId))
     s_events = list( saved_events.dicts())
+    for event in s_events:
+        if(event['userId'] != current_userId ):
+            event['color'] = 'red'
     json_events = json.dumps(s_events)
     return jsonify( json_events)
 
@@ -78,12 +79,14 @@ def index():
       for row in events :
         print('row id : ' + str(row.id))
     saved_events = events
+    loggedin_user = User.select().where(current_user.id==User.id).get()
     users_db.close()
     for event in saved_events:
         if(event.userId != current_userId ):
-            event.color = '#F0401D'
+            event.color = 'red'
     print ('current_userId :' + str(current_userId))  
-    return render_template('/main/services.jinja2', saved_events=saved_events, current_userId = current_userId)
+    return render_template('/main/services.jinja2', saved_events=saved_events, 
+        current_userId = current_userId,user_email=loggedin_user.user_email)
   
 @main_bp.route("/services/insert",methods=["POST","GET"])
 @login_required

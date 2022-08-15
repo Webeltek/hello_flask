@@ -4,7 +4,7 @@ import {
 import { WeekViewHourSegment } from 'calendar-utils';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CalendarEvent } from 'calendar-utils';
-import { FormControl,FormBuilder, FormGroup } from '@angular/forms';
+import { FormControl, FormBuilder, FormGroup } from '@angular/forms';
 import { Observable, throwError } from 'rxjs';
 import { catchError, retry } from 'rxjs/operators';
 import { Console } from 'console';
@@ -28,6 +28,26 @@ export interface PythEvent {
   color : string;
 }
 
+export function getColors(colorName : string) {
+  switch(colorName) {
+    case "red": {
+      console.log("getColors() : red")
+      return {primary: '#ad2121',secondary: '#FAE3E3' };
+      break;
+    }
+    case "blue" : {
+      console.log("getColors() : blue")
+      return {primary: '#1e90ff',secondary: '#D1E8FF'};
+      break;
+    }
+    case "yellow": {
+      console.log("getColors() : yellow")
+      return {primary: '#e3bc08',secondary: '#FDF1BA'};
+      break;
+    }
+  }
+};
+
 @Component({
   selector: 'mwl-calendar-week-view-hour-segment',
   template: `
@@ -38,10 +58,10 @@ export interface PythEvent {
       let-isOdd="isOdd"
       let-segmentHeight="segmentHeight"
       let-segmentWidth="segmentWidth"
-      let-isTimeLabels="isTimeLabel"
+      let-isTimeLabel="isTimeLabel"
       let-daysInWeek="daysInWeek"
     >
-      <ng-container *ngIf="isTimeLabels; then hourTemplate else eventTemplate">
+      <ng-container *ngIf="isTimeLabel; then hourTemplate else eventTemplate">
       </ng-container>  
     </ng-template>
     <ng-template #hourTemplate>
@@ -139,20 +159,6 @@ export class CalendarWeekViewHourSegmentComponent {
   currentRoom : string;
   rooms : string[] = ["Møterom stort", "Møterom lite", "Møterom 214", "Møterom 210" , "Aktivitets plan"];
 
-  colors: any = {
-    red: {
-      primary: '#ad2121',
-      secondary: '#FAE3E3',
-    },
-    blue: {
-      primary: '#1e90ff',
-      secondary: '#D1E8FF',
-    },
-    yellow: {
-      primary: '#e3bc08',
-      secondary: '#FDF1BA',
-    },
-  };
 
   pythEvt : PythEvent;
 
@@ -215,7 +221,7 @@ getDateString( date ) {
 
   isClickedOverEvent(){
     let clickedSegmDate = this.segment.date;
-    return this.events.length==0 || this.events.some( (dbEvent : CalendarEvent) => {
+    return this.events.length > 0 && this.events.some( (dbEvent : CalendarEvent) => {
       let clickedSegmEndDate = new Date(this.segment.date);
       //console.log("clickedSEGMDATE",this.segment.date);
       clickedSegmEndDate.setMinutes(clickedSegmDate.getMinutes() + 30);
@@ -238,7 +244,7 @@ getDateString( date ) {
           start: new Date(parseInt(pythEvt.start, 10)),
           end: new Date(parseInt(pythEvt.end, 10)),
           title: pythEvt.title,
-          color: this.colors.blue
+          color: getColors("blue")
         }
         this.events.push(calEvent);
       }
@@ -280,7 +286,7 @@ getDateString( date ) {
                 title: result.dayPeriodVal,
                 start: startEndDate.start,
                 end: startEndDate.end,
-                color: this.getUniqueColor(10)
+                color: "blue"
               };
               //console.log("afterClosed() result:", this.pythEvt);
               this.addEvent(this.pythEvt);
@@ -294,17 +300,6 @@ getDateString( date ) {
     });
   }
 
-  getUniqueColor(n) {
-    const rgb = [0, 0, 0];
-  
-  for (let i = 0; i < 24; i++) {
-    rgb[i%3] <<= 1;
-    rgb[i%3] |= n & 0x01;
-    n >>= 1;
-  }
-  
-  return '#' + rgb.reduce((a, c) => (c > 0x0f ? c.toString(16) : '0' + c.toString(16)) + a, '')
-}
 }
 
 @Component({

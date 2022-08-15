@@ -87,8 +87,8 @@ export class CalendarWeekViewCurrentTimeMarkerComponent implements OnChanges {
       const now = new Date();
       if(this.dateAdapter.isSameDay(columnDate, now) && now >= startOfDay &&  now <= endOfDay) 
         {
-        console.log("marker now-startOfDay diff in minutes",this.dateAdapter.differenceInMinutes(now, startOfDay))
-        console.log("marker start-end of day diff in min: ", this.dateAdapter.differenceInMinutes(endOfDay, startOfDay))
+        //console.log("marker now-startOfDay diff in minutes",this.dateAdapter.differenceInMinutes(now, startOfDay))
+        //console.log("marker start-end of day diff in min: ", this.dateAdapter.differenceInMinutes(endOfDay, startOfDay))
         }
       return {
         isVisible:

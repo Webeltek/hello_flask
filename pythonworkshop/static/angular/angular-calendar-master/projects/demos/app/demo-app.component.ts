@@ -15,6 +15,7 @@ import { HttpEventService } from 'projects/angular-calendar/src/modules/week/htt
 import { EventDialog } from 'projects/angular-calendar/src/modules/week/calendar-week-view-hour-segment.component';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { PythEvent } from 'projects/angular-calendar/src/modules/week/calendar-week-view-hour-segment.component';
+import { getColors } from 'projects/angular-calendar/src/modules/week/calendar-week-view-hour-segment.component';
 import { CalendarEventActionsComponent } from 'projects/angular-calendar/src/modules/common/calendar-event-actions.component';
 import { addDays } from 'date-fns';
 import { HttpResponse } from '@angular/common/http';
@@ -48,22 +49,6 @@ export class DemoAppComponent implements OnInit, OnDestroy{
     this.view = view;
   }
 
-  
-  colors: any = {
-    red: {
-      primary: '#ad2121',
-      secondary: '#FAE3E3',
-    },
-    blue: {
-      primary: '#1e90ff',
-      secondary: '#D1E8FF',
-    },
-    yellow: {
-      primary: '#e3bc08',
-      secondary: '#FDF1BA',
-    },
-  };
-
   events : CalendarEvent[] = [];
   toBeDeletedPythEvt : PythEvent;
 
@@ -81,14 +66,15 @@ export class DemoAppComponent implements OnInit, OnDestroy{
     this.httpService.getEvents().subscribe((response ) => {
       //console.log("Response type: "+ typeof response);
       this.events = [];
-      let responseObj =  JSON.parse(response);
+      let responseObj : PythEvent[] =  JSON.parse(response);
       for (let pythEvt of  responseObj){
+        console.log("getDBEvents() evt.color: ",pythEvt.color)
         let calEvent : CalendarEvent=  {
             id : pythEvt.uid,
             start : new Date(parseInt(pythEvt.start,10)),
             end : new Date(parseInt(pythEvt.end,10)),
             title : pythEvt.title,
-            color : this.colors.blue
+            color : getColors(pythEvt.color) 
           }
         this.events.push(calEvent);    
       }
@@ -160,41 +146,42 @@ export class DemoAppComponent implements OnInit, OnDestroy{
     event: CalendarEvent;
     sourceEvent: MouseEvent | KeyboardEvent;
   }) {
-    var hourContainedEvTitle = "";
-    //console.log("segment Date in openDialog(): ",this.segment.date ) ;
-    this.httpService.getEvents().subscribe((response) => {
-      let responseObj = JSON.parse(response);
-      let clickedPythEvtStart = clickedWeekViewEvent.event.start.getTime().toString();
-      //console.log("clickedWeekViewEvent.event.start",clickedWeekViewEvent.event.start)
-      for (let pythEvt of responseObj) {
-        if ( pythEvt.start == clickedPythEvtStart){
-          this.toBeDeletedPythEvt = pythEvt;
-          //console.log("this.toBeDeletedPythEvt",this.toBeDeletedPythEvt)
-        }
-        
-      }
-
-      
-      
-      const dialogRef = this.dialog.open(EventDialog, {
-        data: {
-          toBeDeleted : true,
-          toBeDeletedPythEvt : this.toBeDeletedPythEvt
-        },
-      });
-      dialogRef.afterClosed().subscribe(
-        (result) => {
-          if (typeof result !== 'undefined') {
-            //console.log("result object",result)
-            this.deleteEvent(result.toBeDeletedPythEvt.uid);
+    if (clickedWeekViewEvent.event.color.primary != "#ad2121") {
+      var hourContainedEvTitle = "";
+      //console.log("segment Date in openDialog(): ",this.segment.date ) ;
+      this.httpService.getEvents().subscribe((response) => {
+        let responseObj = JSON.parse(response);
+        let clickedPythEvtStart = clickedWeekViewEvent.event.start.getTime().toString();
+        //console.log("clickedWeekViewEvent.event.start",clickedWeekViewEvent.event.start)
+        for (let pythEvt of responseObj) {
+          if ( pythEvt.start == clickedPythEvtStart ){
+            this.toBeDeletedPythEvt = pythEvt;
+            //console.log("this.toBeDeletedPythEvt",this.toBeDeletedPythEvt)
           }
-        },
-        (error) => {
-          console.log("afterClosed() error : " + error);
+          
         }
-      );
+
+        const dialogRef = this.dialog.open(EventDialog, {
+          data: {
+            toBeDeleted : true,
+            toBeDeletedPythEvt : this.toBeDeletedPythEvt
+          },
+        });
+        dialogRef.afterClosed().subscribe(
+          (result) => {
+            if (typeof result !== 'undefined') {
+              //console.log("result object",result)
+              this.deleteEvent(result.toBeDeletedPythEvt.uid);
+            }
+          },
+          (error) => {
+            console.log("afterClosed() error : " + error);
+          }
+        );
       
-    });
+        
+      });
+    }
   }
 
   ngOnDestroy() {
