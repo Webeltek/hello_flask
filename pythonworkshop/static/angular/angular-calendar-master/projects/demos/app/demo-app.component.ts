@@ -22,6 +22,15 @@ import { HttpResponse } from '@angular/common/http';
 import { DateAdapter } from 'projects/angular-calendar/src/date-adapters/date-adapter';
 import { Router, ActivatedRoute, ParamMap  } from '@angular/router';
 
+interface PythUser {
+  id : number; 
+  user_email : string;
+  user_pass_hash : string;
+  user_confirmed : string;
+  last_seen : string;
+  is_admin : string;
+}
+
 @Component({
   selector: 'app-root',
   templateUrl: './demo-app.html',
@@ -50,6 +59,8 @@ export class DemoAppComponent implements OnInit, OnDestroy{
   }
 
   events : CalendarEvent[] = [];
+  users : PythUser[] = [];
+  curr_userId : number;
   toBeDeletedPythEvt : PythEvent;
 
   private destroy$ = new Subject<void>();
@@ -58,27 +69,39 @@ export class DemoAppComponent implements OnInit, OnDestroy{
     private httpService: HttpEventService,
     public dialog: MatDialog,
     private breakpointObserver: BreakpointObserver,
-    private cd: ChangeDetectorRef
-    
-  ) {}
+    private cd: ChangeDetectorRef ) {}
+
+  getDbUsers(){
+    this.httpService.getUsers().subscribe((response) => {
+      let respObj =  JSON.parse(response);
+      console.log("getDBUsers() JSON.parse() : ", respObj)
+      this.users = [];
+      for (let pythUser of respObj.users){
+        this.users.push(pythUser);
+      }
+      this.curr_userId = respObj.curr_userId;
+    })
+  }
 
   getDbEvents(){
     this.httpService.getEvents().subscribe((response ) => {
-      //console.log("Response type: "+ typeof response);
+      console.log("Response type: "+ typeof response);
+      let pythUsers = this.getDbUsers();
       this.events = [];
-      let responseObj : PythEvent[] =  JSON.parse(response);
-      for (let pythEvt of  responseObj){
-        console.log("getDBEvents() evt.color: ",pythEvt.color)
+      let respObj : PythEvent[] =  JSON.parse(response);
+      for (let pythEvt of  respObj){
         let calEvent : CalendarEvent=  {
             id : pythEvt.uid,
             start : new Date(parseInt(pythEvt.start,10)),
             end : new Date(parseInt(pythEvt.end,10)),
             title : pythEvt.title,
-            color : getColors(pythEvt.color) 
+            color : getColors(pythEvt.color),
+            allDay : false 
           }
-        this.events.push(calEvent);    
+        this.events.push(calEvent);
+         
       }
-      this.events = [...this.events]; 
+      this.events = [...this.events];
       console.log("Follows events : ");  
       console.log(this.events);
   })
@@ -93,6 +116,7 @@ export class DemoAppComponent implements OnInit, OnDestroy{
   ngOnChanges(){}
 
   ngOnInit() {
+    this.getDbUsers();
     this.getDbEvents();
     this.subscribeToInsertEvt();
     
@@ -146,9 +170,55 @@ export class DemoAppComponent implements OnInit, OnDestroy{
     event: CalendarEvent;
     sourceEvent: MouseEvent | KeyboardEvent;
   }) {
-    if (clickedWeekViewEvent.event.color.primary != "#ad2121") {
+    let logged_user: PythUser;
+    console.log("openDialog() this.users :",this.users);
+    for (let user of this.users) {
+       if(user.id == this.curr_userId){
+
+        logged_user = user;
+       }
+    }
+    console.log("openDialog() loggedUser", logged_user)
+
+    if (clickedWeekViewEvent.event.color.primary != getColors('red').primary
+     && !logged_user.is_admin) {
       var hourContainedEvTitle = "";
-      //console.log("segment Date in openDialog(): ",this.segment.date ) ;
+      //console.log("segment Date in openDialog(): ",this.segment.date ) ; 
+      this.httpService.getEvents().subscribe((response) => {
+        let responseObj = JSON.parse(response);
+        let clickedPythEvtStart = clickedWeekViewEvent.event.start.getTime().toString();
+        //console.log("clickedWeekViewEvent.event.start",clickedWeekViewEvent.event.start)
+        for (let pythEvt of responseObj) {
+          if ( pythEvt.start == clickedPythEvtStart ){
+            this.toBeDeletedPythEvt = pythEvt;
+            //console.log("this.toBeDeletedPythEvt",this.toBeDeletedPythEvt)
+          }
+          
+        }
+
+        const dialogRef = this.dialog.open(EventDialog, {
+          data: {
+            toBeDeleted : true,
+            toBeDeletedPythEvt : this.toBeDeletedPythEvt
+          },
+        });
+        dialogRef.afterClosed().subscribe(
+          (result) => {
+            if (typeof result !== 'undefined') {
+              //console.log("result object",result)
+              this.deleteEvent(result.toBeDeletedPythEvt.uid);
+            }
+          },
+          (error) => {
+            console.log("afterClosed() error : " + error);
+          }
+        );
+      
+        
+      });
+    } else if(logged_user.is_admin){
+      var hourContainedEvTitle = "";
+      //console.log("segment Date in openDialog(): ",this.segment.date ) ; 
       this.httpService.getEvents().subscribe((response) => {
         let responseObj = JSON.parse(response);
         let clickedPythEvtStart = clickedWeekViewEvent.event.start.getTime().toString();

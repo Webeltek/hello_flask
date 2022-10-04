@@ -68,6 +68,24 @@ def index_events():
     json_events = json.dumps(s_events)
     return jsonify( json_events)
 
+@main_bp.route("/services/users", methods= ['GET'])
+@login_required
+def index_users():
+    users_db.connect(reuse_if_open=True)
+    current_userId = current_user.id
+    users = User.select().order_by(User.id.asc())
+    if users is not None:
+      for row in users :
+        print('row id : ' + str(row.id))
+    saved_users = users
+    users_db.close()
+    
+    print ('current_userId :' + str(current_userId))
+    s_users = saved_users.dicts() # returns modelselect with rows as dicts
+    json_users = json.dumps({'users':list(s_users),'curr_user':current_userId}) #list() is converting modelselect to list
+    print("services/users " + json_users)
+    return jsonify(  json_users)    
+
 
 @main_bp.route("/services", methods= ['GET'])
 @login_required
@@ -86,7 +104,9 @@ def index():
             event.color = 'red'
     print ('current_userId :' + str(current_userId))  
     return render_template('/main/services.jinja2', saved_events=saved_events, 
-        current_userId = current_userId,user_email=loggedin_user.user_email)
+        current_userId = current_userId,
+        user_email=loggedin_user.user_email,
+        is_admin=loggedin_user.is_admin)
   
 @main_bp.route("/services/insert",methods=["POST","GET"])
 @login_required

@@ -31,17 +31,17 @@ export interface PythEvent {
 export function getColors(colorName : string) {
   switch(colorName) {
     case "red": {
-      console.log("getColors() : red")
+      //console.log("getColors() : red")
       return {primary: '#ad2121',secondary: '#FAE3E3' };
       break;
     }
     case "blue" : {
-      console.log("getColors() : blue")
+      //console.log("getColors() : blue")
       return {primary: '#1e90ff',secondary: '#D1E8FF'};
       break;
     }
     case "yellow": {
-      console.log("getColors() : yellow")
+      //console.log("getColors() : yellow")
       return {primary: '#e3bc08',secondary: '#FDF1BA'};
       break;
     }
@@ -250,7 +250,7 @@ getDateString( date ) {
       }
 
       if (!this.isClickedOverEvent()) {
-        console.log("calWVhourSegm isClick",this.isClickedOverEvent());
+        //console.log("calWVhourSegm isClick",this.isClickedOverEvent());
         for (var dbEvt of this.events) {
           let segmStartHour = this.segment.date.getHours();
           let modifiedSegmentDate = new Date(this.segment.date);

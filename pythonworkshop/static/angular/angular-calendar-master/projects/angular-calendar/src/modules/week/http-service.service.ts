@@ -10,6 +10,7 @@ providedIn:  'root'
 })
 export class HttpEventService{
     private servicesUrl = "/services/events";
+    private usersUrl = "/services/users"
     private insertUrl = "/services/insert";
     private deleteUrl = "/services/delete";
 
@@ -28,6 +29,11 @@ export class HttpEventService{
 
     getEvents(){
         return this.http.get<string>(this.servicesUrl,
+            { headers : this.httpHeaders, observe: 'body', responseType : 'json'})
+    }
+
+    getUsers(){
+        return this.http.get<string>(this.usersUrl,
             { headers : this.httpHeaders, observe: 'body', responseType : 'json'})
     }
 

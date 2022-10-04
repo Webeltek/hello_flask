@@ -6,6 +6,7 @@ from flask_login import LoginManager
 from flask_login import UserMixin
 from . import login_manager
 import jwt
+from itsdangerous.url_safe import URLSafeSerializer
 from flask import current_app
 from playhouse.shortcuts import model_to_dict
 
@@ -36,6 +37,7 @@ class User(UserMixin,p.Model):
   user_pass_hash = p.CharField(default='initial hash')
   user_confirmed = p.BooleanField(default=False)
   last_seen = p.CharField(default='initial date')
+  is_admin = p.BooleanField(default=False)
 
   def to_dict(self):
       return self.model_to_dict()
@@ -56,20 +58,26 @@ class User(UserMixin,p.Model):
     table_name = 'nf_user'
   
   def generate_confirmation_token(self, expiration=3600):
-        encoded = jwt.encode({'confirm': self.id},current_app.config['SECRET_KEY'], algorithm='HS256')
-        return encoded
+        #encoded = jwt.encode({'confirm': self.id},current_app.config['SECRET_KEY'], algorithm='HS256')
+        s = URLSafeSerializer(current_app.config['SECRET_KEY'])
+        urlserialized = s.dumps({'confirm': self.id})
+        return urlserialized
 
   def confirm(self, token):
     secret_key = current_app.config['SECRET_KEY']
+    print(f'User.confirm() token is: {token}')
+    print(f'User.confirm(...) self.id is: {self.id}')
+    s = URLSafeSerializer(current_app.config['SECRET_KEY'])
     try:
-        data = jwt.decode(token, secret_key, algorithms=['HS256'])
+        data = s.loads(token)
+        datagetconf = data.get('confirm')
+        print(f'User.confirm(...) data.confirm is:{datagetconf}')
     except:
-        print('exeption in User.confirm( s.loads')
+        print(f'exept in models.User.confirm()')
         return False
     if data.get('confirm') != self.id:
         print('User.confirm(...) exception in data.get("confirm")')
         print('User.confirm(...) data.get("confirm"): ' + str(data.get('confirm')) + 'is not = self.id: '+str(self.id)) 
-        
         return False
     self.user_confirmed = True
     self.save()
