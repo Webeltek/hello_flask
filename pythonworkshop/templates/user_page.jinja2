@@ -40,8 +40,7 @@
     <div class="card">
       <img class="card-img-top rounded" style="max" src="{{ url_for('static',filename='ufo.jpg') }}" alt="Card image">
       <div class="card-body text-center">
-        <h5 class="card-title">Logged inn som:</h4>
-        <p class="card-title">{{ is_admin }}</p>
+        <h5 class="card-title">Logged inn som {% if is_admin%}admin{% endif%}:</h4>
 			  <p class="card-text">{{ user_email }}</p>
       </div>
     </div>

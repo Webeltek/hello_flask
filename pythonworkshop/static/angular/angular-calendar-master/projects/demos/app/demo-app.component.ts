@@ -74,13 +74,22 @@ export class DemoAppComponent implements OnInit, OnDestroy{
   getDbUsers(){
     this.httpService.getUsers().subscribe((response) => {
       let respObj =  JSON.parse(response);
-      console.log("getDBUsers() JSON.parse() : ", respObj)
+      //console.log("getDBUsers() JSON.parse() : ", respObj)
       this.users = [];
       for (let pythUser of respObj.users){
         this.users.push(pythUser);
       }
-      this.curr_userId = respObj.curr_userId;
+      this.curr_userId = respObj.curr_user;
     })
+  }
+
+  getDbUserEmail(pythEvUserId : number){
+    this.getDbUsers();
+    for (let curr_user of this.users){
+      if (pythEvUserId == curr_user.id){
+        return curr_user.user_email;
+      } else "user_not_found"
+    }
   }
 
   getDbEvents(){
@@ -92,9 +101,10 @@ export class DemoAppComponent implements OnInit, OnDestroy{
       for (let pythEvt of  respObj){
         let calEvent : CalendarEvent=  {
             id : pythEvt.uid,
+            userId : pythEvt.userId,
             start : new Date(parseInt(pythEvt.start,10)),
             end : new Date(parseInt(pythEvt.end,10)),
-            title : pythEvt.title,
+            title : this.getDbUserEmail(pythEvt.userId),
             color : getColors(pythEvt.color),
             allDay : false 
           }
@@ -102,8 +112,8 @@ export class DemoAppComponent implements OnInit, OnDestroy{
          
       }
       this.events = [...this.events];
-      console.log("Follows events : ");  
-      console.log(this.events);
+      //console.log("Follows events : ");  
+      //console.log(this.events);
   })
   }
 
@@ -171,10 +181,11 @@ export class DemoAppComponent implements OnInit, OnDestroy{
     sourceEvent: MouseEvent | KeyboardEvent;
   }) {
     let logged_user: PythUser;
-    console.log("openDialog() this.users :",this.users);
     for (let user of this.users) {
+      console.log("openDialog() user.id :",user.id);
+      console.log("openDialog() this.curr_userId:",this.curr_userId);
        if(user.id == this.curr_userId){
-
+        console.log("openDialog()  :",logged_user);
         logged_user = user;
        }
     }

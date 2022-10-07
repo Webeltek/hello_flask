@@ -1,3 +1,15 @@
+diff --git a/node_modules/calendar-utils/calendar-utils.d.ts b/node_modules/calendar-utils/calendar-utils.d.ts
+index 13e9c53..7afedad 100644
+--- a/node_modules/calendar-utils/calendar-utils.d.ts
++++ b/node_modules/calendar-utils/calendar-utils.d.ts
+@@ -34,6 +34,7 @@ export interface EventAction {
+ }
+ export interface CalendarEvent<MetaType = any> {
+     id?: string | number;
++    userId? : number;
+     start: Date;
+     end?: Date;
+     title: string;
 diff --git a/node_modules/calendar-utils/calendar-utils.js b/node_modules/calendar-utils/calendar-utils.js
 index 5c83ff8..86ef51d 100644
 --- a/node_modules/calendar-utils/calendar-utils.js
