@@ -22,7 +22,7 @@ import { HttpResponse } from '@angular/common/http';
 import { DateAdapter } from 'projects/angular-calendar/src/date-adapters/date-adapter';
 import { Router, ActivatedRoute, ParamMap  } from '@angular/router';
 
-interface PythUser {
+export interface PythUser {
   id : number; 
   user_email : string;
   user_pass_hash : string;
@@ -32,7 +32,7 @@ interface PythUser {
 }
 
 @Component({
-  selector: 'app-root',
+  selector: 'demo-app',
   templateUrl: './demo-app.html',
   styleUrls: ['./demo-app.css'],
   changeDetection : ChangeDetectionStrategy.Default,
@@ -76,35 +76,49 @@ export class DemoAppComponent implements OnInit, OnDestroy{
       let respObj =  JSON.parse(response);
       //console.log("getDBUsers() JSON.parse() : ", respObj)
       this.users = [];
+      this.curr_userId = respObj.curr_user;
       for (let pythUser of respObj.users){
         this.users.push(pythUser);
+        if(pythUser.id == this.curr_userId){
+          this.logged_user = pythUser;
+         }
       }
-      this.curr_userId = respObj.curr_user;
+      this.users = [...this.users];
+      console.log("this.users",this.users)
+      this.getDbEvents();
     })
   }
+  logged_user: PythUser;
 
-  getDbUserEmail(pythEvUserId : number){
-    this.getDbUsers();
-    for (let curr_user of this.users){
-      if (pythEvUserId == curr_user.id){
-        return curr_user.user_email;
-      } else "user_not_found"
-    }
+  getEventTitle(pythEv : PythEvent){
+      if ( this.logged_user.is_admin){
+        console.log("getEventTitle() this.users",this.users);
+        console.log("getEventTitle() pythEv.userId",pythEv.userId);
+        let eventUser =  this.users.filter((user)=> {
+          console.log("getEventTitle() user.id == pythEv.userId",user.id == pythEv.userId)
+          return user.id == pythEv.userId
+        });
+        console.log("getEventTitle() eventUser array",eventUser );
+        return eventUser[0].user_email;
+      } else {
+        return pythEv.title;
+      }
+    
   }
 
   getDbEvents(){
     this.httpService.getEvents().subscribe((response ) => {
       console.log("Response type: "+ typeof response);
-      let pythUsers = this.getDbUsers();
       this.events = [];
       let respObj : PythEvent[] =  JSON.parse(response);
+      console.log("getDbEvents() this.users",this.users)
       for (let pythEvt of  respObj){
         let calEvent : CalendarEvent=  {
             id : pythEvt.uid,
             userId : pythEvt.userId,
             start : new Date(parseInt(pythEvt.start,10)),
             end : new Date(parseInt(pythEvt.end,10)),
-            title : this.getDbUserEmail(pythEvt.userId),
+            title : this.getEventTitle(pythEvt),
             color : getColors(pythEvt.color),
             allDay : false 
           }
@@ -112,23 +126,25 @@ export class DemoAppComponent implements OnInit, OnDestroy{
          
       }
       this.events = [...this.events];
-      //console.log("Follows events : ");  
-      //console.log(this.events);
+      console.log("Follows events : ");  
+      console.log(this.events);
   })
   }
 
-  subscribeToInsertEvt() {
+  subscribeToInsertDelEvt() {
     this.httpService.addedEvent.subscribe((emitedValue: any) => { 
         this.getDbEvents();
     })
+    this.httpService.deletedEvent.subscribe((emitedValue: any) => { 
+      this.getDbEvents();
+  })
   }
 
   ngOnChanges(){}
 
   ngOnInit() {
     this.getDbUsers();
-    this.getDbEvents();
-    this.subscribeToInsertEvt();
+    this.subscribeToInsertDelEvt();
     
     const CALENDAR_RESPONSIVE = {
       small: {
@@ -180,19 +196,9 @@ export class DemoAppComponent implements OnInit, OnDestroy{
     event: CalendarEvent;
     sourceEvent: MouseEvent | KeyboardEvent;
   }) {
-    let logged_user: PythUser;
-    for (let user of this.users) {
-      console.log("openDialog() user.id :",user.id);
-      console.log("openDialog() this.curr_userId:",this.curr_userId);
-       if(user.id == this.curr_userId){
-        console.log("openDialog()  :",logged_user);
-        logged_user = user;
-       }
-    }
-    console.log("openDialog() loggedUser", logged_user)
 
     if (clickedWeekViewEvent.event.color.primary != getColors('red').primary
-     && !logged_user.is_admin) {
+     && !this.logged_user.is_admin) {
       var hourContainedEvTitle = "";
       //console.log("segment Date in openDialog(): ",this.segment.date ) ; 
       this.httpService.getEvents().subscribe((response) => {
@@ -227,7 +233,7 @@ export class DemoAppComponent implements OnInit, OnDestroy{
       
         
       });
-    } else if(logged_user.is_admin){
+    } else if(this.logged_user.is_admin){
       var hourContainedEvTitle = "";
       //console.log("segment Date in openDialog(): ",this.segment.date ) ; 
       this.httpService.getEvents().subscribe((response) => {

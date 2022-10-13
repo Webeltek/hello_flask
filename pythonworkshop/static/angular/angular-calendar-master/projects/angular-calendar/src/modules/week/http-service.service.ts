@@ -9,12 +9,14 @@ import { map } from 'rxjs/operators';
 providedIn:  'root'
 })
 export class HttpEventService{
-    private servicesUrl = "/services/events";
-    private usersUrl = "/services/users"
-    private insertUrl = "/services/insert";
-    private deleteUrl = "/services/delete";
+    private servicesUrl = "/api/services/events";
+    private usersUrl = "/api/services/users"
+    private insertUrl = "/api/services/insert";
+    private deleteUrl = "/api/services/delete";
 
     @Output() addedEvent: EventEmitter<any> = new EventEmitter();
+
+    @Output() deletedEvent: EventEmitter<any> = new EventEmitter();
 
     @Output() clickedEvent: EventEmitter<any> = new EventEmitter();
 
@@ -52,7 +54,7 @@ export class HttpEventService{
         this.http.post(this.deleteUrl, {uid: uid},
             { headers : this.httpHeaders, observe: 'body', responseType : 'json'} ) 
             .subscribe((response) =>{
-                this.addedEvent.emit(null);
+                this.deletedEvent.emit(null);
                 console.log("deleteEvent() response: " + JSON.stringify(response));
                 },
                 (error) => { console.log("deleteEvent() error : " + JSON.stringify(error)) ; }

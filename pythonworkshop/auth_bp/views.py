@@ -30,8 +30,9 @@ def index():
   reg_form = RegistrationForm()
   wrong_cred=False
   email_sent=False
-  return redirect(url_for('auth_bp.login_form'))
+  return render_template('index.html')
 
+"""
 @auth_bp.before_app_request
 def before_request():
   users_db.connect(reuse_if_open=True)
@@ -73,7 +74,8 @@ def login_form():
             print('login_form wrong cred')
             flash('Ugyldig epost eller passord.')
         users_db.close()
-    return render_template('/auth/login.jinja2', login=login_form)       
+    return render_template('/auth/login.jinja2', login=login_form)
+           
 
 @auth_bp.route('/register', methods=[ 'POST','GET'])
 def register_form():
@@ -95,6 +97,7 @@ def register_form():
       flash('En bekreftelses e-post har blitt sendt til deg på e-post.')
       users_db.close()
   return render_template('/auth/register.jinja2', reg=reg_form)
+  """
 
 
 @auth_bp.route('/logout')

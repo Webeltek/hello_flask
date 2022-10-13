@@ -11,15 +11,21 @@ import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 import { ROUTES } from './demo-app.routes';
+import { LoginComponent } from './login/login.component';
+import { RegisterComponent } from './register/register.component';
+import { MainComponent } from './main/main.component';
 
 
 @NgModule({
   declarations: [
-    DemoAppComponent
+    DemoAppComponent,
+    LoginComponent,
+    RegisterComponent,
+    MainComponent
   ],
   imports: [
     BrowserModule,
-    
+    RouterModule.forRoot(ROUTES),
     CalendarModule.forRoot({
       provide: DateAdapter,
       useFactory: adapterFactory,
@@ -29,7 +35,7 @@ import { ROUTES } from './demo-app.routes';
   ],
   providers : [
     { provide: LOCALE_ID, useValue: 'nb' }],
-  bootstrap: [DemoAppComponent]
+  bootstrap: [MainComponent]
 })
 export class DemoAppModule { 
   constructor(){

@@ -15,7 +15,7 @@ templateEnv = jinja2.Environment(loader=templateLoader)
 
 contact_templ = templateEnv.get_template('/main/contact.jinja2')
 persons_templ = templateEnv.get_template('/main/persons.jinja2')
-services_templ = templateEnv.get_template('/main/services.jinja2')
+#services_templ = templateEnv.get_template('/main/services.jinja2')
 about_us_templ = templateEnv.get_template('/main/about_us.jinja2')
 
 @main_bp.route("/contact", methods= ['GET','POST'])
@@ -48,7 +48,7 @@ def user_profile(username):
             return F'I got your autodata!!!'
         return render_template('/main/user_profile.jinja2',user=user)  
   
-@main_bp.route("/services/events", methods= ['GET'])
+@main_bp.route("/api/services/events", methods= ['GET'])
 @login_required
 def index_events():
     users_db.connect(reuse_if_open=True)
@@ -68,7 +68,7 @@ def index_events():
     json_events = json.dumps(s_events)
     return jsonify( json_events)
 
-@main_bp.route("/services/users", methods= ['GET'])
+@main_bp.route("/api/services/users", methods= ['GET'])
 @login_required
 def index_users():
     users_db.connect(reuse_if_open=True)
@@ -88,8 +88,8 @@ def index_users():
 
 
 @main_bp.route("/services", methods= ['GET'])
-@login_required
-def index():
+#@login_required
+def services_index():
     users_db.connect(reuse_if_open=True)
     current_userId = current_user.id
     events = Event.select().order_by(Event.id.asc())
@@ -108,7 +108,7 @@ def index():
         user_email=loggedin_user.user_email,
         is_admin=loggedin_user.is_admin)
   
-@main_bp.route("/services/insert",methods=["POST","GET"])
+@main_bp.route("/api/services/insert",methods=["POST","GET"])
 @login_required
 def insert():
     users_db.connect(reuse_if_open=True)
@@ -129,7 +129,7 @@ def insert():
         msg = 'Record added successfully' 
     return jsonify(msg)
   
-@main_bp.route("/services/update",methods=["POST","GET"])
+@main_bp.route("/api/services/update",methods=["POST","GET"])
 @login_required
 def update():
     users_db.connect(reuse_if_open=True)
@@ -144,7 +144,7 @@ def update():
         msg = 'Record updated successfully' 
     return jsonify(msg)    
   
-@main_bp.route("/services/delete",methods=["POST","GET"])
+@main_bp.route("/api/services/delete",methods=["POST","GET"])
 @login_required
 def ajax_delete():
     users_db.connect(reuse_if_open=True)
