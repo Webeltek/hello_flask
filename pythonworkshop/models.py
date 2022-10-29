@@ -1,4 +1,5 @@
-from datetime import datetime
+import datetime
+from enum import unique
 from flask import Flask, request
 from passlib.hash import bcrypt_sha256
 import peewee as p
@@ -8,8 +9,7 @@ from . import login_manager
 import jwt
 from itsdangerous.url_safe import URLSafeSerializer
 from flask import current_app
-from playhouse.shortcuts import model_to_dict
-
+"""
 @login_manager.user_loader
 def load_user(user_id):
     users_db.connect(reuse_if_open=True)
@@ -21,6 +21,7 @@ def load_user(user_id):
     else:
       return None   
 #equal to User.get(int(user_id))  type=serial constraint=PRIMARY KEY 
+"""
 
 users_db = p.PostgresqlDatabase(user='nf_user',password='nfvinter2022',
         host='127.0.0.1',
@@ -33,9 +34,11 @@ class Permission:
 
 class User(UserMixin,p.Model):
   id = p.AutoField()  
-  user_email = p.CharField(default='first_email')
+  user_email = p.CharField(default='first_email',unique=True)
   user_pass_hash = p.CharField(default='initial hash')
+  user_is_logged_in = p.BooleanField(default=False)
   user_confirmed = p.BooleanField(default=False)
+  access_token = p.CharField(default='empty token')
   last_seen = p.CharField(default='initial date')
   is_admin = p.BooleanField(default=False)
 
@@ -56,22 +59,67 @@ class User(UserMixin,p.Model):
   class Meta:
     database = users_db
     table_name = 'nf_user'
-  
-  def generate_confirmation_token(self, expiration=3600):
-        #encoded = jwt.encode({'confirm': self.id},current_app.config['SECRET_KEY'], algorithm='HS256')
-        s = URLSafeSerializer(current_app.config['SECRET_KEY'])
-        urlserialized = s.dumps({'confirm': self.id})
-        return urlserialized
 
+  def login_user(self):
+    self.user_is_logged_in = True
+    self.save()
+  
+  def generate_access_token(self, expiration=3600):
+        encoded = jwt.encode({'email': self.user_email, \
+        'exp': datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(seconds=expiration)},current_app.config['SECRET_KEY'], algorithm='HS256')
+        #s = URLSafeSerializer(current_app.config['SECRET_KEY'])
+        #urlserialized = s.dumps({'email': self.user_email})
+        self.access_token = encoded
+        self.save()
+        return encoded
+
+  def check_access_token(self, access_token):
+        #encoded = jwt.encode({'confirm': self.id},current_app.config['SECRET_KEY'], algorithm='HS256')
+        #s = URLSafeSerializer(current_app.config['SECRET_KEY'])
+        try:
+          data = jwt.decode(access_token,current_app.config['SECRET_KEY'],algorithms=["HS256"])
+        except:
+          return False
+        if data.get('email')!= self.user_email:
+          return False
+        return True
+          
+  @staticmethod
+  def get_access_tokens_email(access_token):
+      #s = URLSafeSerializer(current_app.config['SECRET_KEY'])
+      try:
+        data = jwt.decode(access_token,current_app.config['SECRET_KEY'],algorithms=["HS256"])
+      except:
+        return False
+      return data.get('email')  
+
+  def generate_confirmation_token(self, expiration=3600):
+        encoded = jwt.encode({'confirm': self.id, \
+        'exp': datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(seconds=expiration)},current_app.config['SECRET_KEY'], algorithm='HS256')
+        #s = URLSafeSerializer(current_app.config['SECRET_KEY'])
+        #urlserialized = s.dumps({'confirm': self.id})
+        return encoded
+
+  @staticmethod
+  def get_tokens_user_id(token):
+    #s = URLSafeSerializer(current_app.config['SECRET_KEY'])
+    try:
+        data = jwt.decode(token,current_app.config['SECRET_KEY'],algorithms=["HS256"])
+        confirmed_user_id = data.get('confirm')
+        print(f'User.get_tokens_user_id() data.confirm is:{confirmed_user_id}')
+        return confirmed_user_id
+    except:
+        print(f'exept in models.User.confirm()')
+        return False
+  
   def confirm(self, token):
-    secret_key = current_app.config['SECRET_KEY']
     print(f'User.confirm() token is: {token}')
     print(f'User.confirm(...) self.id is: {self.id}')
-    s = URLSafeSerializer(current_app.config['SECRET_KEY'])
+    #s = URLSafeSerializer(current_app.config['SECRET_KEY'])
     try:
-        data = s.loads(token)
-        datagetconf = data.get('confirm')
-        print(f'User.confirm(...) data.confirm is:{datagetconf}')
+        data = jwt.decode(token,current_app.config['SECRET_KEY'],algorithms=["HS256"])
+        confirmed_user_id = data.get('confirm')
+        print(f'User.confirm(...) data.confirm is:{confirmed_user_id}')
     except:
         print(f'exept in models.User.confirm()')
         return False
@@ -80,12 +128,13 @@ class User(UserMixin,p.Model):
         print('User.confirm(...) data.get("confirm"): ' + str(data.get('confirm')) + 'is not = self.id: '+str(self.id)) 
         return False
     self.user_confirmed = True
+    self.user_is_logged_in = True
     self.save()
     print('User confirmed in User.confirm(')
     return True
   
   def generate_reset_token(self, expiration=3600):
-        encodeed = jwt.encode({'reset': self.id},current_app.config['SECRET_KEY'], algorithm='HS256')
+        encodeed = jwt.encode({'reset': self.id,'exp': datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(seconds=expiration)},current_app.config['SECRET_KEY'], algorithm='HS256')
         return encodeed
 
   @staticmethod
@@ -104,7 +153,8 @@ class User(UserMixin,p.Model):
         return True
 
   def generate_email_change_token(self, new_email, expiration=3600):
-        encodeed = jwt.encode({'change_email': self.id, 'new_email' : new_email },current_app.config['SECRET_KEY'], algorithm='HS256')
+        encodeed = jwt.encode({'change_email': self.id, 'new_email' : new_email, \
+        'exp': datetime.datetime.now(tz=timezone.utc) + datetime.timedelta(seconds=expiration) },current_app.config['SECRET_KEY'], algorithm='HS256')
         return encodeed
 
   def change_email(self, token):

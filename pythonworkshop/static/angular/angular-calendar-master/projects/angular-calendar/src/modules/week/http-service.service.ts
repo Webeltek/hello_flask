@@ -4,6 +4,7 @@ import { HttpHeaders } from '@angular/common/http';
 import { Injectable , Output, EventEmitter} from  '@angular/core';
 import { PythEvent } from './calendar-week-view-hour-segment.component';
 import { map } from 'rxjs/operators';
+import { PythUser } from 'projects/demos/app/demo-app.component';
 
 @Injectable({
 providedIn:  'root'
@@ -30,12 +31,12 @@ export class HttpEventService{
     roptions = { headers : this.httpHeaders, observe: 'body', responseType : 'json'}
 
     getEvents(){
-        return this.http.get<string>(this.servicesUrl,
+        return this.http.get(this.servicesUrl,
             { headers : this.httpHeaders, observe: 'body', responseType : 'json'})
     }
 
     getUsers(){
-        return this.http.get<string>(this.usersUrl,
+        return this.http.get(this.usersUrl,
             { headers : this.httpHeaders, observe: 'body', responseType : 'json'})
     }
 

@@ -13,7 +13,20 @@ import { RouterModule } from '@angular/router';
 import { ROUTES } from './demo-app.routes';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
-import { MainComponent } from './main/main.component';
+import { HomeComponent } from './home/home.component';
+import { BoardAdminComponent } from './board-admin/board-admin.component';
+import { BoardUserComponent } from './board-user/board-user.component';
+
+import { FormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
+import { ConfirmComponent } from './confirm/confirm.component';
+import { authInterceptorProviders } from './_helpers/auth-interceptor.service';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDividerModule } from '@angular/material/divider';
+import { ProfileComponent } from './profile/profile.component';
 
 
 @NgModule({
@@ -21,7 +34,11 @@ import { MainComponent } from './main/main.component';
     DemoAppComponent,
     LoginComponent,
     RegisterComponent,
-    MainComponent
+    HomeComponent,
+    BoardAdminComponent,
+    BoardUserComponent,
+    ConfirmComponent,
+    ProfileComponent,
   ],
   imports: [
     BrowserModule,
@@ -31,11 +48,18 @@ import { MainComponent } from './main/main.component';
       useFactory: adapterFactory,
     }),
 
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+    FormsModule,
+    MatToolbarModule,
+    MatSidenavModule,
+    MatButtonModule,
+    MatIconModule,
+    MatDividerModule,
   ],
   providers : [
-    { provide: LOCALE_ID, useValue: 'nb' }],
-  bootstrap: [MainComponent]
+    { provide: LOCALE_ID, useValue: 'nb' },
+    authInterceptorProviders],
+  bootstrap: [HomeComponent]
 })
 export class DemoAppModule { 
   constructor(){

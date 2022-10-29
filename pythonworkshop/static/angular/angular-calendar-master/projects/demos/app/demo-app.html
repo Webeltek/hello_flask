@@ -1,6 +1,7 @@
 <ng-template 
     #weekTemplate
     let-isML="isMobL"
+    let-loggedInUserId="loggedInUserId"
 >
     <ng-container *ngIf="isML; then vertBtnGrp else horBtnGrp"></ng-container>
     <ng-template #vertBtnGrp>
@@ -50,7 +51,8 @@
             [dayStartHour]="0" 
             [dayEndHour]="6" 
             [viewDate]="viewDate" 
-            [daysInWeek]="daysInWeek" 
+            [daysInWeek]="daysInWeek"
+            [loggedInUserId]="loggedInUserId" 
             [events]="events"
             (eventClicked)="openDialog($event)">
         </mwl-calendar-week-view>
@@ -61,7 +63,8 @@
             [dayStartHour]="0" 
             [dayEndHour]="6" 
             [viewDate]="viewDate" 
-            [daysInWeek]="daysInWeek" 
+            [daysInWeek]="daysInWeek"
+            [loggedInUserId]="loggedInUserId" 
             [events]="events"
             (eventClicked)="openDialog($event)">
         </mwl-calendar-week-view-mob>
@@ -69,6 +72,7 @@
 <ng-template
     [ngTemplateOutlet]="weekTemplate"
     [ngTemplateOutletContext]="{
-       isMobL : isMobLayout 
+       isMobL : isMobLayout,
+       loggedInUserId : loggedInUserId 
     }"
 ></ng-template>

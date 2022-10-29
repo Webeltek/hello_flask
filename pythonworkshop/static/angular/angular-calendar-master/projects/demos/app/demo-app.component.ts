@@ -21,18 +21,20 @@ import { addDays } from 'date-fns';
 import { HttpResponse } from '@angular/common/http';
 import { DateAdapter } from 'projects/angular-calendar/src/date-adapters/date-adapter';
 import { Router, ActivatedRoute, ParamMap  } from '@angular/router';
+import { TokenStorageService } from './_services/token-storage.service';
 
 export interface PythUser {
   id : number; 
   user_email : string;
   user_pass_hash : string;
+  user_is_logged_in : string;
   user_confirmed : string;
   last_seen : string;
   is_admin : string;
 }
 
 @Component({
-  selector: 'demo-app',
+  selector: 'app-root',
   templateUrl: './demo-app.html',
   styleUrls: ['./demo-app.css'],
   changeDetection : ChangeDetectionStrategy.Default,
@@ -60,31 +62,32 @@ export class DemoAppComponent implements OnInit, OnDestroy{
 
   events : CalendarEvent[] = [];
   users : PythUser[] = [];
-  curr_userId : number;
+  loggedInUserId : number;
   toBeDeletedPythEvt : PythEvent;
 
   private destroy$ = new Subject<void>();
 
   constructor(
     private httpService: HttpEventService,
+    private tokenStorage: TokenStorageService,
     public dialog: MatDialog,
     private breakpointObserver: BreakpointObserver,
     private cd: ChangeDetectorRef ) {}
 
   getDbUsers(){
     this.httpService.getUsers().subscribe((response) => {
-      let respObj =  JSON.parse(response);
-      //console.log("getDBUsers() JSON.parse() : ", respObj)
-      this.users = [];
-      this.curr_userId = respObj.curr_user;
+      let storageUsrObj = this.tokenStorage.getUser();
+      this.loggedInUserId = storageUsrObj.id;
+      console.log("getDBUsers()  storageUsrObj.user_email", storageUsrObj.user_email);
+      let respObj  = response as any ;
       for (let pythUser of respObj.users){
         this.users.push(pythUser);
-        if(pythUser.id == this.curr_userId){
+        if(pythUser.id == this.loggedInUserId){
           this.logged_user = pythUser;
          }
       }
       this.users = [...this.users];
-      console.log("this.users",this.users)
+      //console.log("this.users",this.users)
       this.getDbEvents();
     })
   }
@@ -108,10 +111,10 @@ export class DemoAppComponent implements OnInit, OnDestroy{
 
   getDbEvents(){
     this.httpService.getEvents().subscribe((response ) => {
-      console.log("Response type: "+ typeof response);
+      //console.log("getDbEvents() Response: ",response);
+      //console.log("getDbEvents() Response type: "+ typeof response);
       this.events = [];
-      let respObj : PythEvent[] =  JSON.parse(response);
-      console.log("getDbEvents() this.users",this.users)
+      let respObj  =  response as any;
       for (let pythEvt of  respObj){
         let calEvent : CalendarEvent=  {
             id : pythEvt.uid,
@@ -119,14 +122,14 @@ export class DemoAppComponent implements OnInit, OnDestroy{
             start : new Date(parseInt(pythEvt.start,10)),
             end : new Date(parseInt(pythEvt.end,10)),
             title : this.getEventTitle(pythEvt),
-            color : getColors(pythEvt.color),
+            color : getColors(pythEvt.userId,this.logged_user.id),
             allDay : false 
           }
         this.events.push(calEvent);
          
       }
       this.events = [...this.events];
-      console.log("Follows events : ");  
+      console.log("getDbEvents() Follows events : ");  
       console.log(this.events);
   })
   }
@@ -197,12 +200,12 @@ export class DemoAppComponent implements OnInit, OnDestroy{
     sourceEvent: MouseEvent | KeyboardEvent;
   }) {
 
-    if (clickedWeekViewEvent.event.color.primary != getColors('red').primary
+    if (clickedWeekViewEvent.event.userId==this.logged_user.id
      && !this.logged_user.is_admin) {
       var hourContainedEvTitle = "";
       //console.log("segment Date in openDialog(): ",this.segment.date ) ; 
       this.httpService.getEvents().subscribe((response) => {
-        let responseObj = JSON.parse(response);
+        let responseObj = response as any;
         let clickedPythEvtStart = clickedWeekViewEvent.event.start.getTime().toString();
         //console.log("clickedWeekViewEvent.event.start",clickedWeekViewEvent.event.start)
         for (let pythEvt of responseObj) {
@@ -237,7 +240,7 @@ export class DemoAppComponent implements OnInit, OnDestroy{
       var hourContainedEvTitle = "";
       //console.log("segment Date in openDialog(): ",this.segment.date ) ; 
       this.httpService.getEvents().subscribe((response) => {
-        let responseObj = JSON.parse(response);
+        let responseObj = response as any;
         let clickedPythEvtStart = clickedWeekViewEvent.event.start.getTime().toString();
         //console.log("clickedWeekViewEvent.event.start",clickedWeekViewEvent.event.start)
         for (let pythEvt of responseObj) {

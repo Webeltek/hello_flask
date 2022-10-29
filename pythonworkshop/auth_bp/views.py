@@ -1,5 +1,5 @@
 from flask import render_template, redirect,session, request, url_for, flash, \
-        current_app, session
+        current_app, session, jsonify
 from flask_login import login_user, logout_user, login_required, \
     current_user
 from . import auth_bp
@@ -15,7 +15,8 @@ from wtforms import ValidationError
 import json
 from urllib.parse import quote_plus, urlencode
 from authlib.integrations.flask_client import OAuth
-from os import environ as env
+from os import access, environ as env
+from playhouse.shortcuts import model_to_dict
 
 templateLoader = jinja2.PackageLoader('pythonworkshop','templates')
 templateEnv = jinja2.Environment(loader=templateLoader)
@@ -45,60 +46,55 @@ def before_request():
             print('auth_bp.views.before_request() condition for unconfirmed == True')
             return redirect(url_for('auth_bp.unconfirmed'))
   users_db.close()
-  pass    
+  pass
+    
 
 
 @auth_bp.route('/unconfirmed')
 def unconfirmed():
     if current_user.is_anonymous or current_user.user_confirmed:
         return redirect(url_for('main_bp.contact'))
-    return render_template('auth/unconfirmed.jinja2')  
+    return render_template('auth/unconfirmed.jinja2') 
+
+"""     
 
 
-@auth_bp.route('/login', methods=['POST','GET'])
+@auth_bp.route('/api/auth/login', methods=['POST','GET'])
 def login_form():
     print('login_form call')
-    next = request.values.get('next')
-    print('login_form method= POST and GET, next is: '+str(next))
-    login_form = LoginForm()
-    if login_form.validate_on_submit():
+    msg = ''
+    if request.method == 'POST':
         users_db.connect(reuse_if_open=True)
-        user = User.select().where(User.user_email==login_form.email.data).first()
-        if user is not None and user.verify_password(login_form.password.data):
-            login_user(user, login_form.remember_me.data)
-            next = request.values.get('next')
-            if next is None or not (next.startswith('/') or not next.startswith('%2F')):
-                next = url_for('main_bp.contact_form')
-            return redirect(next)
+        user = User.select().where(User.user_email==request.json['email']).first()
+        if user is not None and user.verify_password(request.json['password']) and user.user_confirmed:
+            user.login_user()
+            user.generate_access_token()
+            user_dict = model_to_dict(user)
+            return jsonify({'user':user_dict,'msg':'User confirmed!'})
         else:
-            print('login_form wrong cred')
-            flash('Ugyldig epost eller passord.')
+            msg='Wrong username or password!'
         users_db.close()
-    return render_template('/auth/login.jinja2', login=login_form)
+    return jsonify({'user':'nonexistent','msg':msg})
            
 
-@auth_bp.route('/register', methods=[ 'POST','GET'])
-def register_form():
-  reg_form = RegistrationForm()
-  email_sent=False
-  if reg_form.validate_on_submit() :
+@auth_bp.route('/api/auth/register', methods=['POST'])
+def register_form(): 
+  if request.method == 'POST':
+      print(f'/api/auth/register called and request email: {str(request.json["email"])}') 
       users_db.connect(reuse_if_open=True)
+      msg=''
       try :
-        user = User.create(user_email=reg_form.email.data,
-                           user_pass=reg_form.password.data)
+        user = User.create(user_email=request.json['email'],
+                           user_pass=request.json['password'])
       except p.IntegrityError :
-        raise ValidationError('duplikat epost')
+        return ({'is_duplicate': True, 'duplicate_email': request.json['email']})
       token = user.generate_confirmation_token()
-      print(f'User email token to send: {token}' )
-      urlfor = url_for('auth_bp.confirm', token=token, _external=True) 
-      print(f'Url extracted from url_for(): {urlfor}') 
       send_email(user.user_email, 'Confirm Your Account', 'auth/email/confirm', user=user, token=token)
       #send_email([user.user_email], 'Confirm Your Account', 'auth/email/confirm', user=user, token=token)
-      flash('En bekreftelses e-post har blitt sendt til deg på e-post.')
+      msg = 'En bekreftelses e-post har blitt sendt til deg på e-post.'
       users_db.close()
-  return render_template('/auth/register.jinja2', reg=reg_form)
-  """
-
+  return jsonify({'is_duplicate': False,'sent_token': token, 'msg':msg})
+  
 
 @auth_bp.route('/logout')
 @login_required
@@ -108,22 +104,22 @@ def logout():
   return redirect(url_for('auth_bp.login_form'))
 
 
-@auth_bp.route('/confirm/<token>')
-@login_required
+@auth_bp.route('/api/auth/confirm/<token>',methods=['POST','GET'])
 def confirm(token):
-    print(f'views.confirm() token before translate:{token}')
-    token = token.replace('=<br />','')
-    print(f"next in auth_bp.VIEWS.confirm is: {str(request.values.get('next'))}")
-    print(f"token in auth_bp.VIEWS.confirm is: {str(token)}")
     users_db.connect(reuse_if_open=True)
-    if current_user.user_confirmed or current_user.confirm(token):
+    tokens_user_id = User.get_tokens_user_id(token)
+    user = User.select().where(User.id==tokens_user_id).first()
+    if user is not None and (user.user_confirmed or user.confirm(token)):
         print('current_user.user_confirmed = True')
-        flash('Du har bekreftet kontoen din. Takk!')
-        return redirect(url_for('main_bp.contact_form'))
+        msg_confirmed='Du har bekreftet kontoen din. Takk!'
+        user_dict =model_to_dict(user)
+        return jsonify({'user':user_dict, 'msg': msg_confirmed})
     print('current_user.user_confirmed = False')
-    flash('Bekreftelseslenken er ugyldig eller har utløpt.') 
+    msg_wrong_link = 'Bekreftelseslenken er ugyldig eller har utløpt.' 
     users_db.close()
-    return redirect(url_for('auth_bp.login_form'))
+    return jsonify({'received_token': token,'user_confirmed':False,'msg': msg_wrong_link})
+
+    """
 
 @auth_bp.route('/confirm')
 @login_required
@@ -188,3 +184,5 @@ def change_email(token):
     else:
         print('Ugyldig forespørsel.')
     return redirect(url_for('main_bp.contact_form'))
+
+"""    

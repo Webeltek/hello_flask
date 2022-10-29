@@ -11,6 +11,7 @@ import { Console } from 'console';
 import { HttpEventService } from './http-service.service';
 import { strictEqual } from 'assert';
 import { DateAdapter } from '../../date-adapters/date-adapter';
+import { TokenStorageService } from 'projects/demos/app/_services/token-storage.service';
 
 
 export interface DialogData {
@@ -28,8 +29,9 @@ export interface PythEvent {
   color : string;
 }
 
-export function getColors(colorName : string) {
-  switch(colorName) {
+export function getColors( user_id: number, logged_user_id:number) {
+  let activated_color: string = user_id == logged_user_id ? "blue": "red";
+  switch(activated_color) {
     case "red": {
       //console.log("getColors() : red")
       return {primary: '#ad2121',secondary: '#FAE3E3' };
@@ -53,6 +55,7 @@ export function getColors(colorName : string) {
   template: `
     <ng-template
       #defaultTemplate
+      let-loggedInUserId="loggedInUserId"
       let-segment="segment"
       let-locale="locale"
       let-isOdd="isOdd"
@@ -118,6 +121,7 @@ export function getColors(colorName : string) {
     <ng-template
       [ngTemplateOutlet]="customTemplate || defaultTemplate"
       [ngTemplateOutletContext]="{
+        loggedInUserId : loggedInUserId,
         segment: segment,
         locale: locale,
         segmentHeight: segmentHeight,
@@ -132,9 +136,12 @@ export function getColors(colorName : string) {
 export class CalendarWeekViewHourSegmentComponent {
   constructor(
     public dialog: MatDialog, 
-    private httpService: HttpEventService) {}
+    private httpService: HttpEventService,
+    private tokenStorage: TokenStorageService) {}
 
   @Input() roomInd : number;
+
+  @Input() loggedInUserId : number;
 
   @Input() segment: WeekViewHourSegment;
 
@@ -166,20 +173,20 @@ export class CalendarWeekViewHourSegmentComponent {
     return new Date().getTime().toString(16) + Math.floor( digit * Math.random() ).toString(16)
   }
 
-getDateArray( date ) {
-    // Helper to get each elements of Date object as an array
-    let _dt = date instanceof Date ? date : new Date( date )
+  getDateArray( date ) {
+      // Helper to get each elements of Date object as an array
+      let _dt = date instanceof Date ? date : new Date( date )
 
-        return [ _dt.getFullYear(), _dt.getMonth(), _dt.getDate(), _dt.getHours(), _dt.getMinutes(), _dt.getSeconds(), _dt.getMilliseconds() ]
-}
+          return [ _dt.getFullYear(), _dt.getMonth(), _dt.getDate(), _dt.getHours(), _dt.getMinutes(), _dt.getSeconds(), _dt.getMilliseconds() ]
+  }
 
-getDateString( date ) {
-    // Helper to get Date object as a string of "Y-m-d H:i:s" format
-    let _dt = this.getDateArray( date )
+  getDateString( date ) {
+      // Helper to get Date object as a string of "Y-m-d H:i:s" format
+      let _dt = this.getDateArray( date )
 
-    //return _dt[0] +'-'+ (_dt[1] + 1) +'-'+ _dt[2] +' '+ _dt[3] +':'+ _dt[4] +':'+ _dt[5]
-    return `${_dt[0]}-${_dt[1] + 1}-${_dt[2]} ${_dt[3]}:${_dt[4]}:${_dt[5]}`
-}
+      //return _dt[0] +'-'+ (_dt[1] + 1) +'-'+ _dt[2] +' '+ _dt[3] +':'+ _dt[4] +':'+ _dt[5]
+      return `${_dt[0]}-${_dt[1] + 1}-${_dt[2]} ${_dt[3]}:${_dt[4]}:${_dt[5]}`
+  }
 
   generatePythStartEndDate(dayPeriod : string, roomInd : number){
     let clickDate = new Date(this.segment.date);
@@ -237,14 +244,14 @@ getDateString( date ) {
     //console.log("segment Date in openDialog(): ",this.segment.date ) ;
     this.httpService.getEvents().subscribe((response) => {
       this.events = [];
-      let responseObj = JSON.parse(response);
+      let responseObj = response as any;
       for (let pythEvt of responseObj) {
         let calEvent: CalendarEvent = {
           id: pythEvt.uid,
           start: new Date(parseInt(pythEvt.start, 10)),
           end: new Date(parseInt(pythEvt.end, 10)),
           title: pythEvt.title,
-          color: getColors("blue")
+          color: getColors(pythEvt.userId,this.loggedInUserId)
         }
         this.events.push(calEvent);
       }
@@ -278,10 +285,11 @@ getDateString( date ) {
             if (typeof result !== 'undefined') {
               let uniqueId = this.generateUniqueID();
               let startEndDate = this.generatePythStartEndDate(result.dayPeriodVal, this.roomInd);
-              //console.log("roomInd : " + this.roomInd.toString(10));
+              //console.log("hourSegment loggedInUserId : " + this.loggedInUserId);
               this.pythEvt =
               {
                 uid: uniqueId,
+                userId: this.loggedInUserId,
                 row: this.roomInd.toString(),
                 title: result.dayPeriodVal,
                 start: startEndDate.start,
