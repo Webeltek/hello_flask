@@ -207,6 +207,7 @@ export class CalendarWeekViewComponent
    */
   @Input() hourSegmentHeight: number = 30;
 
+
   /**
    * The minimum height in pixels of each event
    */
@@ -436,7 +437,7 @@ export class CalendarWeekViewComponent
    */
   ngOnInit(): void {
     this.windowWidth = window.innerWidth;
-    this.hourSegmentWidth = (this.windowWidth-70) / this.daysInWeek
+    this.hourSegmentWidth = (this.windowWidth-70) / this.daysInWeek/2
     //console.log("onInit() hourSegmWidth: ", this.hourSegmentWidth)
     //console.log("onInit() windowWidth: ", this.windowWidth)
     if (this.refresh) {
@@ -456,7 +457,7 @@ export class CalendarWeekViewComponent
    @HostListener('window:resize', ['$event'])
    onResize(event) {
      this.windowWidth = window.innerWidth;
-     this.hourSegmentWidth = (this.windowWidth-70) / this.daysInWeek
+     this.hourSegmentWidth = (this.windowWidth-70) / this.daysInWeek/2
      //console.log("onResize  hourSegmWidth:", this.hourSegmentWidth);
      //console.log("onResize  windowWidth:", this.windowWidth);
    }

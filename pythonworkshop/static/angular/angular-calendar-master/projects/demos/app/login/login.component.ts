@@ -33,6 +33,12 @@ export class LoginComponent implements OnInit {
     if (this.isLoggedIn){
       this.router.navigate(['calendar'])
     }
+    let sessionExpMsg = this.actRoute.snapshot.paramMap.get('session');
+    console.log("login session parameter:",sessionExpMsg)
+    if (sessionExpMsg==="expired"){
+      this.errorMessage = "Session expired!"
+      console.log("login errorMessage",this.errorMessage)
+    }
   }
 
   onSubmit(): void {

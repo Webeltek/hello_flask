@@ -15,15 +15,19 @@ def access_required(f):
     def decorated_function(*args, **kwargs):
         auth_header = request.headers.get('Authorization')
         token = auth_header.split(" ")[1]
-        print(f'main_bp.decorated_function token{token}')
+        access_token_check = User.check_access_token(token) #access_token_check type is boolean or string
+        if type(access_token_check) is str:
+            return jsonify('access token expired')
+        elif type(access_token_check) is False:
+            return jsonify('acces token is modified')
         token_email = User.get_access_tokens_email(token)
-        print(f'main_bp.decorated_function token_email{token_email}')
-        try :
-            auth_header_user = User.select().where(User.user_email==token_email).get()
-            if auth_header_user is not None and auth_header_user.check_access_token(token):
-                return f(*args, **kwargs)
-        except :
-            return jsonify('access not allowed')
+        if type(token_email) is str and token_email!='expiredSignatureError':     
+            try :
+                auth_header_user = User.select().where(User.user_email==token_email).get()
+                if auth_header_user is not None: 
+                    return f(*args, **kwargs)        
+            except :
+                return jsonify('access not allowed')
     return decorated_function
 
 
@@ -70,7 +74,7 @@ def index_events():
         users_db.connect(reuse_if_open=True)
         events = Event.select().order_by(Event.id.asc())
         users_db.close()
-        return jsonify(list( events.dicts()))
+        return jsonify({'events':list( events.dicts())})
 
 @main_bp.route("/api/services/users", methods= ['GET'])
 @access_required

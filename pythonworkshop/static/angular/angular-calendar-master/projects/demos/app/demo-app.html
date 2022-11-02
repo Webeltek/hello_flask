@@ -3,8 +3,8 @@
     let-isML="isMobL"
     let-loggedInUserId="loggedInUserId"
 >
-    <ng-container *ngIf="isML; then vertBtnGrp else horBtnGrp"></ng-container>
-    <ng-template #vertBtnGrp>
+    <ng-container *ngIf="isML; then horBtnGrp else horBtnGrp"></ng-container>
+    <!-- <ng-template #vertBtnGrp>
         <div class="row text-start">
             <div class="col-md-4">
                 <div  class="btn-group-vertical">
@@ -22,7 +22,7 @@
                 </div>
             </div>
         </div>
-    </ng-template>
+    </ng-template> -->
     <ng-template #horBtnGrp>
         <div class="row text-center">
             <div class="col-md-4">

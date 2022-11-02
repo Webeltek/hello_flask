@@ -67,42 +67,37 @@ class User(UserMixin,p.Model):
   def generate_access_token(self, expiration=3600):
         encoded = jwt.encode({'email': self.user_email, \
         'exp': datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(seconds=expiration)},current_app.config['SECRET_KEY'], algorithm='HS256')
-        #s = URLSafeSerializer(current_app.config['SECRET_KEY'])
-        #urlserialized = s.dumps({'email': self.user_email})
         self.access_token = encoded
         self.save()
         return encoded
 
-  def check_access_token(self, access_token):
-        #encoded = jwt.encode({'confirm': self.id},current_app.config['SECRET_KEY'], algorithm='HS256')
-        #s = URLSafeSerializer(current_app.config['SECRET_KEY'])
+  @staticmethod
+  def check_access_token(access_token):
         try:
           data = jwt.decode(access_token,current_app.config['SECRET_KEY'],algorithms=["HS256"])
-        except:
-          return False
-        if data.get('email')!= self.user_email:
-          return False
+        except jwt.ExpiredSignatureError:
+          return 'expiredSignatureError'
+        except :
+          return False   
         return True
           
   @staticmethod
   def get_access_tokens_email(access_token):
-      #s = URLSafeSerializer(current_app.config['SECRET_KEY'])
       try:
-        data = jwt.decode(access_token,current_app.config['SECRET_KEY'],algorithms=["HS256"])
+        data = jwt.decode(access_token,current_app.config['SECRET_KEY'],algorithms=["HS256"]) 
+      except jwt.ExpiredSignatureError:
+        return 'expiredSignatureError'
       except:
-        return False
+        return False  
       return data.get('email')  
 
   def generate_confirmation_token(self, expiration=3600):
         encoded = jwt.encode({'confirm': self.id, \
         'exp': datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(seconds=expiration)},current_app.config['SECRET_KEY'], algorithm='HS256')
-        #s = URLSafeSerializer(current_app.config['SECRET_KEY'])
-        #urlserialized = s.dumps({'confirm': self.id})
         return encoded
 
   @staticmethod
   def get_tokens_user_id(token):
-    #s = URLSafeSerializer(current_app.config['SECRET_KEY'])
     try:
         data = jwt.decode(token,current_app.config['SECRET_KEY'],algorithms=["HS256"])
         confirmed_user_id = data.get('confirm')
@@ -115,7 +110,6 @@ class User(UserMixin,p.Model):
   def confirm(self, token):
     print(f'User.confirm() token is: {token}')
     print(f'User.confirm(...) self.id is: {self.id}')
-    #s = URLSafeSerializer(current_app.config['SECRET_KEY'])
     try:
         data = jwt.decode(token,current_app.config['SECRET_KEY'],algorithms=["HS256"])
         confirmed_user_id = data.get('confirm')

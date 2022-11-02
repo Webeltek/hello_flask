@@ -1,26 +1,28 @@
-mat-toolbar {
+    mat-toolbar {
     background: #007bff;
     color: white;
+    display: flex;
+    justify-content: flex-start;  
   }
   
   mat-sidenav {
-    margin: 16px;
-    width: 200px;
+    margin: 8px;
+    width: 160px;
     border-right: none;
-    background: #0252a8;
+    background: #007bff;
     color: white;
-    border-radius: 10px;
-    padding: 16px;
+    border-radius: 5px;
+    padding: 8px;
     text-align: center;
   }
   
   .content {
-    height: calc(100vh - 130px);
-    border-radius: 10px;
-    margin: 16px;
-    margin-left: 32px;
+    height: calc(100vh - 65px);
+    border-radius: 5px;
+    margin: 8px;
+    margin-left: 16px;
   
-    padding: 16px;
+    padding: 8px;
   
     overflow: auto;
   }
@@ -42,9 +44,9 @@ mat-toolbar {
   }
   
   .avatar {
-    margin-top: 16px;
-    width: 100px;
-    height: 100px;
+    margin-top: 8px;
+    width: 80px;
+    height: 80px;
     border-radius: 50%;
   }
   
@@ -60,7 +62,7 @@ mat-toolbar {
   }
   
   mat-divider {
-    margin-top: 16px;
-    margin-bottom: 16px;
+    margin-top: 8px;
+    margin-bottom: 8px;
     background-color: rgba(255, 255, 255, 0.5);
   }

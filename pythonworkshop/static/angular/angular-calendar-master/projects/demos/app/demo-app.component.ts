@@ -72,23 +72,32 @@ export class DemoAppComponent implements OnInit, OnDestroy{
     private tokenStorage: TokenStorageService,
     public dialog: MatDialog,
     private breakpointObserver: BreakpointObserver,
-    private cd: ChangeDetectorRef ) {}
+    private cd: ChangeDetectorRef,
+    private router: Router ) {}
 
   getDbUsers(){
     this.httpService.getUsers().subscribe((response) => {
-      let storageUsrObj = this.tokenStorage.getUser();
-      this.loggedInUserId = storageUsrObj.id;
-      console.log("getDBUsers()  storageUsrObj.user_email", storageUsrObj.user_email);
-      let respObj  = response as any ;
-      for (let pythUser of respObj.users){
-        this.users.push(pythUser);
-        if(pythUser.id == this.loggedInUserId){
-          this.logged_user = pythUser;
-         }
+      if(response.hasOwnProperty('users')) {
+        let storageUsrObj = this.tokenStorage.getUser();
+        this.loggedInUserId = storageUsrObj.id;
+        console.log("getDBUsers()  storageUsrObj.user_email", storageUsrObj.user_email);
+      
+        let respObj  = response as any ;
+        for (let pythUser of respObj.users){
+          this.users.push(pythUser);
+          if(pythUser.id == this.loggedInUserId){
+            this.logged_user = pythUser;
+          }
+        }
+        this.users = [...this.users];
+        console.log("getDBUsers() this.users",this.users)
+        this.getDbEvents();
+      } else {
+        console.log("getDbUsers() string response msg:",response);
+        this.tokenStorage.signOut();
+        this.router.navigate(['login',"expired"]);
       }
-      this.users = [...this.users];
-      //console.log("this.users",this.users)
-      this.getDbEvents();
+      
     })
   }
   logged_user: PythUser;
@@ -113,24 +122,28 @@ export class DemoAppComponent implements OnInit, OnDestroy{
     this.httpService.getEvents().subscribe((response ) => {
       //console.log("getDbEvents() Response: ",response);
       //console.log("getDbEvents() Response type: "+ typeof response);
-      this.events = [];
-      let respObj  =  response as any;
-      for (let pythEvt of  respObj){
-        let calEvent : CalendarEvent=  {
-            id : pythEvt.uid,
-            userId : pythEvt.userId,
-            start : new Date(parseInt(pythEvt.start,10)),
-            end : new Date(parseInt(pythEvt.end,10)),
-            title : this.getEventTitle(pythEvt),
-            color : getColors(pythEvt.userId,this.logged_user.id),
-            allDay : false 
-          }
-        this.events.push(calEvent);
-         
+      if(response.hasOwnProperty('events')) {
+        this.events = [];
+        let respObj  =  response as any;
+        for (let pythEvt of  respObj.events){
+          let calEvent : CalendarEvent=  {
+              id : pythEvt.uid,
+              userId : pythEvt.userId,
+              start : new Date(parseInt(pythEvt.start,10)),
+              end : new Date(parseInt(pythEvt.end,10)),
+              title : this.getEventTitle(pythEvt),
+              color : getColors(pythEvt.userId,this.logged_user.id),
+              allDay : false 
+            }
+          this.events.push(calEvent);
+          
+        }
+        this.events = [...this.events];
+        console.log("getDbEvents() Follows events : ");  
+        console.log(this.events);
+      } else {
+        console.log("getDbEvents() string response msg:",response);
       }
-      this.events = [...this.events];
-      console.log("getDbEvents() Follows events : ");  
-      console.log(this.events);
   })
   }
 
