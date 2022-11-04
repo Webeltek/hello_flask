@@ -8,7 +8,7 @@ from passlib.hash import bcrypt_sha256
 from flask_moment import Moment
 from flask_mail import Mail
 from flask_moment import Moment
-from flask_login import LoginManager
+#from flask_login import LoginManager
 from config import config, DevelopmentConfig
 from flask_executor import Executor
 
@@ -20,8 +20,8 @@ print('Static folder : ' + str(static_dir))
 mail = Mail()
 moment = Moment()
 executor = Executor()
-login_manager = LoginManager()
-login_manager.login_view = 'auth_bp.login_form'
+#login_manager = LoginManager()
+#login_manager.login_view = 'auth_bp.login_form'
 
  #- only views that don't use FlaskForm use the provided CSRF extension
 
@@ -37,7 +37,7 @@ def create_app(config_name):
   mail.init_app(app)
   moment.init_app(app)
   executor.init_app(app)
-  login_manager.init_app(app)
+  #login_manager.init_app(app)
   print('mail server: ' + app.config['MAIL_SERVER'])
   print('ENV value: ' + app.config['ENV'])
   print('DEBUG value :' + str(app.config['DEBUG']))

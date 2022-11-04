@@ -7,7 +7,6 @@ import os
 import json
 from peewee import *
 from playhouse.shortcuts import model_to_dict
-from flask_login import login_required
 from functools import wraps
 
 def access_required(f):
@@ -40,7 +39,7 @@ persons_templ = templateEnv.get_template('/main/persons.jinja2')
 about_us_templ = templateEnv.get_template('/main/about_us.jinja2')
 
 @main_bp.route("/contact", methods= ['GET','POST'])
-@login_required
+@access_required
 def contact_form():
         contact_form = forms.ContactForm(request.form)
         if request.method == 'POST' and contact_form.validate():
@@ -51,7 +50,7 @@ def contact_form():
 
 
 @main_bp.route("/about_us", methods= ['GET','POST'])
-@login_required
+@access_required
 def about_us_form():
         about_us = forms.AboutUsForm(request.form)
         if request.method == 'POST' and about_us.validate():
@@ -59,7 +58,7 @@ def about_us_form():
         return render_template('/main/about_us.jinja2',about=about_us)
 
 @main_bp.route("/user_profile/<string:username>", methods= ['GET','POST'])
-@login_required
+@access_required
 def user_profile(username):
         user = User.select().where(User.user_name==username).get()
         about_us = forms.AboutUsForm(request.form)

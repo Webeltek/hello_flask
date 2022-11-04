@@ -1,7 +1,6 @@
 from flask import render_template, redirect,session, request, url_for, flash, \
         current_app, session, jsonify
-from flask_login import login_user, logout_user, login_required, \
-    current_user
+
 from . import auth_bp
 from .. import main_bp
 from .forms import LoginForm, RegistrationForm, ChangePasswordForm,\
@@ -24,6 +23,7 @@ templateEnv = jinja2.Environment(loader=templateLoader)
 login_templ = templateEnv.get_template('/auth/login.jinja2')
 register_templ = templateEnv.get_template('/auth/register.jinja2')
 
+"""
 @auth_bp.route('/')
 def index():
   login_form = LoginForm()
@@ -33,7 +33,7 @@ def index():
   email_sent=False
   return render_template('index.html')
 
-"""
+
 @auth_bp.before_app_request
 def before_request():
   users_db.connect(reuse_if_open=True)
@@ -96,13 +96,6 @@ def register_form():
   return jsonify({'is_duplicate': False,'sent_token': token, 'msg':msg})
   
 
-@auth_bp.route('/logout')
-@login_required
-def logout():
-  logout_user()
-  flash('Du har blitt logget ut.')
-  return redirect(url_for('auth_bp.login_form'))
-
 
 @auth_bp.route('/api/auth/confirm/<token>',methods=['POST','GET'])
 def confirm(token):
@@ -120,6 +113,12 @@ def confirm(token):
     return jsonify({'received_token': token,'user_confirmed':False,'msg': msg_wrong_link})
 
     """
+@auth_bp.route('/logout')
+@login_required
+def logout():
+  logout_user()
+  flash('Du har blitt logget ut.')
+  return redirect(url_for('auth_bp.login_form'))    
 
 @auth_bp.route('/confirm')
 @login_required

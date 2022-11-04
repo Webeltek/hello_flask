@@ -4,7 +4,7 @@ Welcome to Flasky!
 
 To confirm your account please click on the following link:
 
-http://localhost/{{ token }}
+{{ url_for('auth_bp.confirm',_external=True, token=token) }}
 
 Sincerely,
 

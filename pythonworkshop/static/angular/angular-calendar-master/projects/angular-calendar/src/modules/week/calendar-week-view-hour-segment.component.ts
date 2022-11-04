@@ -245,15 +245,19 @@ export class CalendarWeekViewHourSegmentComponent {
     this.httpService.getEvents().subscribe((response) => {
       this.events = [];
       let responseObj = response as any;
-      for (let pythEvt of responseObj) {
-        let calEvent: CalendarEvent = {
-          id: pythEvt.uid,
-          start: new Date(parseInt(pythEvt.start, 10)),
-          end: new Date(parseInt(pythEvt.end, 10)),
-          title: pythEvt.title,
-          color: getColors(pythEvt.userId,this.loggedInUserId)
+      try {
+        for (let pythEvt of responseObj) {
+          let calEvent: CalendarEvent = {
+            id: pythEvt.uid,
+            start: new Date(parseInt(pythEvt.start, 10)),
+            end: new Date(parseInt(pythEvt.end, 10)),
+            title: pythEvt.title,
+            color: getColors(pythEvt.userId,this.loggedInUserId)
+          }
+          this.events.push(calEvent);
         }
-        this.events.push(calEvent);
+      } catch (e){
+        // responseObj has no events and is not iterable
       }
 
       if (!this.isClickedOverEvent()) {

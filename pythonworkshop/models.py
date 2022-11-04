@@ -3,9 +3,7 @@ from enum import unique
 from flask import Flask, request
 from passlib.hash import bcrypt_sha256
 import peewee as p
-from flask_login import LoginManager
-from flask_login import UserMixin
-from . import login_manager
+
 import jwt
 from itsdangerous.url_safe import URLSafeSerializer
 from flask import current_app
@@ -32,7 +30,7 @@ class Permission:
     VIEW = 1
     ADMIN = 16
 
-class User(UserMixin,p.Model):
+class User(p.Model):
   id = p.AutoField()  
   user_email = p.CharField(default='first_email',unique=True)
   user_pass_hash = p.CharField(default='initial hash')
