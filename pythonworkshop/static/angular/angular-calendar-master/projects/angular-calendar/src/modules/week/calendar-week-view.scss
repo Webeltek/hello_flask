@@ -373,11 +373,14 @@ $cal-week-view-vars: map-merge($cal-vars, $cal-week-view-vars);
   mwl-calendar-week-view-hour-segment, /* fix for https://github.com/mattlewis92/angular-calendar/issues/260*/
   .cal-hour-segment {
     display: block;
+    width: 100%;
   }
 
   .cal-hour-odd {
     background-color: $cal-bg-secondary;
   }
+
+  
 
   .cal-drag-over .cal-hour-segment {
     background-color: $cal-bg-active;

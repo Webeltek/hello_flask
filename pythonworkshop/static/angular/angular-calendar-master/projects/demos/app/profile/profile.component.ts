@@ -18,6 +18,7 @@ export class ProfileComponent implements OnInit {
   user_pass_hash : '',
   user_is_logged_in : '',
   user_confirmed : '',
+  access_token: '',
   last_seen : '',
   is_admin : ''
   };

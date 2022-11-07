@@ -29,8 +29,8 @@ export interface PythEvent {
   color : string;
 }
 
-export function getColors( user_id: number, logged_user_id:number) {
-  let activated_color: string = user_id == logged_user_id ? "blue": "red";
+export function getColors( event_userId: number, loggedIn_user_id:number) {
+  let activated_color: string = event_userId === loggedIn_user_id ? "blue": "red";
   switch(activated_color) {
     case "red": {
       //console.log("getColors() : red")
@@ -243,10 +243,11 @@ export class CalendarWeekViewHourSegmentComponent {
     var hourContainedEvTitle = "";
     //console.log("segment Date in openDialog(): ",this.segment.date ) ;
     this.httpService.getEvents().subscribe((response) => {
-      this.events = [];
+      if (response.hasOwnProperty('events')){
+        this.events = [];
       let responseObj = response as any;
       try {
-        for (let pythEvt of responseObj) {
+        for (let pythEvt of responseObj.events) {
           let calEvent: CalendarEvent = {
             id: pythEvt.uid,
             start: new Date(parseInt(pythEvt.start, 10)),
@@ -259,6 +260,8 @@ export class CalendarWeekViewHourSegmentComponent {
       } catch (e){
         // responseObj has no events and is not iterable
       }
+      }
+    
 
       if (!this.isClickedOverEvent()) {
         //console.log("calWVhourSegm isClick",this.isClickedOverEvent());
@@ -272,7 +275,7 @@ export class CalendarWeekViewHourSegmentComponent {
             dbEvt.end <= segmEndHourDate;
           if (isDbEventContainedHour) {
             hourContainedEvTitle = dbEvt.title;
-            console.log("hourContainedEvtTtl", hourContainedEvTitle);
+            //console.log("hourContainedEvtTtl", hourContainedEvTitle);
           }
         }
         const dialogRef = this.dialog.open(EventDialog, {

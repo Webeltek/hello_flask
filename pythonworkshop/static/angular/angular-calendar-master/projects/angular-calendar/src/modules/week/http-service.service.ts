@@ -56,7 +56,7 @@ export class HttpEventService{
             { headers : this.httpHeaders, observe: 'body', responseType : 'json'} ) 
             .subscribe((response) =>{
                 this.deletedEvent.emit(null);
-                console.log("deleteEvent() response: " + JSON.stringify(response));
+                //console.log("deleteEvent() response: " + JSON.stringify(response));
                 },
                 (error) => { console.log("deleteEvent() error : " + JSON.stringify(error)) ; }
             )

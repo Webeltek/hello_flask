@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../_services/auth.service';
 import { TokenStorageService } from '../_services/token-storage.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router ,ParamMap} from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -33,12 +33,14 @@ export class LoginComponent implements OnInit {
     if (this.isLoggedIn){
       this.router.navigate(['calendar'])
     }
-    let sessionExpMsg = this.actRoute.snapshot.paramMap.get('session');
-    console.log("login session parameter:",sessionExpMsg)
-    if (sessionExpMsg==="expired"){
+
+   this.actRoute.paramMap.subscribe((params: ParamMap)=>{
+      console.log("login session parameter:",params.get('session'))
+    if (params.get('session')==="expired"){
       this.errorMessage = "Session expired!"
       console.log("login errorMessage",this.errorMessage)
     }
+    });
   }
 
   onSubmit(): void {
@@ -57,6 +59,9 @@ export class LoginComponent implements OnInit {
           this.roles = this.tokenStorage.getUser().roles;
           //this.reloadPage();
           this.router.navigate(['calendar'])
+        } else if(dataObj.user === 'nonexistent'){
+          this.errorMessage = "User doesn't exist";
+          this.isLoginFailed = true;
         }
 
       },

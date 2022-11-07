@@ -30,7 +30,7 @@ export class TokenStorageService {
   }
   
   public saveToken(token: string): void {
-    console.log("tokenStorage saveToken() token:",token)
+    //console.log("tokenStorage saveToken() token:",token)
     window.sessionStorage.removeItem(TOKEN_KEY);
     window.sessionStorage.setItem(TOKEN_KEY, token);
     this.authenticated$.next(true)

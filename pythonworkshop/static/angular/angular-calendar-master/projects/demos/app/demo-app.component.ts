@@ -29,6 +29,7 @@ export interface PythUser {
   user_pass_hash : string;
   user_is_logged_in : string;
   user_confirmed : string;
+  access_token : string;
   last_seen : string;
   is_admin : string;
 }
@@ -85,25 +86,21 @@ export class DemoAppComponent implements OnInit, OnDestroy{
         let respObj  = response as any ;
         for (let pythUser of respObj.users){
           this.users.push(pythUser);
-          if(pythUser.id == this.loggedInUserId){
-            this.logged_user = pythUser;
-          }
         }
         this.users = [...this.users];
         console.log("getDBUsers() this.users",this.users)
-        this.getDbEvents();
       } else {
         console.log("getDbUsers() string response msg:",response);
         this.tokenStorage.signOut();
-        this.router.navigate(['login',"expired"]);
+        this.router.navigate(['login',{session: 'expired' }]);
       }
       
     })
+    this.getDbEvents();
   }
-  logged_user: PythUser;
 
   getEventTitle(pythEv : PythEvent){
-      if ( this.logged_user.is_admin){
+      if ( this.tokenStorage.getUser().is_admin){
         console.log("getEventTitle() this.users",this.users);
         console.log("getEventTitle() pythEv.userId",pythEv.userId);
         let eventUser =  this.users.filter((user)=> {
@@ -132,17 +129,19 @@ export class DemoAppComponent implements OnInit, OnDestroy{
               start : new Date(parseInt(pythEvt.start,10)),
               end : new Date(parseInt(pythEvt.end,10)),
               title : this.getEventTitle(pythEvt),
-              color : getColors(pythEvt.userId,this.logged_user.id),
+              color : getColors(pythEvt.userId,this.tokenStorage.getUser().id),
               allDay : false 
             }
           this.events.push(calEvent);
           
         }
         this.events = [...this.events];
-        console.log("getDbEvents() Follows events : ");  
-        console.log(this.events);
+        //console.log("getDbEvents() Follows events : ");  
+        //console.log(this.events);
       } else {
         console.log("getDbEvents() string response msg:",response);
+        this.tokenStorage.signOut();
+        this.router.navigate(['login',{session: 'expired' }]);
       }
   })
   }
@@ -213,43 +212,43 @@ export class DemoAppComponent implements OnInit, OnDestroy{
     sourceEvent: MouseEvent | KeyboardEvent;
   }) {
 
-    if (clickedWeekViewEvent.event.userId==this.logged_user.id
-     && !this.logged_user.is_admin) {
+    if (clickedWeekViewEvent.event.userId==this.tokenStorage.getUser().id
+     && !this.tokenStorage.getUser().is_admin) {
       var hourContainedEvTitle = "";
-      //console.log("segment Date in openDialog(): ",this.segment.date ) ; 
       this.httpService.getEvents().subscribe((response) => {
-        let responseObj = response as any;
-        let clickedPythEvtStart = clickedWeekViewEvent.event.start.getTime().toString();
-        //console.log("clickedWeekViewEvent.event.start",clickedWeekViewEvent.event.start)
-        for (let pythEvt of responseObj) {
-          if ( pythEvt.start == clickedPythEvtStart ){
-            this.toBeDeletedPythEvt = pythEvt;
-            //console.log("this.toBeDeletedPythEvt",this.toBeDeletedPythEvt)
-          }
-          
-        }
-
-        const dialogRef = this.dialog.open(EventDialog, {
-          data: {
-            toBeDeleted : true,
-            toBeDeletedPythEvt : this.toBeDeletedPythEvt
-          },
-        });
-        dialogRef.afterClosed().subscribe(
-          (result) => {
-            if (typeof result !== 'undefined') {
-              //console.log("result object",result)
-              this.deleteEvent(result.toBeDeletedPythEvt.uid);
+        if(response.hasOwnProperty('events')) {
+          let responseObj = response as any;
+          let clickedPythEvtStart = clickedWeekViewEvent.event.start.getTime().toString();
+          //console.log("clickedWeekViewEvent.event.start",clickedWeekViewEvent.event.start)
+          for (let pythEvt of responseObj.events) {
+            if ( pythEvt.start == clickedPythEvtStart ){
+              this.toBeDeletedPythEvt = pythEvt;
+              //console.log("this.toBeDeletedPythEvt",this.toBeDeletedPythEvt)
             }
-          },
-          (error) => {
-            console.log("afterClosed() error : " + error);
+            
           }
-        );
-      
+
+          const dialogRef = this.dialog.open(EventDialog, {
+            data: {
+              toBeDeleted : true,
+              toBeDeletedPythEvt : this.toBeDeletedPythEvt
+            },
+          });
+          dialogRef.afterClosed().subscribe(
+            (result) => {
+              if (typeof result !== 'undefined') {
+                //console.log("result object",result)
+                this.deleteEvent(result.toBeDeletedPythEvt.uid);
+              }
+            },
+            (error) => {
+              console.log("afterClosed() error : " + error);
+            }
+          );
+        }
         
       });
-    } else if(this.logged_user.is_admin){
+    } else if(this.tokenStorage.getUser().is_admin){
       var hourContainedEvTitle = "";
       //console.log("segment Date in openDialog(): ",this.segment.date ) ; 
       this.httpService.getEvents().subscribe((response) => {
