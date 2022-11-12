@@ -60,7 +60,7 @@ export class LoginComponent implements OnInit {
           //this.reloadPage();
           this.router.navigate(['calendar'])
         } else if(dataObj.user === 'nonexistent'){
-          this.errorMessage = "User doesn't exist";
+          this.errorMessage = "Wrong username or password!";
           this.isLoginFailed = true;
         }
 

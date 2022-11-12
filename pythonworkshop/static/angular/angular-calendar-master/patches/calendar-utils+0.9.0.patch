@@ -1,5 +1,5 @@
 diff --git a/node_modules/calendar-utils/calendar-utils.d.ts b/node_modules/calendar-utils/calendar-utils.d.ts
-index 13e9c53..7afedad 100644
+index 13e9c53..c2fdd57 100644
 --- a/node_modules/calendar-utils/calendar-utils.d.ts
 +++ b/node_modules/calendar-utils/calendar-utils.d.ts
 @@ -34,6 +34,7 @@ export interface EventAction {
@@ -10,8 +10,21 @@ index 13e9c53..7afedad 100644
      start: Date;
      end?: Date;
      title: string;
+@@ -133,9 +134,12 @@ export interface GetWeekViewArgs {
+     dayEnd: Time;
+     weekendDays?: number[];
+     segmentHeight: number;
++    segmentWidth?: number;
+     viewStart?: Date;
+     viewEnd?: Date;
+     minimumEventHeight?: number;
++    minimumEventWidth?: number;
++    is_horizontal_dayview?: boolean;
+ }
+ export declare function getDifferenceInDaysWithExclusions(dateAdapter: DateAdapter, { date1, date2, excluded }: {
+     date1: Date;
 diff --git a/node_modules/calendar-utils/calendar-utils.js b/node_modules/calendar-utils/calendar-utils.js
-index 5c83ff8..86ef51d 100644
+index 5c83ff8..0b74745 100644
 --- a/node_modules/calendar-utils/calendar-utils.js
 +++ b/node_modules/calendar-utils/calendar-utils.js
 @@ -108,6 +108,7 @@ function getWeekViewEventSpan(dateAdapter, _a) {
@@ -34,7 +47,18 @@ index 5c83ff8..86ef51d 100644
      var dayViewHourGrid = getDayViewHourGrid(dateAdapter, {
          viewDate: viewDate,
          hourSegments: hourSegments,
-@@ -314,6 +318,8 @@ function getWeekViewHourGrid(dateAdapter, _a) {
+@@ -307,13 +311,18 @@ function getWeekViewHourGrid(dateAdapter, _a) {
+             dayStart: dayStart,
+             dayEnd: dayEnd,
+             segmentHeight: segmentHeight,
+-            eventWidth: 1,
++            segmentWidth: _a.segmentWidth,
++            eventWidth: 100,
++            eventHeight: 100,
+             hourDuration: hourDuration,
+             minimumEventHeight: minimumEventHeight,
++            is_horizontal_dayview: _a.is_horizontal_dayview
+         });
          var hours = dayViewHourGrid.map(function (hour) {
              var segments = hour.segments.map(function (segment) {
                  var date = setMinutes(setHours(day.date, getHours(segment.date)), getMinutes(segment.date));
@@ -43,7 +67,34 @@ index 5c83ff8..86ef51d 100644
                  return __assign(__assign({}, segment), { date: date });
              });
              return __assign(__assign({}, hour), { segments: segments });
-@@ -371,6 +377,7 @@ export function getWeekView(dateAdapter, _a) {
+@@ -332,21 +341,22 @@ function getWeekViewHourGrid(dateAdapter, _a) {
+                 return columnCount;
+             }
+         }
+-        var mappedEvents = dayView.events.map(function (event) {
++        /* var mappedEvents = dayView.events.map(function (event) {
+             var columnCount = getColumnCount(dayView.events, getOverLappingWeekViewEvents(dayView.events, event.top, event.top + event.height));
+             var width = 100 / columnCount;
+             return __assign(__assign({}, event), { left: event.left * width, width: width });
+-        });
++        }); */
+         return {
+             hours: hours,
+             date: day.date,
+-            events: mappedEvents.map(function (event) {
++            events: dayView.events
++            /* .map(function (event) {
+                 var overLappingEvents = getOverLappingWeekViewEvents(mappedEvents.filter(function (otherEvent) { return otherEvent.left > event.left; }), event.top, event.top + event.height);
+                 if (overLappingEvents.length > 0) {
+                     return __assign(__assign({}, event), { width: Math.min.apply(Math, overLappingEvents.map(function (otherEvent) { return otherEvent.left; })) - event.left });
+                 }
+                 return event;
+-            }),
++            }), */
+         };
+     });
+ }
+@@ -371,6 +381,7 @@ export function getWeekView(dateAdapter, _a) {
          viewStart: viewStart,
          viewEnd: viewEnd,
      });
@@ -51,7 +102,20 @@ index 5c83ff8..86ef51d 100644
      return {
          allDayEventRows: getAllDayWeekEvents(dateAdapter, {
              events: eventsInPeriod,
-@@ -498,8 +505,13 @@ function getOverLappingWeekViewEvents(events, top, bottom) {
+@@ -396,9 +407,12 @@ export function getWeekView(dateAdapter, _a) {
+             excluded: excluded,
+             weekendDays: weekendDays,
+             segmentHeight: segmentHeight,
++            segmentWidth: _a.segmentWidth,
+             viewStart: viewStart,
+             viewEnd: viewEnd,
+             minimumEventHeight: minimumEventHeight,
++            minimumEventWidth: _a.minimumEventWidth,
++            is_horizontal_dayview: _a.is_horizontal_dayview
+         }),
+     };
+ }
+@@ -498,8 +512,13 @@ function getOverLappingWeekViewEvents(events, top, bottom) {
      });
  }
  function getDayView(dateAdapter, _a) {
@@ -67,47 +131,239 @@ index 5c83ff8..86ef51d 100644
      var startOfView = setMinutes(setHours(startOfDay(viewDate), sanitiseHours(dayStart.hour)), sanitiseMinutes(dayStart.minute));
      var endOfView = setMinutes(setHours(startOfMinute(endOfDay(viewDate)), sanitiseHours(dayEnd.hour)), sanitiseMinutes(dayEnd.minute));
      endOfView.setSeconds(59, 999);
-@@ -518,7 +530,9 @@ function getDayView(dateAdapter, _a) {
-         var eventEnd = event.end || eventStart;
-         var startsBeforeDay = eventStart < startOfView;
-         var endsAfterDay = eventEnd > endOfView;
+@@ -509,75 +528,165 @@ function getDayView(dateAdapter, _a) {
+         periodStart: startOfView,
+         periodEnd: endOfView,
+     });
+-    var dayViewEvents = eventsInPeriod
++    if (!_a.is_horizontal_dayview){
++            var dayViewEvents = eventsInPeriod
++            .sort(function (eventA, eventB) {
++            return eventA.start.valueOf() - eventB.start.valueOf();
++            })
++            .map(function (event) {
++            var eventStart = event.start;
++            var eventEnd = event.end || eventStart;
++            var startsBeforeDay = eventStart < startOfView;
++            var endsAfterDay = eventEnd > endOfView;
++            //console.log("cal-utils segmHeight",segmentHeight)
++            var hourHeightModifier = (hourSegments * segmentHeight/2) / (hourDuration || MINUTES_IN_HOUR);
++            //console.log("hourHeightmodifier",hourHeightModifier)
++            let top = 0;
++            if (eventStart > startOfView) {
++                // adjust the difference in minutes if the user's offset is different between the start of the day and the event (e.g. when going to or from DST)
++                var eventOffset = dateAdapter.getTimezoneOffset(eventStart);
++                var startOffset = dateAdapter.getTimezoneOffset(startOfView);
++                var diff = startOffset - eventOffset;
++                top += differenceInMinutes(eventStart, startOfView) + diff;
++            }
++            top *= hourHeightModifier;
++            top = Math.floor(top);
++            let startDate = startsBeforeDay ? startOfView : eventStart;
++            let endDate = endsAfterDay ? endOfView : eventEnd;
++            let timezoneOffset = dateAdapter.getTimezoneOffset(startDate) -
++                dateAdapter.getTimezoneOffset(endDate);
++            //console.log("eventStart,eventEnd",eventStart,eventEnd);  
++            //console.log("hourHeightModifier",hourHeightModifier);
++            let height = differenceInMinutes(endDate, startDate) + timezoneOffset;
++            if (!event.end) {
++                height = segmentHeight;
++            }
++            else {
++                height *= hourHeightModifier;
++            }
++            if (minimumEventHeight && height < minimumEventHeight) {
++                height = minimumEventHeight;
++            }
++            height = Math.floor(height);
++            height = segmentHeight; // horisontal directed events have heighourWidthModifiereviousDayEvents, top, bottom);
++            let left = 0;
++            //while (overlappingPreviousEvents.some(function (previousEvent) { return previousEvent.left === left; })) {
++                //left += eventWidth;
++            //}
++            //console.log("event width",height)
++            //console.log("event left",top)
++            let dayEvent = {
++                event: event,
++                height: height,
++                width: eventWidth,
++                top: top,
++                left: left,
++                startsBeforeDay: startsBeforeDay,
++                endsAfterDay: endsAfterDay,
++            };
++            previousDayEvents.push(dayEvent);
++            return dayEvent;
++        });
++        let dayWidth = Math.max.apply(Math, dayViewEvents.map(function (event) { return event.left + event.width; }));
++        let allDayEvents = getEventsInPeriod(dateAdapter, {
++            events: events.filter(function (event) { return event.allDay; }),
++            periodStart: startOfDay(startOfView),
++            periodEnd: endOfDay(endOfView),
++        });
++        //console.log("calendar-utils day width: ",dayWidth);
++        return {
++            events: dayViewEvents,
++            width: dayWidth,
++            allDayEvents: allDayEvents,
++            period: {
++                events: eventsInPeriod,
++                start: startOfView,
++                end: endOfView,
++            },
++        };
++    } else if (_a.is_horizontal_dayview){
++        var dayViewEvents = eventsInPeriod
+         .sort(function (eventA, eventB) {
+         return eventA.start.valueOf() - eventB.start.valueOf();
+-    })
+-        .map(function (event) {
+-        var eventStart = event.start;
+-        var eventEnd = event.end || eventStart;
+-        var startsBeforeDay = eventStart < startOfView;
+-        var endsAfterDay = eventEnd > endOfView;
 -        var hourHeightModifier = (hourSegments * segmentHeight) / (hourDuration || MINUTES_IN_HOUR);
-+        //console.log("cal-utils segmHeight",segmentHeight)
-+        var hourHeightModifier = (hourSegments * segmentHeight/2) / (hourDuration || MINUTES_IN_HOUR);
-+        //console.log("hourHeightmodifier",hourHeightModifier)
-         var top = 0;
-         if (eventStart > startOfView) {
-             // adjust the difference in minutes if the user's offset is different between the start of the day and the event (e.g. when going to or from DST)
-@@ -533,6 +547,8 @@ function getDayView(dateAdapter, _a) {
-         var endDate = endsAfterDay ? endOfView : eventEnd;
-         var timezoneOffset = dateAdapter.getTimezoneOffset(startDate) -
-             dateAdapter.getTimezoneOffset(endDate);
-+        //console.log("eventStart,eventEnd",eventStart,eventEnd);  
-+        //console.log("hourHeightModifier",hourHeightModifier);
-         var height = differenceInMinutes(endDate, startDate) + timezoneOffset;
-         if (!event.end) {
-             height = segmentHeight;
-@@ -547,13 +563,15 @@ function getDayView(dateAdapter, _a) {
-         var bottom = top + height;
-         var overlappingPreviousEvents = getOverLappingWeekViewEvents(previousDayEvents, top, bottom);
-         var left = 0;
+-        var top = 0;
+-        if (eventStart > startOfView) {
+-            // adjust the difference in minutes if the user's offset is different between the start of the day and the event (e.g. when going to or from DST)
+-            var eventOffset = dateAdapter.getTimezoneOffset(eventStart);
+-            var startOffset = dateAdapter.getTimezoneOffset(startOfView);
+-            var diff = startOffset - eventOffset;
+-            top += differenceInMinutes(eventStart, startOfView) + diff;
+-        }
+-        top *= hourHeightModifier;
+-        top = Math.floor(top);
+-        var startDate = startsBeforeDay ? startOfView : eventStart;
+-        var endDate = endsAfterDay ? endOfView : eventEnd;
+-        var timezoneOffset = dateAdapter.getTimezoneOffset(startDate) -
+-            dateAdapter.getTimezoneOffset(endDate);
+-        var height = differenceInMinutes(endDate, startDate) + timezoneOffset;
+-        if (!event.end) {
+-            height = segmentHeight;
+-        }
+-        else {
+-            height *= hourHeightModifier;
+-        }
+-        if (minimumEventHeight && height < minimumEventHeight) {
+-            height = minimumEventHeight;
+-        }
+-        height = Math.floor(height);
+-        var bottom = top + height;
+-        var overlappingPreviousEvents = getOverLappingWeekViewEvents(previousDayEvents, top, bottom);
+-        var left = 0;
 -        while (overlappingPreviousEvents.some(function (previousEvent) { return previousEvent.left === left; })) {
 -            left += eventWidth;
 -        }
-+        //while (overlappingPreviousEvents.some(function (previousEvent) { return previousEvent.left === left; })) {
-+            //left += eventWidth;
-+        //}
-+        //console.log("event width",height)
-+        //console.log("event left",top)
-         var dayEvent = {
-             event: event,
-             height: height,
+-        var dayEvent = {
+-            event: event,
+-            height: height,
 -            width: eventWidth,
-+            width: height,
-             top: top,
-             left: left,
-             startsBeforeDay: startsBeforeDay,
-@@ -591,6 +609,8 @@ function getDayViewHourGrid(dateAdapter, _a) {
+-            top: top,
+-            left: left,
+-            startsBeforeDay: startsBeforeDay,
+-            endsAfterDay: endsAfterDay,
++        })
++            .map(function (event) {
++            var eventStart = event.start;
++            var eventEnd = event.end || eventStart;
++            var startsBeforeDay = eventStart < startOfView;
++            var endsAfterDay = eventEnd > endOfView;
++            console.log("cal-utils is_hor _a.segmentWidth",_a.segmentWidth)
++            let hourWidthModifier = (hourSegments * _a.segmentWidth/2) / (hourDuration || MINUTES_IN_HOUR);
++            console.log("hourWidthmodifier",hourWidthModifier)
++            let left = 0;
++            if (eventStart > startOfView) {
++                // adjust the difference in minutes if the user's offset is different between the start of the day and the event (e.g. when going to or from DST)
++                let eventOffset = dateAdapter.getTimezoneOffset(eventStart);
++                let startOffset = dateAdapter.getTimezoneOffset(startOfView);
++                let diff = startOffset - eventOffset;
++                left += differenceInMinutes(eventStart, startOfView) + diff;
++                console.log("cal-utils diffInMin left :",left);
++            }
++            left *= hourWidthModifier;
++            left = Math.floor(left);
++            let startDate = startsBeforeDay ? startOfView : eventStart;
++            let endDate = endsAfterDay ? endOfView : eventEnd;
++            let timezoneOffset = dateAdapter.getTimezoneOffset(startDate) -
++                dateAdapter.getTimezoneOffset(endDate);
++            //console.log("eventStart,eventEnd",eventStart,eventEnd);  
++            //console.log("hourHeightModifier",hourHeightModifier);
++            let width = differenceInMinutes(endDate, startDate) + timezoneOffset;
++            //console.log("cal-utils is_hor event width after diffInMin()",width);
++            if (!event.end) {
++                width = segmentWidth;
++            }
++            else {
++                width *= hourWidthModifier;
++            }
++            if (_a.minimumEventWidth && width < _a.minimumEventWidth) {
++                width = minimumEventWidth;
++            }
++            width = Math.floor(width);
++            width = _a.segmentWidth; // horisontal directed events have width = segmentWidth
++
++            //console.log("calendar-utils event width: ",eventWidth); // eventWidth is recalculated later in getWeekViewHourGrid to
++            let right = left + width;
++            let overlappingPreviousEvents = getOverLappingWeekViewEvents(previousDayEvents, left, right);
++            let top = 0;
++            
++            //console.log("event width",height)
++            console.log("cal-utils is_hor event left",left);
++            console.log("cal-utils is_hor event width",width);
++            let dayEvent = {
++                event: event,
++                height: _a.eventHeight,
++                width: width,
++                top: top,
++                left: left,
++                startsBeforeDay: startsBeforeDay,
++                endsAfterDay: endsAfterDay,
++            };
++            previousDayEvents.push(dayEvent);
++            return dayEvent;
++        });
++        let dayHeight = Math.max.apply(Math, dayViewEvents.map(function (event) { return event.top + event.height; }));
++        let allDayEvents = getEventsInPeriod(dateAdapter, {
++            events: events.filter(function (event) { return event.allDay; }),
++            periodStart: startOfDay(startOfView),
++            periodEnd: endOfDay(endOfView),
++        });
++        //console.log("calendar-utils day width: ",dayWidth);
++        return {
++            events: dayViewEvents,
++            height: dayHeight,
++            allDayEvents: allDayEvents,
++            period: {
++                events: eventsInPeriod,
++                start: startOfView,
++                end: endOfView,
++            },
+         };
+-        previousDayEvents.push(dayEvent);
+-        return dayEvent;
+-    });
+-    var width = Math.max.apply(Math, dayViewEvents.map(function (event) { return event.left + event.width; }));
+-    var allDayEvents = getEventsInPeriod(dateAdapter, {
+-        events: events.filter(function (event) { return event.allDay; }),
+-        periodStart: startOfDay(startOfView),
+-        periodEnd: endOfDay(endOfView),
+-    });
+-    return {
+-        events: dayViewEvents,
+-        width: width,
+-        allDayEvents: allDayEvents,
+-        period: {
+-            events: eventsInPeriod,
+-            start: startOfView,
+-            end: endOfView,
+-        },
+-    };
++    }
++    
+ }
+ function sanitiseHours(hours) {
+     return Math.max(Math.min(23, hours), 0);
+@@ -591,6 +700,8 @@ function getDayViewHourGrid(dateAdapter, _a) {
      var hours = [];
      var startOfView = setMinutes(setHours(startOfDay(viewDate), sanitiseHours(dayStart.hour)), sanitiseMinutes(dayStart.minute));
      var endOfView = setMinutes(setHours(startOfMinute(endOfDay(viewDate)), sanitiseHours(dayEnd.hour)), sanitiseMinutes(dayEnd.minute));

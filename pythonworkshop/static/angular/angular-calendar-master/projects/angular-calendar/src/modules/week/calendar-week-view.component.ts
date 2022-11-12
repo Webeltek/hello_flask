@@ -200,12 +200,12 @@ export class CalendarWeekViewComponent
   /**
    * The duration of each segment group in minutes
    */
-  @Input() hourDuration: number = 30;
+  @Input() hourDuration: number = 60;
 
   /**
    * The height in pixels of each hour segment
    */
-  @Input() hourSegmentHeight: number = 30;
+  @Input() hourSegmentHeight: number = 60;
 
 
   /**
@@ -438,7 +438,7 @@ export class CalendarWeekViewComponent
   ngOnInit(): void {
     this.windowWidth = window.innerWidth;
     this.hourSegmentWidth = (this.windowWidth-70) / this.daysInWeek/2
-    console.log("onInit() hourSegmWidth: ", this.hourSegmentWidth)
+    //console.log("WeekViewComp onInit() hourSegmWidth: ", this.hourSegmentWidth)
     //console.log("onInit() windowWidth: ", this.windowWidth)
     if (this.refresh) {
       this.refreshSubscription = this.refresh.subscribe(() => {
@@ -865,8 +865,10 @@ export class CalendarWeekViewComponent
   }
 
   protected refreshBody(): void {
-    this.view = this.getWeekView(this.events);
+    this.view =  this.getWeekView(this.events);
   }
+
+
 
   protected refreshAll(): void {
     this.refreshHeader();
@@ -884,7 +886,7 @@ export class CalendarWeekViewComponent
   }
 
   protected getWeekView(events: CalendarEvent[]) {
-    return this.utils.getWeekView({
+    let calUtilsView =  this.utils.getWeekView({
       events,
       viewDate: this.viewDate,
       weekStartsOn: this.weekStartsOn,
@@ -912,6 +914,24 @@ export class CalendarWeekViewComponent
         this.daysInWeek
       ),
     });
+
+    for (let column of calUtilsView.hourColumns){
+      for (let timeEvent of column.events){
+        let calEvent : CalendarEvent = timeEvent.event;
+        //console.log("WeekViewComp timeEvent.width is : ",timeEvent.width)
+        let diffInMin = this.dateAdapter.differenceInMinutes(calEvent.end,calEvent.start)
+        if( calEvent.start.getMinutes() == 30 && diffInMin==30 ){
+           timeEvent.top = timeEvent.top - 30;
+           timeEvent.left = timeEvent.left + 50; // in %
+           timeEvent.width = (timeEvent.width/2) // cut timeEvent.width in halv (50%)
+           //console.log("WeekViewComp timeEvent.width %", timeEvent.width)
+        } else if (calEvent.start.getMinutes()== 0 && diffInMin==30){
+          timeEvent.width = (timeEvent.width/2) // cut timeEvent.width in halv (50%)
+        }
+        
+      }
+    }
+    return calUtilsView;
   }
 
   protected getDragMovedEventTimes(

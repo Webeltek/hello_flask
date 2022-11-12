@@ -209,17 +209,19 @@ export class CalendarWeekViewComponentMob
   /**
    * The height in pixels of each hour segment
    */
-  @Input() hourSegmentHeight: number = 60;
+  @Input() hourSegmentHeight: number = 30;
 
   /**
    * The width in pixels of each hour segment
    */
-   @Input() hourSegmentWidth: number = 30;
+   @Input() hourSegmentWidth: number = 60;
 
   /**
    * The minimum height in pixels of each event
    */
-  @Input() minimumEventHeight: number = 30;
+  @Input() minimumEventHeight: number = 10;
+
+  @Input() minimumEventWidth: number = 10;
 
   /**
    * The day start hours in 24 hour time. Must be 0-23
@@ -870,7 +872,7 @@ export class CalendarWeekViewComponentMob
   }
 
   protected getWeekView(events: CalendarEvent[]) {
-    return this.utils.getWeekView({
+    let calUtilsView =  this.utils.getWeekView({
       events,
       viewDate: this.viewDate,
       weekStartsOn: this.weekStartsOn,
@@ -888,8 +890,10 @@ export class CalendarWeekViewComponentMob
         minute: this.dayEndMinute,
       },
       segmentHeight: this.hourSegmentHeight,
+      segmentWidth: this.hourSegmentWidth,
       weekendDays: this.weekendDays,
       minimumEventHeight: this.minimumEventHeight,
+      minimumEventWidth: this.minimumEventWidth,
       ...getWeekViewPeriod(
         this.dateAdapter,
         this.viewDate,
@@ -897,7 +901,27 @@ export class CalendarWeekViewComponentMob
         this.excludeDays,
         this.daysInWeek
       ),
+      is_horizontal_dayview : true
     });
+
+      for (let column of calUtilsView.hourColumns){
+        for (let timeEvent of column.events){
+          let calEvent : CalendarEvent = timeEvent.event;
+          console.log("WeekViewComp timeEvent.height is : ",timeEvent.height);
+          console.log("WeekViewComp timeEvent.left is :",timeEvent.left);
+          let diffInMin = this.dateAdapter.differenceInMinutes(calEvent.end,calEvent.start)
+          if( calEvent.start.getMinutes() == 30 && diffInMin==30 ){
+            timeEvent.left = timeEvent.left - 30;
+            timeEvent.top = timeEvent.top + 50; // in %
+            timeEvent.height = (timeEvent.height/2) // cut timeEvent.height in halv (50%)
+            console.log("WeekViewComp diffMin=30 timeEvent.width px", timeEvent.width)
+          } else if (calEvent.start.getMinutes()== 0 && diffInMin==30){
+            timeEvent.height = (timeEvent.height/2) // cut timeEvent.height in halv (50%)
+          }
+          
+        }
+      }  
+    return calUtilsView;
   }
 
   protected getDragMovedEventTimes(

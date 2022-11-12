@@ -397,6 +397,7 @@ $cal-week-view-vars: map-merge($cal-vars, $cal-week-view-vars);
 
   .cal-hour { 
     display: flex;
+    flex-direction: column;
     border-bottom: 1px solid $cal-border-color;
       border-top: 1px solid $cal-border-color;
   }

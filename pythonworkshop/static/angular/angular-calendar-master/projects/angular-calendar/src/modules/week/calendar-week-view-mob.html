@@ -204,10 +204,10 @@
                 [class.cal-ends-within-day]="!timeEvent.endsAfterDay"
                 [ngClass]="timeEvent.event.cssClass"
                 [hidden]="timeEvent.height === 0 && timeEvent.width === 0"
-                [style.left.px]="timeEvent.top"
-                [style.width.px]="timeEvent.height"
-                [style.top.%]="timeEvent.left"
-                [style.height.%]="timeEvent.width"
+                [style.left.px]="timeEvent.left"
+                [style.width.px]="timeEvent.width"
+                [style.top.%]="timeEvent.top"
+                [style.height.%]="timeEvent.height"
                 mwlResizable
                 [resizeSnapGrid]="{
                   left: dayColumnWidth,
