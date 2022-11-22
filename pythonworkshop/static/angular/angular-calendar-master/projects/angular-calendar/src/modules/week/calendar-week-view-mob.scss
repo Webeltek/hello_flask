@@ -102,6 +102,10 @@ $cal-week-view-vars: map-merge($cal-vars, $cal-week-view-vars);
 }
 
 .cal-week-view {
+  display: flex;
+  width: min-content;
+  flex-direction: column;
+
   * {
     box-sizing: border-box;
   }
@@ -141,7 +145,7 @@ $cal-week-view-vars: map-merge($cal-vars, $cal-week-view-vars);
     }
 
     &:first-child {
-      border-left: 1px solid #e1e1e1;
+      //border-left: 1px solid #e1e1e1;
       border-top-color: #e1e1e1 ;
         height : 60px;
 
@@ -319,6 +323,7 @@ $cal-week-view-vars: map-merge($cal-vars, $cal-week-view-vars);
     position: relative;
     border: solid 1px $cal-bg-active;
     border-top: 0;
+    border-right: 0;
     display: flex;
 
     .cal-day-columns {
@@ -410,16 +415,14 @@ $cal-week-view-vars: map-merge($cal-vars, $cal-week-view-vars);
     background-color: $cal-bg-active;
   }
 
-  .cal-hour:not(:last-child) .cal-hour-segment,
+  :not(.cal-time-label-column) .cal-hour:not(:last-child) .cal-hour-segment,
     .cal-hour:last-child :not(:last-child) .cal-hour-segment,
     .cal-hour:last-child :last-child .cal-hour-segment {
       
       border-right-color: $cal-border-color;
     }
 
-  .cal-day-column .cal-hour:not(:last-child) .cal-hour-segment,
-  .cal-day-column .cal-hour:last-child :not(:last-child) .cal-hour-segment,
-  .cal-day-column .cal-hour:last-child .cal-hour-segment  {
+  .cal-day-column .cal-hour:not(:last-child) .cal-hour-segment {
     border-right: thin dashed;
     border-right-color: $cal-border-color;
   }
@@ -428,9 +431,15 @@ $cal-week-view-vars: map-merge($cal-vars, $cal-week-view-vars);
     border-right: 0px;
   }
 
-  .cal-hour-segment-odd {
+  .cal-time-label-column .cal-hour-segment{
+    border-right: thin dashed;
+    border-right-color: $cal-border-color;
+  }
+
+  .cal-hour:last-child .cal-time-label-column .cal-hour-segment-odd ,
+  .cal-hour:last-child .cal-hour-segment{
     border-right: 1px solid;
-    border-right-color: #e1e1e1;
+    border-right-color: $cal-border-color;
   }
 
   .cal-time-label-column .cal-hour {

@@ -12,14 +12,9 @@ import { takeUntil } from 'rxjs/operators';
 
 import { CustomDateFormatter } from './custom-date-formatter.provider';
 import { HttpEventService } from 'projects/angular-calendar/src/modules/week/http-service.service';
-import { EventDialog } from 'projects/angular-calendar/src/modules/week/calendar-week-view-hour-segment.component';
+import { EventDialog, PythEvent, getColors } from 'projects/angular-calendar/src/modules/week/calendar-week-view-hour-segment.component';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { PythEvent } from 'projects/angular-calendar/src/modules/week/calendar-week-view-hour-segment.component';
-import { getColors } from 'projects/angular-calendar/src/modules/week/calendar-week-view-hour-segment.component';
-import { CalendarEventActionsComponent } from 'projects/angular-calendar/src/modules/common/calendar-event-actions.component';
-import { addDays } from 'date-fns';
 import { HttpResponse } from '@angular/common/http';
-import { DateAdapter } from 'projects/angular-calendar/src/date-adapters/date-adapter';
 import { Router, ActivatedRoute, ParamMap  } from '@angular/router';
 import { TokenStorageService } from './_services/token-storage.service';
 
@@ -101,13 +96,13 @@ export class DemoAppComponent implements OnInit, OnDestroy{
 
   getEventTitle(pythEv : PythEvent){
       if ( this.tokenStorage.getUser().is_admin){
-        console.log("getEventTitle() this.users",this.users);
-        console.log("getEventTitle() pythEv.userId",pythEv.userId);
+        //console.log("getEventTitle() this.users",this.users);
+        //console.log("getEventTitle() pythEv.userId",pythEv.userId);
         let eventUser =  this.users.filter((user)=> {
-          console.log("getEventTitle() user.id == pythEv.userId",user.id == pythEv.userId)
+          //console.log("getEventTitle() user.id == pythEv.userId",user.id == pythEv.userId)
           return user.id == pythEv.userId
         });
-        console.log("getEventTitle() eventUser array",eventUser );
+        //console.log("getEventTitle() eventUser array",eventUser );
         return eventUser[0].user_email;
       } else {
         return pythEv.title;
@@ -130,7 +125,6 @@ export class DemoAppComponent implements OnInit, OnDestroy{
               end : new Date(parseInt(pythEvt.end,10)),
               title : this.getEventTitle(pythEvt),
               color : getColors(pythEvt.userId,this.tokenStorage.getUser().id),
-              allDay : false 
             }
           this.events.push(calEvent);
           
@@ -212,8 +206,8 @@ export class DemoAppComponent implements OnInit, OnDestroy{
     sourceEvent: MouseEvent | KeyboardEvent;
   }) {
 
-    if (clickedWeekViewEvent.event.userId==this.tokenStorage.getUser().id
-     && !this.tokenStorage.getUser().is_admin) {
+    if ((clickedWeekViewEvent.event.userId==this.tokenStorage.getUser().id
+     && !this.tokenStorage.getUser().is_admin) || this.tokenStorage.getUser().is_admin) {
       var hourContainedEvTitle = "";
       this.httpService.getEvents().subscribe((response) => {
         if(response.hasOwnProperty('events')) {
@@ -246,41 +240,6 @@ export class DemoAppComponent implements OnInit, OnDestroy{
             }
           );
         }
-        
-      });
-    } else if(this.tokenStorage.getUser().is_admin){
-      var hourContainedEvTitle = "";
-      //console.log("segment Date in openDialog(): ",this.segment.date ) ; 
-      this.httpService.getEvents().subscribe((response) => {
-        let responseObj = response as any;
-        let clickedPythEvtStart = clickedWeekViewEvent.event.start.getTime().toString();
-        //console.log("clickedWeekViewEvent.event.start",clickedWeekViewEvent.event.start)
-        for (let pythEvt of responseObj) {
-          if ( pythEvt.start == clickedPythEvtStart ){
-            this.toBeDeletedPythEvt = pythEvt;
-            //console.log("this.toBeDeletedPythEvt",this.toBeDeletedPythEvt)
-          }
-          
-        }
-
-        const dialogRef = this.dialog.open(EventDialog, {
-          data: {
-            toBeDeleted : true,
-            toBeDeletedPythEvt : this.toBeDeletedPythEvt
-          },
-        });
-        dialogRef.afterClosed().subscribe(
-          (result) => {
-            if (typeof result !== 'undefined') {
-              //console.log("result object",result)
-              this.deleteEvent(result.toBeDeletedPythEvt.uid);
-            }
-          },
-          (error) => {
-            console.log("afterClosed() error : " + error);
-          }
-        );
-      
         
       });
     }

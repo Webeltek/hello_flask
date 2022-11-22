@@ -13,7 +13,7 @@ import { RouterModule } from '@angular/router';
 import { ROUTES } from './demo-app.routes';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
-import { HomeComponent } from './home/home.component';
+import { EditEventsDialog, HomeComponent } from './home/home.component';
 import { BoardAdminComponent } from './board-admin/board-admin.component';
 import { BoardUserComponent } from './board-user/board-user.component';
 
@@ -27,7 +27,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { ProfileComponent } from './profile/profile.component';
-
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatDialogModule, MAT_DIALOG_DEFAULT_OPTIONS } from '@angular/material/dialog';
+import { MatNativeDateModule } from '@angular/material/core';
+import { ReactiveFormsModule } from '@angular/forms';
+import {MatTableModule} from '@angular/material/table'; 
+import { MatInputModule } from '@angular/material/input';
 
 @NgModule({
   declarations: [
@@ -35,12 +41,14 @@ import { ProfileComponent } from './profile/profile.component';
     LoginComponent,
     RegisterComponent,
     HomeComponent,
+    EditEventsDialog,
     BoardAdminComponent,
     BoardUserComponent,
     ConfirmComponent,
     ProfileComponent,
   ],
   imports: [
+    CommonModule,
     BrowserModule,
     RouterModule.forRoot(ROUTES),
     CalendarModule.forRoot({
@@ -50,16 +58,25 @@ import { ProfileComponent } from './profile/profile.component';
 
     BrowserAnimationsModule,
     FormsModule,
+    ReactiveFormsModule,
     MatToolbarModule,
     MatSidenavModule,
     MatButtonModule,
     MatIconModule,
+    MatDialogModule,
     MatDividerModule,
+    MatFormFieldModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatTableModule,
+    MatInputModule
   ],
   providers : [
     { provide: LOCALE_ID, useValue: 'nb' },
-    authInterceptorProviders],
-  bootstrap: [HomeComponent]
+    authInterceptorProviders,
+    { provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: { hasBackdrop: true}}
+  ],
+    bootstrap: [HomeComponent]
 })
 export class DemoAppModule { 
   constructor(){

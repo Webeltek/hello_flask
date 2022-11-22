@@ -69,3 +69,25 @@
     margin-bottom: 8px;
     background-color: rgba(255, 255, 255, 0.5);
   }
+
+  /* Structure table */
+table {
+  width: 100%;
+}
+
+.mat-mdc-form-field {
+  font-size: 14px;
+  width: 100%;
+}
+
+.demo-table {
+  width: 100%;
+}
+
+.demo-button-container {
+  padding-bottom: 16px;
+}
+
+.demo-button + .demo-button {
+  margin-left: 8px;
+}

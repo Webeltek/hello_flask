@@ -16,7 +16,7 @@ export class LoginComponent implements OnInit {
   isLoggedIn = false;
   isLoginFailed = false;
   errorMessage = '';
-  roles: string[] = [];
+  role: string = '';
 
   constructor(private authService: AuthService, 
     private tokenStorage: TokenStorageService,
@@ -26,7 +26,7 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void {
     if (this.tokenStorage.getToken()) {
       this.isLoggedIn = true;
-      this.roles = this.tokenStorage.getUser().roles;
+      this.role = this.tokenStorage.getUser().is_admin? 'admin':'user';
     }
     const confirmedUserEmail = this.actRoute.snapshot.paramMap.get('userEmail');
     this.form.user_email = confirmedUserEmail;
@@ -56,7 +56,7 @@ export class LoginComponent implements OnInit {
           this.tokenStorage.saveUser(dataObj.user);
           this.isLoginFailed = false;
           this.isLoggedIn = true;
-          this.roles = this.tokenStorage.getUser().roles;
+          this.tokenStorage.authenticated$.next(true);
           //this.reloadPage();
           this.router.navigate(['calendar'])
         } else if(dataObj.user === 'nonexistent'){

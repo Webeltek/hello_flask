@@ -66,7 +66,7 @@
       />
 
       <h4 class="name">{{userEmail}}</h4>
-      <p class="designation">Occupation</p>
+      <p class="designation">{{role}}</p>
 
       <mat-divider></mat-divider>
 
@@ -74,6 +74,12 @@
         <mat-icon>calendar_month</mat-icon>
         <span>Calendar</span>
       </button>
+      <ng-container *ngIf="role==='admin'" >
+        <button mat-button class="menu-button" (click)="editEvents()">
+          <mat-icon>edit_calendar</mat-icon>
+          <span>Edit events</span>
+        </button>
+      </ng-container>
       <button mat-button class="menu-button" routerLink="/profile">
         <mat-icon>account_box</mat-icon>
         <span>Profile</span>

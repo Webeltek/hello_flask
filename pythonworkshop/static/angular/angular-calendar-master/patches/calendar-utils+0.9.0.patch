@@ -24,7 +24,7 @@ index 13e9c53..c2fdd57 100644
  export declare function getDifferenceInDaysWithExclusions(dateAdapter: DateAdapter, { date1, date2, excluded }: {
      date1: Date;
 diff --git a/node_modules/calendar-utils/calendar-utils.js b/node_modules/calendar-utils/calendar-utils.js
-index 5c83ff8..0b74745 100644
+index 5c83ff8..3c99c36 100644
 --- a/node_modules/calendar-utils/calendar-utils.js
 +++ b/node_modules/calendar-utils/calendar-utils.js
 @@ -108,6 +108,7 @@ function getWeekViewEventSpan(dateAdapter, _a) {
@@ -131,7 +131,7 @@ index 5c83ff8..0b74745 100644
      var startOfView = setMinutes(setHours(startOfDay(viewDate), sanitiseHours(dayStart.hour)), sanitiseMinutes(dayStart.minute));
      var endOfView = setMinutes(setHours(startOfMinute(endOfDay(viewDate)), sanitiseHours(dayEnd.hour)), sanitiseMinutes(dayEnd.minute));
      endOfView.setSeconds(59, 999);
-@@ -509,75 +528,165 @@ function getDayView(dateAdapter, _a) {
+@@ -509,75 +528,166 @@ function getDayView(dateAdapter, _a) {
          periodStart: startOfView,
          periodEnd: endOfView,
      });
@@ -147,7 +147,7 @@ index 5c83ff8..0b74745 100644
 +            var startsBeforeDay = eventStart < startOfView;
 +            var endsAfterDay = eventEnd > endOfView;
 +            //console.log("cal-utils segmHeight",segmentHeight)
-+            var hourHeightModifier = (hourSegments * segmentHeight/2) / (hourDuration || MINUTES_IN_HOUR);
++            let hourHeightModifier = (hourSegments * segmentHeight/2) / (hourDuration || MINUTES_IN_HOUR);
 +            //console.log("hourHeightmodifier",hourHeightModifier)
 +            let top = 0;
 +            if (eventStart > startOfView) {
@@ -268,9 +268,10 @@ index 5c83ff8..0b74745 100644
 +            var eventEnd = event.end || eventStart;
 +            var startsBeforeDay = eventStart < startOfView;
 +            var endsAfterDay = eventEnd > endOfView;
-+            console.log("cal-utils is_hor _a.segmentWidth",_a.segmentWidth)
 +            let hourWidthModifier = (hourSegments * _a.segmentWidth/2) / (hourDuration || MINUTES_IN_HOUR);
-+            console.log("hourWidthmodifier",hourWidthModifier)
++            //console.log("cal-utils is_hor hourSegments",hourSegments);
++            //console.log("cal-utils is_hor _a.segmentWidth",_a.segmentWidth);
++            //console.log("cal-utils is_hor hourWidthmodifier",hourWidthModifier);
 +            let left = 0;
 +            if (eventStart > startOfView) {
 +                // adjust the difference in minutes if the user's offset is different between the start of the day and the event (e.g. when going to or from DST)
@@ -278,7 +279,7 @@ index 5c83ff8..0b74745 100644
 +                let startOffset = dateAdapter.getTimezoneOffset(startOfView);
 +                let diff = startOffset - eventOffset;
 +                left += differenceInMinutes(eventStart, startOfView) + diff;
-+                console.log("cal-utils diffInMin left :",left);
++                //console.log("cal-utils diffInMin left :",left);
 +            }
 +            left *= hourWidthModifier;
 +            left = Math.floor(left);
@@ -308,8 +309,8 @@ index 5c83ff8..0b74745 100644
 +            let top = 0;
 +            
 +            //console.log("event width",height)
-+            console.log("cal-utils is_hor event left",left);
-+            console.log("cal-utils is_hor event width",width);
++            //console.log("cal-utils is_hor event left",left);
++            //console.log("cal-utils is_hor event width",width);
 +            let dayEvent = {
 +                event: event,
 +                height: _a.eventHeight,
@@ -363,7 +364,7 @@ index 5c83ff8..0b74745 100644
  }
  function sanitiseHours(hours) {
      return Math.max(Math.min(23, hours), 0);
-@@ -591,6 +700,8 @@ function getDayViewHourGrid(dateAdapter, _a) {
+@@ -591,6 +701,8 @@ function getDayViewHourGrid(dateAdapter, _a) {
      var hours = [];
      var startOfView = setMinutes(setHours(startOfDay(viewDate), sanitiseHours(dayStart.hour)), sanitiseMinutes(dayStart.minute));
      var endOfView = setMinutes(setHours(startOfMinute(endOfDay(viewDate)), sanitiseHours(dayEnd.hour)), sanitiseMinutes(dayEnd.minute));
