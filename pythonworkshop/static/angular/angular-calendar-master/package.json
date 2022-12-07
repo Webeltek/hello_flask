@@ -174,7 +174,6 @@
     "angular-draggable-droppable": "^6.0.0",
     "angular-resizable-element": "^5.0.0",
     "calendar-utils": "^0.9.0",
-    "ngx-socket-io": "^4.4.0",
     "patch-package": "^6.4.7",
     "positioning": "^2.0.1",
     "tslib": "^2.1.0"
