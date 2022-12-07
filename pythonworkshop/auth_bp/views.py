@@ -16,6 +16,7 @@ from urllib.parse import quote_plus, urlencode
 from authlib.integrations.flask_client import OAuth
 from os import access, environ as env
 from playhouse.shortcuts import model_to_dict
+from flask_socketio import emit
 
 templateLoader = jinja2.PackageLoader('pythonworkshop','templates')
 templateEnv = jinja2.Environment(loader=templateLoader)
@@ -106,12 +107,18 @@ def confirm(token):
     if user is not None and (user.user_confirmed or user.confirm(token)):
         print('current_user.user_confirmed = True')
         msg_confirmed='Du har bekreftet kontoen din. Takk!'
-        user_dict =model_to_dict(user)
+        user_dict = model_to_dict(user)
+        #confirm_event(msg_confirmed)
         return jsonify({'user':user_dict, 'msg': msg_confirmed})
+    elif user is not None and not user.confirm(token):
+        User.delete().where(User.id == user.id).execute()
     print('current_user.user_confirmed = False')
-    msg_wrong_link = 'Bekreftelseslenken er ugyldig eller har utløpt.' 
+    msg_wrong_link = 'Bekreftelseslenken er ugyldig eller har utløpt.'    
     users_db.close()
     return jsonify({'received_token': token,'user_confirmed':False,'msg': msg_wrong_link})
+
+def confirm_event(message):
+    emit('user_confirmed', {'data': 'user confirmed!'})
 
     """
 @auth_bp.route('/logout')

@@ -72,26 +72,29 @@ export class DemoAppComponent implements OnInit, OnDestroy{
     private router: Router ) {}
 
   getDbUsers(){
-    this.httpService.getUsers().subscribe((response) => {
-      if(response.hasOwnProperty('users')) {
-        let storageUsrObj = this.tokenStorage.getUser();
-        this.loggedInUserId = storageUsrObj.id;
-        console.log("getDBUsers()  storageUsrObj.user_email", storageUsrObj.user_email);
-      
-        let respObj  = response as any ;
-        for (let pythUser of respObj.users){
-          this.users.push(pythUser);
-        }
-        this.users = [...this.users];
-        console.log("getDBUsers() this.users",this.users)
-      } else {
-        console.log("getDbUsers() string response msg:",response);
-        this.tokenStorage.signOut();
-        this.router.navigate(['login',{session: 'expired' }]);
-      }
-      
-    })
-    this.getDbEvents();
+    this.httpService.getUsers().subscribe(
+      {
+          next: (response) => {
+            if(response.hasOwnProperty('users')) {
+              let storageUsrObj = this.tokenStorage.getUser();
+              this.loggedInUserId = storageUsrObj.id;
+              console.log("getDBUsers()  storageUsrObj.user_email", storageUsrObj.user_email);
+            
+              let respObj  = response as any ;
+              for (let pythUser of respObj.users){
+                this.users.push(pythUser);
+              }
+              this.users = [...this.users];
+              console.log("getDBUsers() this.users",this.users)
+            } else {
+              console.log("getDbUsers() string response msg:",response);
+              this.tokenStorage.signOut();
+              this.router.navigate(['login',{session: 'expired' }]);
+            }
+            
+          },
+          complete: () => this.getDbEvents()
+      })
   }
 
   getEventTitle(pythEv : PythEvent){
@@ -195,8 +198,8 @@ export class DemoAppComponent implements OnInit, OnDestroy{
       }); 
   }
 
-  deleteEvent(uid : string){
-    this.httpService.deleteEvent(uid);
+  deleteEvent(id : string){
+    this.httpService.deleteEvent(id);
   }
 
   rooms : string[] = ["Møterom stort", "Møterom lite", "Møterom 214", "Møterom 210" , "Aktivitets plan"];
@@ -232,7 +235,7 @@ export class DemoAppComponent implements OnInit, OnDestroy{
             (result) => {
               if (typeof result !== 'undefined') {
                 //console.log("result object",result)
-                this.deleteEvent(result.toBeDeletedPythEvt.uid);
+                this.deleteEvent(result.toBeDeletedPythEvt.id);
               }
             },
             (error) => {

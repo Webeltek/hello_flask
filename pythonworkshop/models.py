@@ -21,7 +21,7 @@ def load_user(user_id):
 #equal to User.get(int(user_id))  type=serial constraint=PRIMARY KEY 
 """
 
-users_db = p.PostgresqlDatabase(user='nf_user',password='nfvinter2022',
+users_db = p.PostgresqlDatabase(autorollback=True,user='nf_user',password='nfvinter2022',
         host='127.0.0.1',
         port='5432',
         database='nf_users_db')

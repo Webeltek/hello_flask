@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpContext, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { ActivatedRoute, Router } from '@angular/router';
 
 const AUTH_API = '/api/auth/';
 
@@ -9,7 +11,7 @@ const AUTH_API = '/api/auth/';
   providedIn: 'root'
 })
 export class AuthService {
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient,private router: Router) { }
 
   httpHeaders = new HttpHeaders({
     'Content-Type' : 'application/json; charset=UTF-8',
@@ -27,11 +29,17 @@ export class AuthService {
     return this.http.post(AUTH_API + 'register', {
       email : email,
       password : password
-    }, { headers : this.httpHeaders, observe : 'body', responseType : 'json'} );
+    }, { headers : this.httpHeaders, observe : 'response', responseType : 'json'} );
   }
 
   confirm( token : string): Observable<any>{
     return this.http.get(AUTH_API + 'confirm/'+token, 
       { headers: this.httpHeaders, observe: 'body', responseType : 'json'});
+  }
+
+  getMessage() {
+    /* return this.socket.fromEvent('user_confirmed').pipe(map((data: any) => {
+      this.router.navigate['login'];
+    })) */
   }
 }

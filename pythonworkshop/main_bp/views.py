@@ -147,9 +147,9 @@ def ajax_delete():
     users_db.connect(reuse_if_open=True)
     if request.method == 'POST':
         req_json = request.get_json()
-        uid = req_json['uid']
+        uid = req_json['id']
         print('deleted event with uid : ' + uid)
-        event = Event.delete().where(Event.uid == uid).execute()
+        event = Event.delete().where(Event.id == id).execute()
         users_db.close()
         msg = 'Record deleted successfully' 
     return jsonify(msg)
