@@ -19,16 +19,15 @@ export class ConfirmComponent implements OnInit {
   msg : string;  
 
   ngOnInit(): void {
-    const token = this.actRoute.snapshot.paramMap.get('token')!;
-    this.authService.confirm(token).subscribe(response => {
-      let userConfirmed = response.user.user_confirmed;
-      if (userConfirmed){
-        this.msg = response.msg;
+    let userConfirmed = this.actRoute.snapshot.paramMap.get('userconfirmed');
+    console.log("ConfComp userConfirmed",userConfirmed);
+      if (userConfirmed==='True'){
         this.router.navigate(['login']);
-      } else {
-        this.msg = response.msg;
+      } else if(userConfirmed==='False') {
+        this.msg = "user is not confirmed!";
+        console.log("ConfComp user not confirmed")
       }
-    });
+    ;
   }
 
 }

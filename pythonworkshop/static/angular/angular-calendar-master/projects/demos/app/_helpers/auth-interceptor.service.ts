@@ -6,7 +6,6 @@ import { TokenStorageService } from '../_services/token-storage.service';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Socket } from 'ngx-socket-io';
 
 const TOKEN_HEADER_KEY = 'Authorization';     
 

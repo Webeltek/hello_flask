@@ -20,7 +20,6 @@ export class RegisterComponent implements OnInit {
   constructor(private authService: AuthService, private tokenStorage: TokenStorageService) { }
 
   ngOnInit(): void {
-    this.authService.getMessage();
   }
 
   onSubmit(): void {

@@ -159,11 +159,12 @@ export class CalendarWeekViewHourSegmentComponent {
 
   @Input() customTemplate: TemplateRef<any>;
 
+  currentRoom : string;
+
   @Input() set currentRoomIndex ( roomNum : number) {
     this.currentRoom = this.rooms[roomNum]
   }
 
-  currentRoom : string;
   rooms : string[] = ["Møterom stort", "Møterom lite", "Møterom 214", "Møterom 210" , "Aktivitets plan"];
 
 

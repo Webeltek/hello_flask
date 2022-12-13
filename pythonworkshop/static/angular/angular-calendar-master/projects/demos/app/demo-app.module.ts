@@ -36,6 +36,14 @@ import { MatTableModule} from '@angular/material/table';
 import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule} from '@angular/material/checkbox';
 import { MatSelectModule} from '@angular/material/select';
+//import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
+
+/* const config: SocketIoConfig = {
+	url: "http://localhost/wsapp/", // socket server url;
+	options: {
+		//transports: ['websocket']
+	}
+} */
 
 @NgModule({
   declarations: [
@@ -73,7 +81,8 @@ import { MatSelectModule} from '@angular/material/select';
     MatTableModule,
     MatInputModule,
     MatCheckboxModule,
-    MatSelectModule
+    MatSelectModule,
+    //SocketIoModule.forRoot(config)
   ],
   providers : [
     { provide: LOCALE_ID, useValue: 'nb' },

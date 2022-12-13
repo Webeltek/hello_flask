@@ -11,6 +11,8 @@ from flask_moment import Moment
 #from flask_login import LoginManager
 from config import config, DevelopmentConfig
 from flask_executor import Executor
+#from flask_socketio import SocketIO
+#from flask_cors import CORS, cross_origin
 
 
 templ_dir = os.path.abspath('pythonworkshop/templates')
@@ -20,8 +22,7 @@ print('Static folder : ' + str(static_dir))
 mail = Mail()
 moment = Moment()
 executor = Executor()
-#login_manager = LoginManager()
-#login_manager.login_view = 'auth_bp.login_form'
+#socketio = SocketIO(cors_allowed_origins="*")
 
  #- only views that don't use FlaskForm use the provided CSRF extension
 
@@ -47,6 +48,8 @@ def create_app(config_name):
 
   from .auth_bp import auth_bp
   app.register_blueprint(auth_bp)
+
+  #socketio.init_app(app)
 
   return app
 

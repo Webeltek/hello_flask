@@ -78,16 +78,7 @@ class User(p.Model):
         except :
           return False   
         return True
-          
-  @staticmethod
-  def get_access_tokens_email(access_token):
-      try:
-        data = jwt.decode(access_token,current_app.config['SECRET_KEY'],algorithms=["HS256"]) 
-      except jwt.ExpiredSignatureError:
-        return 'expiredSignatureError'
-      except:
-        return False  
-      return data.get('email')  
+           
 
   def generate_confirmation_token(self, expiration=3600):
         encoded = jwt.encode({'confirm': self.id, \

@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit , Inject} from '@angular/core';
+import { Component, ViewChild, OnInit , Inject, OnDestroy} from '@angular/core';
 import { HttpEventService } from 'projects/angular-calendar/src/modules/week/http-service.service';
 import { PythUser } from '../demo-app.component';
 import { TokenStorageService } from '../_services/token-storage.service';
@@ -17,7 +17,6 @@ import { DataSource } from '@angular/cdk/collections';
 import {Observable, ReplaySubject} from 'rxjs';
 import { DatePipe} from '@angular/common';
 import { SelectionModel } from '@angular/cdk/collections';
-import {MatDatepickerInputEvent} from '@angular/material/datepicker';
 
 @UntilDestroy()
 @Component({
@@ -26,20 +25,21 @@ import {MatDatepickerInputEvent} from '@angular/material/datepicker';
   templateUrl : './home.component.html'
   
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
   @ViewChild(MatSidenav)
   sidenav!: MatSidenav;
 
   constructor( private observer: BreakpointObserver,
     public tokenStorage: TokenStorageService,
     private router: Router,
-    public dialog: MatDialog) {}
+    public dialog: MatDialog,
+    private httpService: HttpEventService,) {}
 
   role: string ='';
   userEmail : string = '';
   loginStateSubscription: Subscription = new Subscription();
   breakPointObsSubscr : Subscription = new Subscription();
-  rooms : string[] = ["alle rom","Møterom stort", "Møterom lite", "Møterom 214", "Møterom 210" , "Aktivitets plan"];
+  roomsWithAll : string[] = ["alle rom","Møterom stort", "Møterom lite", "Møterom 214", "Møterom 210" , "Aktivitets plan"];
   toDelPythEvts : PythEvent[] = [];
 
 
@@ -91,21 +91,22 @@ export class HomeComponent implements OnInit {
     this.router.navigate(['login']);
   }
 
-  delEvents(events : PythEvent[]){
-
+  delEvents(eventIds : number[]){
+    this.httpService.deleteEvent(eventIds);
   }
 
   editEvents(){
     const dialogRef = this.dialog.open(EditEventsDialog, {
       data: {
-        rooms: this.rooms
+        rooms: this.roomsWithAll
       },
     });
 
     dialogRef.afterClosed().subscribe(
-      (resultIds) => {
-        if (typeof resultIds !== 'undefined') {
-          this.delEvents(resultIds);
+      (obj) => {
+        if (typeof obj.selectedRowsIds !== 'undefined') {
+          this.delEvents(obj.selectedRowsIds);
+          //console.log("HomeComp to delete ids",obj.selectedRowsIds)
         }
       },
       (error) => {
@@ -117,7 +118,7 @@ export class HomeComponent implements OnInit {
   editRooms(){
     const dialogRef = this.dialog.open(EditRoomsDialog, {
       data: {
-        rooms: this.rooms
+        rooms: this.roomsWithAll
       },
     });
 
@@ -159,30 +160,27 @@ const ELEMENT_DATA: TableRow[] = [];
 export class EditEventsDialog {
   constructor( public dialogRef: MatDialogRef<EditEventsDialog>,
       @Inject(MAT_DIALOG_DATA) public data: {
-        rooms : string[] },
+        rooms : string[]},
         private httpService: HttpEventService,
         private tokenStorage: TokenStorageService,) {}
 
-  rooms : string[] = this.data.rooms;
+  rooms : string[]= this.data.rooms;
   users : PythUser[] = [];
   events : CalendarEvent[] = [];
   pythEvents : PythEvent[] = [];
   tableRows : TableRow[] = [];
   datepipe : DatePipe = new DatePipe('en-US');
+  currentDate = new Date();
+
 
   range = new FormGroup({
     start: new FormControl(null),
     end: new FormControl(null),
   });
 
-  rangeStartDate = new Date();
-  rangeEndDate = new Date();
-
-
-
   selectedRooms = new FormControl('alle rom');
 
-  displayedColumns: string[] = ['select', 'user_email','start','title'];
+  displayedColumns: string[] = ['select', 'rom','user_email','start','title'];
   dataToDisplay = [...ELEMENT_DATA];
   dataSourceEx = new ExampleDataSource(this.dataToDisplay);
   selection = new SelectionModel<TableRow>(true, []);
@@ -191,9 +189,9 @@ export class EditEventsDialog {
     this.getDbUsers();
     this.selectedRooms.valueChanges.subscribe((value)=>{
       let filteredRows : TableRow[] = [];
-      console.log("HomeComp filterValue",value);
       for (let row of this.tableRows){
-        if ( row.rom.includes(value)){
+        //console.log("Homecomp row.rom :",row.rom);
+        if ( value.includes(row.rom)){
           filteredRows.push(row);
           //console.log("HomeComp filterValue in loop",value);
         } else if ( value==="alle rom"){
@@ -203,19 +201,21 @@ export class EditEventsDialog {
       this.dataSourceEx.setData(filteredRows);
     })
 
-    this.range.valueChanges.subscribe(res=>{
-      this.rangeStartDate = res.start;
-      this.rangeEndDate = res.end;
+    this.range.valueChanges.subscribe(range=>{
+      if(range.start!==null && range.end!==null){
+      range.end=new Date(range.end.setHours(23,59,59,999));
       //console.log("HomeComp rangeValue",res);
       let filteredRows : TableRow[] = [];
       for (let row of this.tableRows){
         if(typeof row.start!=='undefined' 
-        && res.start<row.start && row.start<res.end){
+        && range.start<=row.start && row.start<=range.end){
           filteredRows.push(row);
-          //console.log("HomeComp rangeValue in loop",res);
+          //console.log("HomeComp rangeValue in loop",range);
         }
       }
       this.dataSourceEx.setData(filteredRows);
+      }
+      
     })
   }
 
@@ -283,7 +283,7 @@ export class EditEventsDialog {
           let tableRow : TableRow=  {
               id : objEvt.id,
               user_email : this.users.filter((user)=>objEvt.userId==user.id)[0].user_email,
-              rom : this.rooms[parseInt(objEvt.row,10)],
+              rom : this.rooms[parseInt(objEvt.row,10)+1],
               start : new Date(parseInt(objEvt.start,10)),
               end : new Date(parseInt(objEvt.end,10)),
               title : String(objEvt.title).substring(0,3),
@@ -291,6 +291,7 @@ export class EditEventsDialog {
           this.tableRows.push(tableRow);
           //console.log("HomeComp tableRow.user_email ",this.users.filter((user)=>objEvt.userId==user.id)[0].user_email);
           let calEvent : CalendarEvent=  {
+            title : objEvt.title,
             userId : objEvt.userId,
             start : new Date(parseInt(objEvt.start,10)),
             end : new Date(parseInt(objEvt.end,10)),
@@ -309,15 +310,16 @@ export class EditEventsDialog {
   }
 
   closeDialog(){
-    this.selection.selected
-    this.dialogRef.close({
-      selectedRowsIds: this.selection.selected.map(row=>row.id),
-      } )
+    
   }
   
 
   onSubmit(){
-    //console.log("onSibmit dialod form value: " + JSON.stringify(this.valgtPerCtrl.value) )
+    //console.log(" Close dial selection.selected",this.selection.selected);
+    //console.log("Close dial selection.selected.map",this.selection.selected.map(row=>row.id));
+    this.dialogRef.close({
+      selectedRowsIds: this.selection.selected.map(row=>row.id),
+      } )
   }
 
 }

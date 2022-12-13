@@ -35,10 +35,10 @@ export class LoginComponent implements OnInit {
     }
 
    this.actRoute.paramMap.subscribe((params: ParamMap)=>{
-      console.log("login session parameter:",params.get('session'))
+      //console.log("login session parameter:",params.get('session'))
     if (params.get('session')==="expired"){
       this.errorMessage = "Session expired!"
-      console.log("login errorMessage",this.errorMessage)
+      //console.log("login errorMessage",this.errorMessage)
     }
     });
   }

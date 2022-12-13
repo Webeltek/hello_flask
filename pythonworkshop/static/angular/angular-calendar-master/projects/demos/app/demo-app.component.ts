@@ -106,7 +106,7 @@ export class DemoAppComponent implements OnInit, OnDestroy{
           return user.id == pythEv.userId
         });
         //console.log("getEventTitle() eventUser array",eventUser );
-        return eventUser[0].user_email;
+        return typeof eventUser[0]=='undefined' ? '' : eventUser[0].user_email;
       } else {
         return pythEv.title;
       }
@@ -198,8 +198,8 @@ export class DemoAppComponent implements OnInit, OnDestroy{
       }); 
   }
 
-  deleteEvent(id : string){
-    this.httpService.deleteEvent(id);
+  deleteEvent(ids : number[]){
+    this.httpService.deleteEvent(ids);
   }
 
   rooms : string[] = ["Møterom stort", "Møterom lite", "Møterom 214", "Møterom 210" , "Aktivitets plan"];
@@ -235,7 +235,7 @@ export class DemoAppComponent implements OnInit, OnDestroy{
             (result) => {
               if (typeof result !== 'undefined') {
                 //console.log("result object",result)
-                this.deleteEvent(result.toBeDeletedPythEvt.id);
+                this.deleteEvent([result.toBeDeletedPythEvt.id]);
               }
             },
             (error) => {

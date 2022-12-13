@@ -13,20 +13,17 @@ def access_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         auth_header = request.headers.get('Authorization')
-        token = auth_header.split(" ")[1]
+        token = auth_header.split(" ")[1] if auth_header is not None else ''
         access_token_check = User.check_access_token(token) #access_token_check type is boolean or string
         if type(access_token_check) is str:
             return jsonify('access token expired')
-        elif type(access_token_check) is False:
-            return jsonify('acces token is modified')
-        token_email = User.get_access_tokens_email(token)
-        if type(token_email) is str and token_email!='expiredSignatureError':     
-            try :
-                auth_header_user = User.select().where(User.user_email==token_email).get()
-                if auth_header_user is not None: 
-                    return f(*args, **kwargs)        
-            except :
-                return jsonify('access not allowed')
+        elif access_token_check is False:
+            return jsonify('acces token is wrong')
+        elif access_token_check is True:    
+            print("Access ALLOWED")    
+            return f(*args, **kwargs)            
+        print("General access ERROR")            
+        return jsonify('access not allowed')        
     return decorated_function
 
 
@@ -147,9 +144,9 @@ def ajax_delete():
     users_db.connect(reuse_if_open=True)
     if request.method == 'POST':
         req_json = request.get_json()
-        uid = req_json['id']
-        print('deleted event with uid : ' + uid)
-        event = Event.delete().where(Event.id == id).execute()
+        ids = req_json['numList']
+        print(f'To delete ids{str(ids[0])}')
+        num_of_rows = Event.delete().where((Event.id >= ids[0]) & (Event.id<=ids[len(ids)-1])).execute()
         users_db.close()
         msg = 'Record deleted successfully' 
     return jsonify(msg)

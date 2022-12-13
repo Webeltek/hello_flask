@@ -3,6 +3,7 @@ import { HttpClient, HttpContext, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ActivatedRoute, Router } from '@angular/router';
+//import { Socket } from 'ngx-socket-io'; 
 
 const AUTH_API = '/api/auth/';
 
@@ -11,7 +12,10 @@ const AUTH_API = '/api/auth/';
   providedIn: 'root'
 })
 export class AuthService {
-  constructor(private http: HttpClient,private router: Router) { }
+  constructor(private http: HttpClient,
+    private router: Router,
+    //private socket: Socket
+    ) { }
 
   httpHeaders = new HttpHeaders({
     'Content-Type' : 'application/json; charset=UTF-8',
@@ -37,9 +41,9 @@ export class AuthService {
       { headers: this.httpHeaders, observe: 'body', responseType : 'json'});
   }
 
-  getMessage() {
-    /* return this.socket.fromEvent('user_confirmed').pipe(map((data: any) => {
-      this.router.navigate['login'];
-    })) */
-  }
+  /* getMessage() {
+    return this.socket.fromEvent('user_confirmed').pipe(map((data: any) => {
+      console.log("AuthServ event user_confirmed received");
+    }))
+  } */
 }

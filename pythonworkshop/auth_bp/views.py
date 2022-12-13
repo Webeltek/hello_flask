@@ -16,7 +16,7 @@ from urllib.parse import quote_plus, urlencode
 from authlib.integrations.flask_client import OAuth
 from os import access, environ as env
 from playhouse.shortcuts import model_to_dict
-from flask_socketio import emit
+#from .. import socketio
 
 templateLoader = jinja2.PackageLoader('pythonworkshop','templates')
 templateEnv = jinja2.Environment(loader=templateLoader)
@@ -47,15 +47,7 @@ def before_request():
             print('auth_bp.views.before_request() condition for unconfirmed == True')
             return redirect(url_for('auth_bp.unconfirmed'))
   users_db.close()
-  pass
-    
-
-
-@auth_bp.route('/unconfirmed')
-def unconfirmed():
-    if current_user.is_anonymous or current_user.user_confirmed:
-        return redirect(url_for('main_bp.contact'))
-    return render_template('auth/unconfirmed.jinja2') 
+  pass 
 
 """     
 
@@ -104,21 +96,23 @@ def confirm(token):
     users_db.connect(reuse_if_open=True)
     tokens_user_id = User.get_tokens_user_id(token)
     user = User.select().where(User.id==tokens_user_id).first()
+    userconfirmed=False
     if user is not None and (user.user_confirmed or user.confirm(token)):
-        print('current_user.user_confirmed = True')
         msg_confirmed='Du har bekreftet kontoen din. Takk!'
         user_dict = model_to_dict(user)
-        #confirm_event(msg_confirmed)
-        return jsonify({'user':user_dict, 'msg': msg_confirmed})
+        userconfirmed=True
     elif user is not None and not user.confirm(token):
+        userconfirmed=False
         User.delete().where(User.id == user.id).execute()
-    print('current_user.user_confirmed = False')
-    msg_wrong_link = 'Bekreftelseslenken er ugyldig eller har utløpt.'    
+    msg_wrong_link = 'Bekreftelseslenken er ugyldig eller har utløpt.'
+    print(f'auth_bp.confirm userconfirmed:{userconfirmed}')    
     users_db.close()
-    return jsonify({'received_token': token,'user_confirmed':False,'msg': msg_wrong_link})
+    return redirect(f'/confirm/{userconfirmed}')
 
-def confirm_event(message):
-    emit('user_confirmed', {'data': 'user confirmed!'})
+
+def confirm_event(userstate):
+    print('socketio emitting msg:')
+    socketio.emit('user_confirmed', {'data': f'user confirmed={userstate}'})
 
     """
 @auth_bp.route('/logout')

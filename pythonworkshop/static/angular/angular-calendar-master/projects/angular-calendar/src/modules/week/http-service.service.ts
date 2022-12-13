@@ -51,8 +51,8 @@ export class HttpEventService{
         )
     }
 
-    deleteEvent(uid : string ){
-        this.http.post(this.deleteUrl, {uid: uid},
+    deleteEvent(ids : number[] ){
+        this.http.post(this.deleteUrl, {numList: ids},
             { headers : this.httpHeaders, observe: 'body', responseType : 'json'} ) 
             .subscribe((response) =>{
                 this.deletedEvent.emit(null);
