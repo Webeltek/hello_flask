@@ -59,7 +59,8 @@ def login_form():
     if request.method == 'POST':
         users_db.connect(reuse_if_open=True)
         user = User.select().where(User.user_email==request.json['email']).first()
-        print(f'auth_bp.login_form() user email to login:{user.user_email}')
+        if user is not None:
+            print(f'auth_bp.login_form() user email to login:{user.user_email}')
         if user is not None and user.verify_password(request.json['password']) and user.user_confirmed:
             user.login_user()
             user.generate_access_token()

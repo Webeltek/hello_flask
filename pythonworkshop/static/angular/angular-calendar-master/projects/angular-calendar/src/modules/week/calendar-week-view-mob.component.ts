@@ -264,6 +264,8 @@ export class CalendarWeekViewComponentMob
    */
   @Input() daysInWeek: number;
 
+  @Input() roomNames: string[];
+
   /**
    * A custom template to use for the current time marker
    */
@@ -398,6 +400,7 @@ export class CalendarWeekViewComponentMob
    */
   trackByHourSegment = trackByHourSegment;
 
+
   /**
    * @hidden
    */
@@ -436,6 +439,7 @@ export class CalendarWeekViewComponentMob
    */
   trackByHourColumn = (index: number, column: WeekViewHourColumn) =>
     column.hours[0] ? column.hours[0].segments[0].date.toISOString() : column;
+  
 
   /**
    * @hidden

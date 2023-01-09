@@ -254,6 +254,9 @@ export class CalendarWeekViewComponent
    */
   @Input() daysInWeek: number;
 
+
+  @Input() roomNames: string[];
+
   /**
    * A custom template to use for the current time marker
    */
@@ -388,6 +391,7 @@ export class CalendarWeekViewComponent
    */
   trackByHourSegment = trackByHourSegment;
 
+
   /**
    * @hidden
    */
@@ -467,6 +471,7 @@ export class CalendarWeekViewComponent
    */
   ngOnChanges(changes: any): void {
     const refreshHeader =
+      changes.roomNames ||
       changes.viewDate ||
       changes.excludeDays ||
       changes.weekendDays ||
@@ -474,6 +479,7 @@ export class CalendarWeekViewComponent
       changes.weekStartsOn;
 
     const refreshBody =
+      changes.roomNames ||
       changes.viewDate ||
       changes.dayStartHour ||
       changes.dayStartMinute ||
@@ -499,6 +505,7 @@ export class CalendarWeekViewComponent
     }
 
     if (refreshBody) {
+      //console.log("WeekComp refresh body roomNames",changes.roomNames)
       this.refreshBody();
     }
 

@@ -8,7 +8,7 @@
   <h1 mat-dialog-title>Slett reservasjon av
   </h1>
   <mat-dialog-content class="mat-typography">
-    <div>{{ rooms[data.toBeDeletedPythEvt.row]}}</div>
+    <div>{{ data.toBeDeletedPythEvt.rowname}}</div>
     <div>{{data.toBeDeletedPythEvt.title}} den {{ data.toBeDeletedPythEvt.start | date:'dd/MM/yyyy'}}</div>
     <div mat-dialog-actions>
       <button mat-button 

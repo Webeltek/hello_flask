@@ -48,8 +48,9 @@
 <ng-template #wideWeekTempl>
     <mwl-calendar-week-view  
             [locale]="locale"
+            [roomNames]="rooms"
             [dayStartHour]="0" 
-            [dayEndHour]="3" 
+            [dayEndHour]="rooms.length-1" 
             [viewDate]="viewDate" 
             [daysInWeek]="daysInWeek"
             [loggedInUserId]="loggedInUserId" 
@@ -60,8 +61,9 @@
 <ng-template #mobWeekTempl >
     <mwl-calendar-week-view-mob
             [locale]="locale"
+            [roomNames]="rooms"
             [dayStartHour]="0" 
-            [dayEndHour]="3" 
+            [dayEndHour]="rooms.length-1" 
             [viewDate]="viewDate" 
             [daysInWeek]="daysInWeek"
             [loggedInUserId]="loggedInUserId" 

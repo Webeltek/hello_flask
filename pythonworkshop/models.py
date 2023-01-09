@@ -165,7 +165,7 @@ class Event(p.Model):
   id = p.AutoField()
   uid = p.CharField()
   userId = p.ForeignKeyField(User, backref='events', lazy_load=False)
-  row = p.CharField()
+  rowname = p.CharField()
   title = p.CharField()
   start = p.CharField()
   end = p.CharField()
@@ -174,8 +174,20 @@ class Event(p.Model):
   class Meta:
     database = users_db
     table_name = 'nf_event'
+    
+
+class Room(p.Model):
+  row = p.AutoField()
+  title = p.CharField(unique=True)
+
+  class Meta:
+    database = users_db
+    table_name = 'nf_room'
+    """ indexes = (
+      (('row','title'),True),
+    )  """   
 
   
 users_db.connect(reuse_if_open=True)
-users_db.create_tables([User,Event], safe = True) #safe=True equal to IF_NOT_EXISTS
+users_db.create_tables([User,Event,Room], safe = True) #safe=True equal to IF_NOT_EXISTS
 

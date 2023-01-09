@@ -2,7 +2,7 @@ import { Component, Input,
   OnInit, Output, EventEmitter,
   ChangeDetectionStrategy,
   OnDestroy,
-  ChangeDetectorRef } from '@angular/core';
+  ChangeDetectorRef, KeyValueDiffers,IterableDiffers, DoCheck } from '@angular/core';
 import { BreakpointObserver, BreakpointState } from '@angular/cdk/layout';
 import { 
   CalendarDateFormatter,
@@ -17,6 +17,7 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dial
 import { HttpResponse } from '@angular/common/http';
 import { Router, ActivatedRoute, ParamMap  } from '@angular/router';
 import { TokenStorageService } from './_services/token-storage.service';
+import { stringify } from 'querystring';
 
 export interface PythUser {
   id : number; 
@@ -61,15 +62,95 @@ export class DemoAppComponent implements OnInit, OnDestroy{
   loggedInUserId : number;
   toBeDeletedPythEvt : PythEvent;
 
+  @Input() rooms : string[] = [];
+  roomsArrDiffer : any;
+
   private destroy$ = new Subject<void>();
 
   constructor(
-    private httpService: HttpEventService,
+    public httpService: HttpEventService,
     private tokenStorage: TokenStorageService,
     public dialog: MatDialog,
     private breakpointObserver: BreakpointObserver,
     private cd: ChangeDetectorRef,
-    private router: Router ) {}
+    private router: Router,
+    private kvDiffers: KeyValueDiffers,
+    private itDiffers: IterableDiffers ) {}
+
+  ngOnChanges(){}
+
+  /* ngDoCheck(){
+    if (this.roomsArrDiffer){
+        const changes = this.roomsArrDiffer.diff(this.rooms);
+        if (changes) {
+          changes.forEachChangedItem((r) => {
+            this.cd.markForCheck();
+            console.log("DemoApp changed r item",r);
+          });
+      }
+    }
+  } */
+
+  ngOnInit() {
+    this.httpService.getRooms().subscribe(result=>{
+      if( typeof result !=='undefined'){
+        let roomsArr = result as any;
+        let roomsArrVals = typeof roomsArr.rooms !== 'undefined'? Object.values(roomsArr.rooms):[];
+        let roomNames = roomsArrVals.map( (tablerow : {'row':string,'title':string}) => {
+        return tablerow.title
+      })
+      //console.log("DemoApp  getRooms().subscribe typeof roomNames:", roomNames);
+      this.httpService.roomNamesArr$.next(roomNames);
+      } 
+      
+    })
+    this.httpService.roomNamesArr$.subscribe((roomNamesArr)=>{
+      //console.log("DemoApp  roomNamesArr$.subscribe typeof roomNamesArr:", roomNamesArr);
+      this.rooms = roomNamesArr;
+    });
+
+    this.getDbUsers();
+    this.subscribeToInsertDelEvt();
+    
+    const CALENDAR_RESPONSIVE = {
+      small: {
+        breakpoint: '(max-width: 576px)',
+        daysInWeek: 2,
+        isMobile : true
+      },
+      medium: {
+        breakpoint: '(max-width: 768px)',
+        daysInWeek: 3,
+        isMobile : true
+      },
+      large: {
+        breakpoint: '(max-width: 960px)',
+        daysInWeek: 5,
+        isMobile : false
+      },
+    };
+
+    this.breakpointObserver
+      .observe(
+        Object.values(CALENDAR_RESPONSIVE).map(({ breakpoint }) => breakpoint)
+      )
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((state: BreakpointState) => {
+        const foundBreakpoint = Object.values(CALENDAR_RESPONSIVE).find(
+          ({ breakpoint }) => !!state.breakpoints[breakpoint]
+        );
+        this.isMobLayout = false;
+        if (foundBreakpoint) {
+          //this.daysInWeek = foundBreakpoint.daysInWeek;
+          this.isMobLayout = foundBreakpoint.isMobile;
+          //console.log("is Mob Layout",foundBreakpoint.isMobile);
+        } else {
+          //this.daysInWeek = 7;
+          //console.log("between Mob Layout state",foundBreakpoint.isMobile)
+        }
+        this.cd.markForCheck();
+      }); 
+  }
 
   getDbUsers(){
     this.httpService.getUsers().subscribe(
@@ -78,18 +159,17 @@ export class DemoAppComponent implements OnInit, OnDestroy{
             if(response.hasOwnProperty('users')) {
               let storageUsrObj = this.tokenStorage.getUser();
               this.loggedInUserId = storageUsrObj.id;
-              console.log("getDBUsers()  storageUsrObj.user_email", storageUsrObj.user_email);
+              //console.log("getDBUsers()  storageUsrObj.user_email", storageUsrObj.user_email);
             
               let respObj  = response as any ;
               for (let pythUser of respObj.users){
                 this.users.push(pythUser);
               }
               this.users = [...this.users];
-              console.log("getDBUsers() this.users",this.users)
+              //console.log("getDBUsers() this.users",this.users)
             } else {
-              console.log("getDbUsers() string response msg:",response);
+              //console.log("getDbUsers() string response msg:",response);
               this.tokenStorage.signOut();
-              this.router.navigate(['login',{session: 'expired' }]);
             }
             
           },
@@ -136,9 +216,8 @@ export class DemoAppComponent implements OnInit, OnDestroy{
         //console.log("getDbEvents() Follows events : ");  
         //console.log(this.events);
       } else {
-        console.log("getDbEvents() string response msg:",response);
+        //console.log("getDbEvents() string response msg:",response);
         this.tokenStorage.signOut();
-        this.router.navigate(['login',{session: 'expired' }]);
       }
   })
   }
@@ -152,57 +231,9 @@ export class DemoAppComponent implements OnInit, OnDestroy{
   })
   }
 
-  ngOnChanges(){}
-
-  ngOnInit() {
-    this.getDbUsers();
-    this.subscribeToInsertDelEvt();
-    
-    const CALENDAR_RESPONSIVE = {
-      small: {
-        breakpoint: '(max-width: 576px)',
-        daysInWeek: 2,
-        isMobile : true
-      },
-      medium: {
-        breakpoint: '(max-width: 768px)',
-        daysInWeek: 3,
-        isMobile : true
-      },
-      large: {
-        breakpoint: '(max-width: 960px)',
-        daysInWeek: 5,
-        isMobile : false
-      },
-    };
-
-    this.breakpointObserver
-      .observe(
-        Object.values(CALENDAR_RESPONSIVE).map(({ breakpoint }) => breakpoint)
-      )
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((state: BreakpointState) => {
-        const foundBreakpoint = Object.values(CALENDAR_RESPONSIVE).find(
-          ({ breakpoint }) => !!state.breakpoints[breakpoint]
-        );
-        this.isMobLayout = false;
-        if (foundBreakpoint) {
-          //this.daysInWeek = foundBreakpoint.daysInWeek;
-          this.isMobLayout = foundBreakpoint.isMobile;
-          //console.log("is Mob Layout",foundBreakpoint.isMobile);
-        } else {
-          //this.daysInWeek = 7;
-          //console.log("between Mob Layout state",foundBreakpoint.isMobile)
-        }
-        this.cd.markForCheck();
-      }); 
-  }
-
   deleteEvent(ids : number[]){
     this.httpService.deleteEvent(ids);
   }
-
-  rooms : string[] = ["Møterom stort", "Møterom lite", "Møterom 214", "Møterom 210" , "Aktivitets plan"];
 
   openDialog(clickedWeekViewEvent : {
     event: CalendarEvent;

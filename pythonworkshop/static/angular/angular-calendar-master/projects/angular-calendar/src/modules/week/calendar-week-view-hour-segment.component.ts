@@ -22,7 +22,7 @@ export interface PythEvent {
   id? : number;
   uid : string;
   userId? : number;
-  row : string;
+  rowname : string;
   title : string;
   start : string;
   end : string;
@@ -159,13 +159,16 @@ export class CalendarWeekViewHourSegmentComponent {
 
   @Input() customTemplate: TemplateRef<any>;
 
+  segmRoomNames : string[]=[''];
+
   currentRoom : string;
+  currentRoomNum : number;
 
   @Input() set currentRoomIndex ( roomNum : number) {
-    this.currentRoom = this.rooms[roomNum]
+    //console.log("HourSegmComp segmRoomNames",this.segmRoomNames);
+    this.currentRoomNum = roomNum;
+    this.currentRoom = this.segmRoomNames[roomNum]
   }
-
-  rooms : string[] = ["Møterom stort", "Møterom lite", "Møterom 214", "Møterom 210" , "Aktivitets plan"];
 
 
   pythEvt : PythEvent;
@@ -222,7 +225,13 @@ export class CalendarWeekViewHourSegmentComponent {
   ngOnInit(){
     this.httpService.clickedEvent.subscribe((clickedEvt) =>{
       this.openDialog();
-    })
+    });
+
+    this.httpService.roomNamesArr$.subscribe((roomNamesArr)=>{
+      this.segmRoomNames = roomNamesArr;
+      this.currentRoomIndex = this.currentRoomNum;
+      //console.log("HourSegmComp  roomNamesArr$.subscribe:",this.segmRoomNames);
+    });
   }
 
   private events : CalendarEvent[] = [];
@@ -282,7 +291,7 @@ export class CalendarWeekViewHourSegmentComponent {
         const dialogRef = this.dialog.open(EventDialog, {
           data: {
             date: this.segment.date,
-            rooms: this.rooms,
+            rooms: this.segmRoomNames,
             romIndex: this.roomInd,
             hourContainedEvTitle: hourContainedEvTitle
           },
@@ -298,7 +307,7 @@ export class CalendarWeekViewHourSegmentComponent {
               {
                 uid: uniqueId,
                 userId: this.loggedInUserId,
-                row: this.roomInd.toString(),
+                rowname: this.segmRoomNames[this.roomInd],
                 title: result.dayPeriodVal,
                 start: startEndDate.start,
                 end: startEndDate.end,

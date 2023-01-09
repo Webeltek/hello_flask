@@ -9,14 +9,19 @@ import { MatSidenav } from '@angular/material/sidenav';
 import { delay, filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
+import { FormBuilder, FormGroup, FormControl, FormArray, Validators } from '@angular/forms';
 import { PythEvent } from 'projects/angular-calendar/src/modules/week/calendar-week-view-hour-segment.component';
 import { MatTableDataSource} from '@angular/material/table';
 import { CalendarEvent } from 'calendar-utils';
 import { DataSource } from '@angular/cdk/collections';
-import {Observable, ReplaySubject} from 'rxjs';
+import { Observable, ReplaySubject} from 'rxjs';
 import { DatePipe} from '@angular/common';
 import { SelectionModel } from '@angular/cdk/collections';
+
+export interface Room {
+  row: string,
+  title: string
+}
 
 @UntilDestroy()
 @Component({
@@ -39,12 +44,15 @@ export class HomeComponent implements OnInit, OnDestroy {
   userEmail : string = '';
   loginStateSubscription: Subscription = new Subscription();
   breakPointObsSubscr : Subscription = new Subscription();
-  roomsWithAll : string[] = ["alle rom","Møterom stort", "Møterom lite", "Møterom 214", "Møterom 210" , "Aktivitets plan"];
+  roomNamesArr : string[] = [];
   toDelPythEvts : PythEvent[] = [];
 
 
   ngOnInit(): void {
-    
+    this.httpService.roomNamesArr$.subscribe((roomNamesArr)=>{
+      this.roomNamesArr= roomNamesArr;
+      //console.log("HomeComp ngOnInit() roomNamesArr",this.roomNamesArr);
+    })
   }
 
   
@@ -96,15 +104,19 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   editEvents(){
+    console.log("HomeC editEvents() this.roomNamesArr: ",this.roomNamesArr)
     const dialogRef = this.dialog.open(EditEventsDialog, {
       data: {
-        rooms: this.roomsWithAll
+        rooms: this.roomNamesArr
       },
     });
 
     dialogRef.afterClosed().subscribe(
       (obj) => {
-        if (typeof obj.selectedRowsIds !== 'undefined') {
+        if (this.roomNamesArr[0]==="alle rom"){
+          this.roomNamesArr.shift();
+        }
+        if (typeof obj!=='undefined' && typeof obj.selectedRowsIds !== 'undefined') {
           this.delEvents(obj.selectedRowsIds);
           //console.log("HomeComp to delete ids",obj.selectedRowsIds)
         }
@@ -118,27 +130,35 @@ export class HomeComponent implements OnInit, OnDestroy {
   editRooms(){
     const dialogRef = this.dialog.open(EditRoomsDialog, {
       data: {
-        rooms: this.roomsWithAll
+        rooms: this.roomNamesArr
       },
     });
 
     dialogRef.afterClosed().subscribe(
-      (result) => {
-        if (typeof result !== 'undefined') {
-          
+      (obj) => {
+        if (typeof obj !== 'undefined' && typeof obj.toEditRooms !== 'undefined') {
+          console.log("HomeComp dial afterClosed() obj.toEditRooms",obj.toEditRooms);
+          let roomTitles: string[] = obj.toEditRooms;
+          this.httpService.updateRooms(roomTitles);
+        } else if(typeof obj == 'undefined'){
+          console.log("HomeC dial afterClosed obj is undefined")
         }
       },
       (error) => {
         console.log("HomeComp editRooms() afterClosed() error : " + error);
       }
     );
+
+    dialogRef.backdropClick().subscribe((mouseEvent)=>{
+      let roomTitles: string[] = this.httpService.roomNamesArr$.getValue()
+      console.log("HomeC editRooms() backdropClick() roomTitles:",roomTitles)
+    })
   }
 
   ngOnDestroy(){
     this.breakPointObsSubscr.unsubscribe();
     this.loginStateSubscription.unsubscribe();
   }
-
 }
 
 export interface TableRow {
@@ -162,7 +182,13 @@ export class EditEventsDialog {
       @Inject(MAT_DIALOG_DATA) public data: {
         rooms : string[]},
         private httpService: HttpEventService,
-        private tokenStorage: TokenStorageService,) {}
+        private tokenStorage: TokenStorageService,) {
+          if (this.data.rooms[0]!=="alle rom"){
+            this.data.rooms.unshift("alle rom");
+            console.log("EditEventsDial  unshifted rooms: ",this.data.rooms)
+          }
+        }
+
 
   rooms : string[]= this.data.rooms;
   users : PythUser[] = [];
@@ -310,7 +336,6 @@ export class EditEventsDialog {
   }
 
   closeDialog(){
-    
   }
   
 
@@ -344,22 +369,86 @@ class ExampleDataSource extends DataSource<TableRow> {
   }
 }
 
+export interface MarkedRoomToDel{
+  idx: number,
+  markedToDel : boolean
+} 
+
 @Component({
   selector: 'edit-rooms-dialog',
   templateUrl: 'edit.rooms.html',
   styleUrls: ['./home.component.scss']
 })
 
-export class EditRoomsDialog {
-  constructor( public dialogRef: MatDialogRef<EditEventsDialog>,
+export class EditRoomsDialog implements OnInit{
+  constructor( public dialogRef: MatDialogRef<EditRoomsDialog>,
       @Inject(MAT_DIALOG_DATA) public data: {
         rooms : string[] },
         private httpService: HttpEventService,
-        private tokenStorage: TokenStorageService,) {}
+        private tokenStorage: TokenStorageService,
+        public fb: FormBuilder) {
+        }
 
   rooms : string[] = this.data.rooms;
   users : PythUser[] = [];
   events : CalendarEvent[] = [];
   pythEvents : PythEvent[] = [];
+  markedRoomsToDel : MarkedRoomToDel[]=[];
 
-      }
+  roomsFormGroup = this.fb.group({
+    roomsArr : this.fb.array([])
+  });
+
+  ngOnInit(): void {
+    for (let roomInd =0; roomInd < this.rooms.length; roomInd++){
+      this.roomsArr.push(this.fb.control(this.rooms[roomInd]));
+    }
+    for (let roomInd =0; roomInd < this.roomsArr.value.length; roomInd++){
+        this.markedRoomsToDel.push({idx:roomInd,markedToDel:false});
+    }
+  }
+
+  get roomsArr(){
+    return this.roomsFormGroup.get('roomsArr') as FormArray;
+  }
+
+  updateInput(roomName:string,idx:number){
+    //console.log("HomeComp keyup val",roomName);
+    this.roomsArr.at(idx).setValue(roomName);
+    this.roomsArr.at(idx).setValidators([Validators.minLength(10)])
+    this.roomsArr.at(idx).updateValueAndValidity();
+    console.log("HomeComp roomsDialog updateInput() is invalid",this.roomsArr.at(idx).invalid); 
+    console.log("HomeComp roomsDialog updateInput() status",this.roomsArr.at(idx).status); 
+  }
+
+  addRoom(newRoomName: string){
+    this.httpService.insertRoom({row:'',title:newRoomName})
+    this.roomsArr.push(this.fb.control(newRoomName));
+  }
+
+  removeRoom(idx: number){
+    console.log("HomeC roomsArr room to delete: ",this.roomsArr.value[idx])
+    this.httpService.deleteRoom({row:idx.toString(),title:this.roomsArr.value[idx]});
+    this.roomsArr.removeAt(idx);
+    this.markedRoomsToDel = [];
+    for (let roomInd =0; roomInd < this.roomsArr.value.length; roomInd++){
+      this.markedRoomsToDel.push({idx:roomInd,markedToDel:false});
+    }
+    console.log("HomeC markedRoomsToDel:",this.markedRoomsToDel)
+  }
+
+  onSubmit(){
+    let roomNames : string[]= [];
+    let controls = this.roomsArr.controls;
+    for (let control of controls){
+      control.updateValueAndValidity();
+      console.log("HomeComp roomsDialog onSubmit() errors",control.errors); 
+    }
+    this.dialogRef.close({
+      toEditRooms: this.roomsArr.value,
+      } )
+
+  }
+
+
+}

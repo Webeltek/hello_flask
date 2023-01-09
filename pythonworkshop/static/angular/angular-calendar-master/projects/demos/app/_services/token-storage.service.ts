@@ -1,5 +1,6 @@
 import { Injectable ,  Output, EventEmitter} from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { Router } from '@angular/router'
 
 
 const CONFIRM_KEY = 'confirm-token'
@@ -10,7 +11,7 @@ const USER_KEY = 'auth-user';
   providedIn: 'root'
 })
 export class TokenStorageService {
-  constructor() { }
+  constructor(private router: Router) { }
 
   authenticated$: BehaviorSubject<boolean> = new BehaviorSubject(false);
   currenLoginState = this.authenticated$.asObservable();
@@ -18,6 +19,7 @@ export class TokenStorageService {
   signOut(): void {
     window.sessionStorage.clear();
     this.authenticated$.next(false);
+    this.router.navigate(['login',{session: 'expired' }]);
   }
 
   public saveConfirmToken(token: string): void {
@@ -41,6 +43,7 @@ export class TokenStorageService {
       return window.sessionStorage.getItem(TOKEN_KEY);
     } else {
       this.authenticated$.next(false);
+      this.router.navigate(['login',{session: 'expired' }]);
       return null;
     }
   }
@@ -56,8 +59,7 @@ export class TokenStorageService {
     if (user) {
       //console.log("tokenStorage getUser():",JSON.parse(user))
       return JSON.parse(user);
-    }
-
+    } 
     return {};
   }
 }
