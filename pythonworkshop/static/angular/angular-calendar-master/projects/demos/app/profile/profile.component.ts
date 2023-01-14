@@ -24,7 +24,7 @@ export class ProfileComponent implements OnInit {
   };
 
   ngOnInit(): void {
-    this.tokenStorage.getUser();
+    this.user=this.tokenStorage.getUser();
   }
 
 }

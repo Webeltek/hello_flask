@@ -60,6 +60,7 @@ class User(p.Model):
 
   def login_user(self):
     self.user_is_logged_in = True
+    self.last_seen = datetime.datetime.now(tz=datetime.timezone.utc)
     self.save()
   
   def generate_access_token(self, expiration=3600):

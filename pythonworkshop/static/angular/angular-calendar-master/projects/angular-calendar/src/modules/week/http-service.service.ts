@@ -53,6 +53,7 @@ export class HttpEventService{
                     roomNames.push(room.title);
                 }
                 this.roomNamesArr$.next(roomNames);
+                this.addedEvent.emit(null);
                 console.log("HttpServ insertRoom() response: " + JSON.stringify(response));
                 },
                 (error) => { console.log("HttpServ insertRoom() error : " + JSON.stringify(error)) ; }
@@ -69,6 +70,7 @@ export class HttpEventService{
                     roomNames.push(room.title);
                 }
                 this.roomNamesArr$.next(roomNames);
+                this.addedEvent.emit(null);
                 console.log("deleteEvent() response: " + JSON.stringify(response));
                 },
                 (error) => { console.log("deleteRoom() error : " + JSON.stringify(error)) ; }

@@ -9,7 +9,7 @@ import { MatSidenav } from '@angular/material/sidenav';
 import { delay, filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { FormBuilder, FormGroup, FormControl, FormArray, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormControl, FormArray, Validators, ValidatorFn, AbstractControl } from '@angular/forms';
 import { PythEvent } from 'projects/angular-calendar/src/modules/week/calendar-week-view-hour-segment.component';
 import { MatTableDataSource} from '@angular/material/table';
 import { CalendarEvent } from 'calendar-utils';
@@ -394,16 +394,45 @@ export class EditRoomsDialog implements OnInit{
   events : CalendarEvent[] = [];
   pythEvents : PythEvent[] = [];
   markedRoomsToDel : MarkedRoomToDel[]=[];
+  objErrValStr = '';
 
   roomsFormGroup = this.fb.group({
     roomsArr : this.fb.array([])
   });
 
+  isRoomDuplicate ( atIdxAbsCtrl: AbstractControl, contrIdx: number ): ValidatorFn {
+    return ( atIdxAbsCtrl ): Record<string, any> | null => {
+      let names: string[] = this.roomsArr.value;
+  
+      //console.log("HomeC isRoomDuplicate() names: ",names);
+      const isDuplicate= names?.filter((el,index)=> {
+        //console.log("HomeC isRoomDuplicate() contrIdx , names.indexOf(el) , el, atIdxAbsCtrl.value : ",
+        //contrIdx, index , el , atIdxAbsCtrl.value);
+        return contrIdx!= index && el === atIdxAbsCtrl.value;
+      })?.length>=1;
+
+        
+        const isUnique = isDuplicate ? "must be unique" : "";  
+        const minLength = atIdxAbsCtrl.value.length < 3 ? "must be at least 3 characters" : "";
+        const errorObj =  { error : isUnique+minLength };
+        console.log("HomeC isRoomDuplicate() isRoomDuplicate().error:",errorObj.error)
+        
+      return errorObj.error.length>0 ? errorObj: null;
+    }
+  }
+
+  updateValidators(){
+    for (let roomInd =0; roomInd < this.roomsArr.length; roomInd++){
+      this.roomsArr.at(roomInd).setValidators([this.isRoomDuplicate(this.roomsArr.at(roomInd),roomInd)])
+    }
+  }
+
   ngOnInit(): void {
     for (let roomInd =0; roomInd < this.rooms.length; roomInd++){
       this.roomsArr.push(this.fb.control(this.rooms[roomInd]));
     }
-    for (let roomInd =0; roomInd < this.roomsArr.value.length; roomInd++){
+    this.updateValidators();
+    for (let roomInd =0; roomInd < this.roomsArr.length; roomInd++){
         this.markedRoomsToDel.push({idx:roomInd,markedToDel:false});
     }
   }
@@ -413,17 +442,19 @@ export class EditRoomsDialog implements OnInit{
   }
 
   updateInput(roomName:string,idx:number){
-    //console.log("HomeComp keyup val",roomName);
     this.roomsArr.at(idx).setValue(roomName);
-    this.roomsArr.at(idx).setValidators([Validators.minLength(10)])
     this.roomsArr.at(idx).updateValueAndValidity();
-    console.log("HomeComp roomsDialog updateInput() is invalid",this.roomsArr.at(idx).invalid); 
-    console.log("HomeComp roomsDialog updateInput() status",this.roomsArr.at(idx).status); 
+    this.objErrValStr = this.roomsArr.at(idx).errors? this.roomsArr.at(idx).errors.error : "";
+    // console.log("HomeC updateInput() this.roomsArr.value ", this.roomsArr.value);
+    // console.log("HomeComp roomsDialog updateInput() errors",this.roomsArr.at(idx).errors)
+    // console.log("HomeComp roomsDialog updateInput() is invalid",this.roomsArr.at(idx).invalid); 
+    // console.log("HomeComp roomsDialog updateInput() status",this.roomsArr.at(idx).status); 
   }
 
   addRoom(newRoomName: string){
     this.httpService.insertRoom({row:'',title:newRoomName})
     this.roomsArr.push(this.fb.control(newRoomName));
+    this.updateValidators();
   }
 
   removeRoom(idx: number){
@@ -434,6 +465,7 @@ export class EditRoomsDialog implements OnInit{
     for (let roomInd =0; roomInd < this.roomsArr.value.length; roomInd++){
       this.markedRoomsToDel.push({idx:roomInd,markedToDel:false});
     }
+    this.updateValidators();
     console.log("HomeC markedRoomsToDel:",this.markedRoomsToDel)
   }
 
@@ -442,12 +474,15 @@ export class EditRoomsDialog implements OnInit{
     let controls = this.roomsArr.controls;
     for (let control of controls){
       control.updateValueAndValidity();
-      console.log("HomeComp roomsDialog onSubmit() errors",control.errors); 
+      console.log("HomeComp roomsDialog onSubmit() control.errors: ",control.errors); 
+      console.log("HomeComp roomsDialog onSubmit() valid",this.roomsArr.valid); 
     }
-    this.dialogRef.close({
-      toEditRooms: this.roomsArr.value,
-      } )
-
+    if(this.roomsArr.valid) {
+      this.dialogRef.close({
+        toEditRooms: this.roomsArr.value,
+        })
+  
+    }
   }
 
 

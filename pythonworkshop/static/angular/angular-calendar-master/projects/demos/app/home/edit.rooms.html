@@ -5,9 +5,11 @@
     <div formArrayName="roomsArr" *ngFor="let currRoom of roomsArr.controls; index as idx;last as isLast">
         <mat-form-field appearance="fill">
           <mat-label>{{currRoom.value}}</mat-label>
-          <input matInput placeholder="Placeholder" #roomName (keyup)="updateInput(roomName.value,idx)">
+          <input matInput placeholder="Placeholder" #roomName 
+            (keyup)="updateInput(roomName.value,idx)">
           <mat-icon matSuffix>meeting_room</mat-icon>
-          <mat-hint class="hint-warn-color"  *ngIf="currRoom.invalid">minLength</mat-hint>
+          <mat-hint class="hint-warn-color"  
+            *ngIf="currRoom.invalid">{{objErrValStr}}</mat-hint>
         </mat-form-field>
         <button mat-icon-button color="warn" (click)="markedRoomsToDel[idx].markedToDel=true">
           <mat-icon>remove_circle</mat-icon>
@@ -22,7 +24,6 @@
 </div>
 <div mat-dialog-actions>
   <button mat-button 
-  mat-dialog-close
   color="primary" 
   type="submit"
   (click)="onSubmit()">Save rooms</button>
