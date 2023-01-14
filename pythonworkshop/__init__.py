@@ -12,7 +12,7 @@ from flask_moment import Moment
 from config import config, DevelopmentConfig
 from flask_executor import Executor
 #from flask_socketio import SocketIO
-#from flask_cors import CORS, cross_origin
+from flask_cors import CORS, cross_origin
 
 
 templ_dir = os.path.abspath('pythonworkshop/templates')
@@ -38,6 +38,8 @@ def create_app(config_name):
   mail.init_app(app)
   moment.init_app(app)
   executor.init_app(app)
+
+  cors = CORS(app, resources={r"*/api/*/*": {"origins": "*"}})
   #login_manager.init_app(app)
   print('mail server: ' + app.config['MAIL_SERVER'])
   print('ENV value: ' + app.config['ENV'])

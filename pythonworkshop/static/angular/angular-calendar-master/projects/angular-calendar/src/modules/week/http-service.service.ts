@@ -21,6 +21,8 @@ export class HttpEventService{
     private deleteRoomUrl = "/api/services/deleteroom";
     private updateRoomsUrl = "/api/services/updaterooms";
 
+    private baseurl = 'http://138.109-247-35.customer.lyse.net';
+
     @Output() addedEvent: EventEmitter<any> = new EventEmitter();
 
     @Output() deletedEvent: EventEmitter<any> = new EventEmitter();
@@ -39,12 +41,12 @@ export class HttpEventService{
     roptions = { headers : this.httpHeaders, observe: 'body', responseType : 'json'}
 
     getRooms(){
-        return this.http.get(this.roomsUrl,
+        return this.http.get(this.baseurl+this.roomsUrl,
             { headers : this.httpHeaders, observe: 'body', responseType : 'json'})
     }
 
     insertRoom(room: Room ){
-        this.http.post(this.insertRoomUrl, room, 
+        this.http.post(this.baseurl+this.insertRoomUrl, room, 
             { headers : this.httpHeaders, observe: 'body', responseType : 'json'} ) 
             .subscribe((response) =>{
                 let roomNames : string[]=[];
@@ -61,7 +63,7 @@ export class HttpEventService{
     }
 
     deleteRoom(room : Room ){
-        this.http.post(this.deleteRoomUrl, room,
+        this.http.post(this.baseurl+this.deleteRoomUrl, room,
             { headers : this.httpHeaders, observe: 'body', responseType : 'json'} ) 
             .subscribe((response) =>{
                 let roomNames : string[]=[];
@@ -78,7 +80,7 @@ export class HttpEventService{
     }
 
     updateRooms(roomTitles: string[] ){
-        this.http.post(this.updateRoomsUrl, roomTitles, 
+        this.http.post(this.baseurl+this.updateRoomsUrl, roomTitles, 
             { headers : this.httpHeaders, observe: 'body', responseType : 'json'} ) 
             .subscribe((response) =>{
                 let roomNames : string[]=[];
@@ -96,17 +98,17 @@ export class HttpEventService{
 
 
     getEvents(){
-        return this.http.get(this.servicesUrl,
+        return this.http.get(this.baseurl+this.servicesUrl,
             { headers : this.httpHeaders, observe: 'body', responseType : 'json'})
     }
 
     getUsers(){
-        return this.http.get(this.usersUrl,
+        return this.http.get(this.baseurl+this.usersUrl,
             { headers : this.httpHeaders, observe: 'body', responseType : 'json'})
     }
 
     insertEvent(pythEvent : PythEvent ){
-    this.http.post(this.insertUrl, pythEvent, 
+    this.http.post(this.baseurl+this.insertUrl, pythEvent, 
         { headers : this.httpHeaders, observe: 'body', responseType : 'json'} ) 
         .subscribe((response) =>{
             this.addedEvent.emit(null);
@@ -117,7 +119,7 @@ export class HttpEventService{
     }
 
     deleteEvent(ids : number[] ){
-        this.http.post(this.deleteUrl, {numList: ids},
+        this.http.post(this.baseurl+this.deleteUrl, {numList: ids},
             { headers : this.httpHeaders, observe: 'body', responseType : 'json'} ) 
             .subscribe((response) =>{
                 this.deletedEvent.emit(null);

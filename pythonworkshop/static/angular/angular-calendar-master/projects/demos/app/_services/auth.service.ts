@@ -6,6 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 //import { Socket } from 'ngx-socket-io'; 
 
 const AUTH_API = '/api/auth/';
+const baseurl = 'https://138.109-247-35.customer.lyse.net';
 
 
 @Injectable({
@@ -23,21 +24,21 @@ export class AuthService {
 });
 
   login(email: string, password: string) {
-    return this.http.post(AUTH_API + 'login', {
+    return this.http.post(baseurl+AUTH_API + 'login', {
       email,
       password
     }, { headers : this.httpHeaders, observe : 'body'});
   }
 
   register( email: string, password: string): Observable<any> {
-    return this.http.post(AUTH_API + 'register', {
+    return this.http.post(baseurl+AUTH_API + 'register', {
       email : email,
       password : password
     }, { headers : this.httpHeaders, observe : 'response', responseType : 'json'} );
   }
 
   confirm( token : string): Observable<any>{
-    return this.http.get(AUTH_API + 'confirm/'+token, 
+    return this.http.get(baseurl+AUTH_API + 'confirm/'+token, 
       { headers: this.httpHeaders, observe: 'body', responseType : 'json'});
   }
 
