@@ -27,36 +27,84 @@
         <div class="row text-center">
             <div class="col-md-4">
                 <div  class="btn-group">
-                    <div class="btn btn-primary" mwlCalendarPreviousView 
+                    <div class="btn btn-primary" mwlCalendarPreviousView
+                    (viewDateChange)="activeDayIsOpen=false" 
                     [view]="view" [(viewDate)]="viewDate">
                         Previous
                     </div>
-                    <div class="btn btn-outline-secondary" mwlCalendarToday [(viewDate)]="viewDate">
+                    <div class="btn btn-outline-secondary" mwlCalendarToday
+                    (viewDateChange)="activeDayIsOpen=false" 
+                    [(viewDate)]="viewDate">
                         Today
                     </div>
-                    <div class="btn btn-primary" mwlCalendarNextView 
+                    <div class="btn btn-primary" mwlCalendarNextView
+                    (viewDateChange)="activeDayIsOpen=false" 
                     [view]="view" [(viewDate)]="viewDate">
                         Next
                     </div>
                 </div>
             </div>
+            <div class="col-md-4">
+                <h3>{{ viewDate | calendarDate:(view + 'ViewTitle'):'en':1 }}</h3>
+              </div>
+            <div class="col-md-4">
+                <div class="btn-group">
+                  <div
+                    class="btn btn-primary"
+                    (click)="setView(CalendarView.Month)"
+                    [class.active]="view === CalendarView.Month"
+                  >
+                    Month
+                  </div>
+                  <div
+                    class="btn btn-primary"
+                    (click)="setView(CalendarView.Week)"
+                    [class.active]="view === CalendarView.Week"
+                  >
+                    Week
+                  </div>
+                </div>
+            </div>
         </div>
+        <br />
+        <ng-container *ngIf="view === CalendarView.Month; then calMonthTempl else expandWeekTempl">
+        </ng-container>
+        <ng-template #calMonthTempl>
+            <mwl-calendar-month-view
+              [viewDate]="viewDate"
+              [weekStartsOn]=1
+              [events]="events"
+              [refresh]="refresh"
+              [activeDayIsOpen]="activeDayIsOpen"
+              (dayClicked)="dayClicked($event.day)"
+            [rooms]="rooms"
+            [dayStartHour]="0" 
+            [loggedInUserId]="loggedInUserId" 
+            [events]="events"
+            (eventClicked)="openDialog($event)"
+            >
+            </mwl-calendar-month-view>
+        </ng-template>
+        <ng-template #expandWeekTempl>
+            <ng-container *ngIf="isML; then mobWeekTempl else wideWeekTempl">
+            </ng-container>
+        </ng-template>
     </ng-template>
-    <ng-container *ngIf="isML; then mobWeekTempl else wideWeekTempl">
-    </ng-container>     
+         
 </ng-template>
 <ng-template #wideWeekTempl>
     <mwl-calendar-week-view  
             [locale]="locale"
+            [isOpen]="true"
             [roomNames]="rooms"
             [dayStartHour]="0" 
             [dayEndHour]="rooms.length-1" 
-            [viewDate]="viewDate" 
-            [daysInWeek]="daysInWeek"
+            [viewDate]="viewDate"
+            [weekStartsOn]=1
             [loggedInUserId]="loggedInUserId" 
             [events]="events"
             (eventClicked)="openDialog($event)">
-        </mwl-calendar-week-view>
+     </mwl-calendar-week-view>
 </ng-template>
 <ng-template #mobWeekTempl >
     <mwl-calendar-week-view-mob
@@ -65,7 +113,7 @@
             [dayStartHour]="0" 
             [dayEndHour]="rooms.length-1" 
             [viewDate]="viewDate" 
-            [daysInWeek]="daysInWeek"
+            [weekStartsOn]=1
             [loggedInUserId]="loggedInUserId" 
             [events]="events"
             (eventClicked)="openDialog($event)">

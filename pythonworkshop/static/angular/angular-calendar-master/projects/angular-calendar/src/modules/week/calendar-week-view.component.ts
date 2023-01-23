@@ -61,6 +61,15 @@ import {
   ValidateDrag,
 } from 'angular-draggable-droppable';
 import { PlacementArray } from 'positioning';
+import { collapseAnimation } from '../month/calendar-month.module';
+import {
+  trigger,
+  style,
+  state,
+  transition,
+  animate,
+  AnimationTriggerMetadata,
+} from '@angular/animations';
 
 export interface WeekViewAllDayEventResize {
   originalOffset: number;
@@ -82,11 +91,35 @@ export interface CalendarWeekViewBeforeRenderEvent extends WeekView {
  * </mwl-calendar-week-view>
  * ```
  */
+/* export const collapseAnimation: AnimationTriggerMetadata = trigger('collapse', [
+  state(
+    'void',
+    style({
+      height: 0,
+      overflow: 'hidden',
+      'padding-top': 0,
+      'padding-bottom': 0,
+    })
+  ),
+  state(
+    '*',
+    style({
+      height: '*',
+      overflow: 'hidden',
+      'padding-top': '*',
+      'padding-bottom': '*',
+    })
+  ),
+  transition('* => void', animate('150ms ease-out')),
+  transition('void => *', animate('150ms ease-in')),
+]); */
+
 @Component({
   selector: 'mwl-calendar-week-view',
   encapsulation : ViewEncapsulation.ShadowDom,
   styleUrls: ['./calendar-week-view.scss'],
-  templateUrl: './calendar-week-view.html'
+  templateUrl: './calendar-week-view.html',
+  animations: [collapseAnimation]
 })
 export class CalendarWeekViewComponent
   implements OnChanges, OnInit, OnDestroy, AfterViewInit
@@ -95,6 +128,8 @@ export class CalendarWeekViewComponent
    * The current view date
    */
   @Input() viewDate: Date;
+
+  @Input() isOpen: boolean = true;
 
   /**
    * An array of events to display on view

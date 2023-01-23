@@ -2,7 +2,10 @@ import { Component, Input,
   OnInit, Output, EventEmitter,
   ChangeDetectionStrategy,
   OnDestroy,
-  ChangeDetectorRef, KeyValueDiffers,IterableDiffers, DoCheck } from '@angular/core';
+  ChangeDetectorRef, KeyValueDiffers,IterableDiffers, 
+  DoCheck,
+  ViewChild,
+  TemplateRef, ElementRef } from '@angular/core';
 import { BreakpointObserver, BreakpointState } from '@angular/cdk/layout';
 import { 
   CalendarDateFormatter,
@@ -18,6 +21,8 @@ import { HttpResponse } from '@angular/common/http';
 import { Router, ActivatedRoute, ParamMap  } from '@angular/router';
 import { TokenStorageService } from './_services/token-storage.service';
 import { stringify } from 'querystring';
+import { isSameDay,isSameMonth} from 'date-fns';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 export interface PythUser {
   id : number; 
@@ -53,6 +58,8 @@ export class DemoAppComponent implements OnInit, OnDestroy{
   weekStartsOn: number = DAYS_OF_WEEK.MONDAY;
   weekendDays: number[] = [DAYS_OF_WEEK.FRIDAY, DAYS_OF_WEEK.SATURDAY];
 
+  refresh = new Subject<void>();
+
   setView(view: CalendarView) {
     this.view = view;
   }
@@ -75,7 +82,8 @@ export class DemoAppComponent implements OnInit, OnDestroy{
     private cd: ChangeDetectorRef,
     private router: Router,
     private kvDiffers: KeyValueDiffers,
-    private itDiffers: IterableDiffers ) {}
+    private itDiffers: IterableDiffers,
+    private modal: NgbModal ) {}
 
   ngOnChanges(){}
 
@@ -276,6 +284,23 @@ export class DemoAppComponent implements OnInit, OnDestroy{
         }
         
       });
+    }
+  }
+
+  activeDayIsOpen: boolean = false;
+
+  dayClicked({ date, events }: { date: Date; events: CalendarEvent[] }): void {
+    if (isSameMonth(date, this.viewDate)) {
+      if (
+        (isSameDay(this.viewDate, date) && this.activeDayIsOpen === true) ||
+        events.length === 0
+      ) {
+        this.activeDayIsOpen = false;
+      } else {
+        this.activeDayIsOpen = true;
+      }
+      this.viewDate = date;
+      console.log("DemoAppC activeDayIsOpen",this.activeDayIsOpen)
     }
   }
 

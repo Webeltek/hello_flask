@@ -27,6 +27,7 @@ import { CalendarUtils } from '../common/calendar-utils.provider';
 import { validateEvents } from '../common/util';
 import { DateAdapter } from '../../date-adapters/date-adapter';
 import { PlacementArray } from 'positioning';
+import { collapseAnimation } from './calendar-open-day-events.component';
 
 export interface CalendarMonthViewBeforeRenderEvent {
   header: WeekDay[];
@@ -52,6 +53,7 @@ export interface CalendarMonthViewEventTimesChangedEvent<
  * ```
  */
 @Component({
+  animations : [collapseAnimation],
   selector: 'mwl-calendar-month-view',
   template: `
     <div class="cal-month-view" role="grid">
@@ -66,7 +68,9 @@ export interface CalendarMonthViewEventTimesChangedEvent<
         <div
           *ngFor="let rowIndex of view.rowOffsets; trackBy: trackByRowOffset"
         >
-          <div role="row" class="cal-cell-row">
+          <div role="row" class="cal-cell-row"
+          [@collapse]="closeDiffIdxRows(rowIndex)"
+           >
             <mwl-calendar-month-cell
               role="gridcell"
               *ngFor="
@@ -112,7 +116,7 @@ export interface CalendarMonthViewEventTimesChangedEvent<
           </div>
           <mwl-calendar-open-day-events
             [locale]="locale"
-            [isOpen]="openRowIndex === rowIndex"
+            [isOpen]="false"
             [events]="openDay?.events"
             [date]="openDay?.date"
             [customTemplate]="openDayEventsTemplate"
@@ -135,6 +139,23 @@ export interface CalendarMonthViewEventTimesChangedEvent<
             "
           >
           </mwl-calendar-open-day-events>
+          <mwl-calendar-week-view  
+            [locale]="locale"
+            [isOpen]="openRowIndex === rowIndex"
+            [roomNames]="rooms"
+            [dayStartHour]="0" 
+            [dayEndHour]="rooms.length-1" 
+            [viewDate]="viewDate" 
+            [weekStartsOn]=1
+            [loggedInUserId]="loggedInUserId" 
+            [events]="events"
+            (eventClicked)="eventClicked.emit(
+              {
+                event: $event.event,
+                sourceEvent: $event.sourceEvent
+              }
+            )">
+     </mwl-calendar-week-view>
         </div>
       </div>
     </div>
@@ -143,6 +164,10 @@ export interface CalendarMonthViewEventTimesChangedEvent<
 export class CalendarMonthViewComponent
   implements OnChanges, OnInit, OnDestroy
 {
+  @Input() rooms : string[];
+  @Input() dayStartHour: number;
+  @Input() daysInWeek: number;
+  @Input() loggedInUserId: number;
   /**
    * The current view date
    */
@@ -295,6 +320,7 @@ export class CalendarMonthViewComponent
    * @hidden
    */
   openRowIndex: number;
+  closeRowsBeforeOpenRowInd : boolean = false;
 
   /**
    * @hidden
@@ -465,17 +491,37 @@ export class CalendarMonthViewComponent
   protected checkActiveDayIsOpen(): void {
     if (this.activeDayIsOpen === true) {
       const activeDay = this.activeDay || this.viewDate;
-      this.openDay = this.view.days.find((day) =>
-        this.dateAdapter.isSameDay(day.date, activeDay)
+      this.openDay = this.view.days.find((day) => {
+        //console.log("MonthC  day.date, activeDay",day.date, activeDay);
+        //console.log("MonthC  days.find isSameMonth :",this.dateAdapter.isSameMonth(day.date, activeDay));
+        return this.dateAdapter.isSameDay(day.date, activeDay)
+        && this.dateAdapter.isSameMonth(day.date, activeDay);
+      }
       );
+      console.log("MonthC this.openDay:",this.openDay)
+      console.log("MonthC activeDay: ",activeDay)
+      console.log("MonthC ",this.viewDate)
       const index: number = this.view.days.indexOf(this.openDay);
+
       this.openRowIndex =
         Math.floor(index / this.view.totalDaysVisibleInWeek) *
         this.view.totalDaysVisibleInWeek;
+    console.log("MonthC openRowIndex, index, totalDaysVisibleInWeek:",this.openRowIndex,index,this.view.totalDaysVisibleInWeek)    
     } else {
       this.openRowIndex = null;
       this.openDay = null;
     }
+  }
+
+  closeDiffIdxRows(currentRowIdx:number){
+    /* console.log("MonthC currentRowIdx,openRowIndex, condition :",
+    currentRowIdx,this.openRowIndex,
+    (typeof this.openRowIndex!=="undefined" && (currentRowIdx<this.openRowIndex  || currentRowIdx>this.openRowIndex))); */
+    const state = 
+      (typeof this.openRowIndex!=="undefined" 
+        && (currentRowIdx<this.openRowIndex  || currentRowIdx>this.openRowIndex)
+        && this.activeDayIsOpen) ? "void" : "*";
+    return state;
   }
 
   protected refreshAll(): void {

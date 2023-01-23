@@ -151,4 +151,8 @@ export class CalendarOpenDayEventsComponent {
   trackByEventId = trackByEventId;
 
   validateDrag = isWithinThreshold;
+
+  ngOnInit(){
+    //console.log("CalOpenDayEvC isOpen, date: ",this.isOpen, this.date)
+  }
 }

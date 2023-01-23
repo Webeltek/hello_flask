@@ -1,4 +1,6 @@
-<div class="cal-week-view" role="grid">
+<div class="cal-week-view" role="grid"
+[@collapse]
+*ngIf="isOpen">
     <mwl-calendar-week-view-header
       [days]="days"
       [locale]="locale"
