@@ -29,7 +29,7 @@ executor = Executor()
 def create_app(config_name):
   app = Flask(__name__ , static_folder=static_dir, template_folder=templ_dir)
   print('config_name : ' + str(config[config_name]) )
-  #app.config.from_object(config[config_name] warning!!! doesn't instatiate config object!!!)
+  #app.config.from_object(config[config_name]) warning!!! doesn't instatiate config object!!!
   app.config.from_envvar('DOTENV_FILE')
   #python-dotenv doesn't override existing envvar SECRET_KEY value which defauts to None!
   app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
@@ -39,7 +39,7 @@ def create_app(config_name):
   moment.init_app(app)
   executor.init_app(app)
 
-  cors = CORS(app, resources={r"*/api/*/*": {"origins": ["http://localhost","http://192.168.3.199"]}},supports_credentials=True)
+  cors = CORS(app, resources={r"/api/*/*": {"origins": "*"}},supports_credentials=True)
   #login_manager.init_app(app)
   print('mail server: ' + app.config['MAIL_SERVER'])
   print('ENV value: ' + app.config['ENV'])

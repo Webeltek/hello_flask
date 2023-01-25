@@ -69,6 +69,7 @@ export interface CalendarMonthViewEventTimesChangedEvent<
           *ngFor="let rowIndex of view.rowOffsets; trackBy: trackByRowOffset"
         >
           <div role="row" class="cal-cell-row"
+          [@.disabled]="!activeDayIsOpen"
           [@collapse]="closeDiffIdxRows(rowIndex)"
            >
             <mwl-calendar-month-cell
@@ -492,15 +493,13 @@ export class CalendarMonthViewComponent
     if (this.activeDayIsOpen === true) {
       const activeDay = this.activeDay || this.viewDate;
       this.openDay = this.view.days.find((day) => {
-        //console.log("MonthC  day.date, activeDay",day.date, activeDay);
-        //console.log("MonthC  days.find isSameMonth :",this.dateAdapter.isSameMonth(day.date, activeDay));
         return this.dateAdapter.isSameDay(day.date, activeDay)
         && this.dateAdapter.isSameMonth(day.date, activeDay);
       }
       );
-      console.log("MonthC this.openDay:",this.openDay)
-      console.log("MonthC activeDay: ",activeDay)
-      console.log("MonthC ",this.viewDate)
+      //console.log("MonthC this.openDay:",this.openDay)
+      //console.log("MonthC activeDay: ",activeDay)
+      //console.log("MonthC ",this.viewDate)
       const index: number = this.view.days.indexOf(this.openDay);
 
       this.openRowIndex =
