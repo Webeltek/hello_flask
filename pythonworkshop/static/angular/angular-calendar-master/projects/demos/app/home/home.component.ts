@@ -96,7 +96,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   logout(): void {
     this.tokenStorage.signOut();
-    this.router.navigate(['login']);
   }
 
   delEvents(eventIds : number[]){

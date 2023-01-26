@@ -19,7 +19,7 @@ export class TokenStorageService {
   signOut(): void {
     window.sessionStorage.clear();
     this.authenticated$.next(false);
-    this.router.navigate(['login',{session: 'expired' }]);
+    this.router.navigate(['login',{session: 'signout' }]);
   }
 
   public saveConfirmToken(token: string): void {
@@ -41,9 +41,12 @@ export class TokenStorageService {
     if (window.sessionStorage.getItem(TOKEN_KEY)!==null){
       this.authenticated$.next(true)
       return window.sessionStorage.getItem(TOKEN_KEY);
-    } else {
+    } else if(window.sessionStorage.getItem(TOKEN_KEY)==null && this.getConfirmToken()==null){
       this.authenticated$.next(false);
-      this.router.navigate(['login',{session: 'expired' }]);
+      this.router.navigate(['login']);
+      return null;
+    } else if(window.sessionStorage.getItem(TOKEN_KEY)==null && this.getConfirmToken()!=null){
+      this.authenticated$.next(false);
       return null;
     }
   }
