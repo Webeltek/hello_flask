@@ -17,6 +17,7 @@ import { DataSource } from '@angular/cdk/collections';
 import { Observable, ReplaySubject} from 'rxjs';
 import { DatePipe} from '@angular/common';
 import { SelectionModel } from '@angular/cdk/collections';
+import { TranslateService } from '@ngx-translate/core';
 
 export interface Room {
   row: string,
@@ -38,10 +39,17 @@ export class HomeComponent implements OnInit, OnDestroy {
     public tokenStorage: TokenStorageService,
     private router: Router,
     public dialog: MatDialog,
-    private httpService: HttpEventService,) {}
+    private httpService: HttpEventService,
+    public translate: TranslateService) {
+      translate.addLangs(['gb', 'no']);
+      translate.setDefaultLang('gb');
+    }
 
-  role: string ='';
-  userEmail : string = '';
+  switchLang(lang: string) {
+    this.translate.use(lang);
+  }  
+
+
   loginStateSubscription: Subscription = new Subscription();
   breakPointObsSubscr : Subscription = new Subscription();
   roomNamesArr : string[] = [];
@@ -55,15 +63,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     })
   }
 
-  
+  getUserRole(){
+    return this.tokenStorage.getUser().is_admin ? "admin" : "user";
+  }
 
   ngAfterViewInit() {
     this.loginStateSubscription = this.tokenStorage.authenticated$.subscribe( (loginState : boolean)=>{
-          if(loginState){
-            this.userEmail = this.tokenStorage.getUser().user_email;
-            this.role = this.tokenStorage.getUser().is_admin ? "admin" : "user";
-          }
-
           this.breakPointObsSubscr = this.breakPointObsSubscr = this.observer
           .observe(['(max-width: 800px)'])
           .pipe(delay(1), untilDestroyed(this))

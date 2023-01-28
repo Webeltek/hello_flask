@@ -30,17 +30,17 @@
                     <div class="btn btn-primary" mwlCalendarPreviousView
                     (viewDateChange)="activeDayIsOpen=false" 
                     [view]="view" [(viewDate)]="viewDate">
-                        Previous
+                        {{'DCprevious' | translate}}
                     </div>
                     <div class="btn btn-outline-secondary" mwlCalendarToday
                     (viewDateChange)="activeDayIsOpen=false" 
                     [(viewDate)]="viewDate">
-                        Today
+                    {{'DCtoday' | translate}}
                     </div>
                     <div class="btn btn-primary" mwlCalendarNextView
                     (viewDateChange)="activeDayIsOpen=false" 
                     [view]="view" [(viewDate)]="viewDate">
-                        Next
+                    {{'DCnext' | translate}}
                     </div>
                 </div>
             </div>
@@ -54,14 +54,14 @@
                     (click)="setView(CalendarView.Month)"
                     [class.active]="view === CalendarView.Month"
                   >
-                    Month
+                  {{'DCmonth' | translate}}
                   </div>
                   <div
                     class="btn btn-primary"
                     (click)="setView(CalendarView.Week)"
                     [class.active]="view === CalendarView.Week"
                   >
-                    Week
+                  {{'DCweek' | translate}}
                   </div>
                 </div>
             </div>

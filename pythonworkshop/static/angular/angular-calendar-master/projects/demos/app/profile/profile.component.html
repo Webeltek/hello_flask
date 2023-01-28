@@ -1,12 +1,12 @@
 <div class="page-header">
     <!-- <img class="img-rounded profile-thumbnail" src="assets/ufo.jpg"> -->
     <div class="profile-header">
-        <h1>Bruker - {{ user.user_email }}</h1>
+        <h1>{{'PCuser' | translate }}{{ user.user_email }}</h1>
         <p *ngIf="user.user_email">
         <br>
-                from <a href="http://maps.google.com/?q=">location</a><br>
+                {{'PCfrom' | translate}}<a href="http://maps.google.com/?q=">{{'PClocation'}}</a><br>
         </p>
         <p *ngIf="user.is_admin"><a href="mailto:{{ user.user_email }}">{{ user.user_email }}</a></p>
-        <p>Sist sett {{ user.last_seen ? (user.last_seen | date:'short') : "" }}.</p>
+        <p>{{'PClastSeen' | translate }}{{ user.last_seen ? (user.last_seen | date:'short') : "" }}.</p>
     </div>
 </div>

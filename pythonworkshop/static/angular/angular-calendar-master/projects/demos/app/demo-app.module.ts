@@ -18,7 +18,7 @@ import { BoardAdminComponent } from './board-admin/board-admin.component';
 import { BoardUserComponent } from './board-user/board-user.component';
 
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClient,HttpClientModule } from '@angular/common/http';
 import { ConfirmComponent } from './confirm/confirm.component';
 import { authInterceptorProviders } from './_helpers/auth-interceptor.service';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -36,6 +36,10 @@ import { MatTableModule} from '@angular/material/table';
 import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule} from '@angular/material/checkbox';
 import { MatSelectModule} from '@angular/material/select';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { AngularCountriesFlagsModule } from 'angular-countries-flags'
+
 //import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 
 /* const config: SocketIoConfig = {
@@ -84,6 +88,15 @@ import { MatSelectModule} from '@angular/material/select';
     MatCheckboxModule,
     MatSelectModule,
     //SocketIoModule.forRoot(config)
+    HttpClientModule,
+    TranslateModule.forRoot({
+      loader: {
+        provide: TranslateLoader,
+        useFactory: httpTranslateLoader,
+        deps: [HttpClient]
+      }
+    }),
+    AngularCountriesFlagsModule
   ],
   providers : [
     { provide: LOCALE_ID, useValue: 'nb' },
@@ -96,4 +109,9 @@ export class DemoAppModule {
   constructor(){
     registerLocaleData(localeNo);
   }
+}
+
+// AOT compilation support
+export function httpTranslateLoader(http: HttpClient) {
+  return new TranslateHttpLoader(http);
 }
