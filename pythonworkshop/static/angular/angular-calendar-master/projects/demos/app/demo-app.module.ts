@@ -38,8 +38,9 @@ import { MatCheckboxModule} from '@angular/material/checkbox';
 import { MatSelectModule} from '@angular/material/select';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-import { AngularCountriesFlagsModule } from 'angular-countries-flags'
-
+import { AngularCountriesFlagsModule } from 'angular-countries-flags';
+import { LandingPageComponent } from './landing-page/landing-page.component';
+import { NgbCarouselModule } from '@ng-bootstrap/ng-bootstrap';
 //import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 
 /* const config: SocketIoConfig = {
@@ -61,6 +62,7 @@ import { AngularCountriesFlagsModule } from 'angular-countries-flags'
     BoardUserComponent,
     ConfirmComponent,
     ProfileComponent,
+    LandingPageComponent,
   ],
   imports: [
     CommonModule,
@@ -96,7 +98,8 @@ import { AngularCountriesFlagsModule } from 'angular-countries-flags'
         deps: [HttpClient]
       }
     }),
-    AngularCountriesFlagsModule
+    AngularCountriesFlagsModule,
+    NgbCarouselModule
   ],
   providers : [
     { provide: LOCALE_ID, useValue: 'nb' },

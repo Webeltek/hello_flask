@@ -22,7 +22,6 @@ import { Router, ActivatedRoute, ParamMap  } from '@angular/router';
 import { TokenStorageService } from './_services/token-storage.service';
 import { stringify } from 'querystring';
 import { isSameDay,isSameMonth} from 'date-fns';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 export interface PythUser {
   id : number; 
@@ -82,8 +81,7 @@ export class DemoAppComponent implements OnInit, OnDestroy{
     private cd: ChangeDetectorRef,
     private router: Router,
     private kvDiffers: KeyValueDiffers,
-    private itDiffers: IterableDiffers,
-    private modal: NgbModal ) {}
+    private itDiffers: IterableDiffers) {}
 
   ngOnChanges(){}
 

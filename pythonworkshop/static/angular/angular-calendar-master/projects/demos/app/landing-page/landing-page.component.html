@@ -1,0 +1,33 @@
+<ngb-carousel #ngcarousel
+  [showNavigationArrows]="true" 
+  [showNavigationIndicators]="true"
+  [interval]="12000"
+  [keyboard]="true"
+  [pauseOnHover]="true"
+  [wrap]="true"
+  [activeId]="'secondSlide'">
+    <ng-template ngbSlide id="one">
+      <div class="picsum-img-wrapper">
+        <img src="assets/img-1.jpeg" alt="Slide 1">
+      </div>
+      <div class="carousel-caption">
+        <h3>Title Goes Here</h3>
+        <p>Consectetur tortor volutpat pretium.</p>
+      </div>
+    </ng-template>
+    <ng-template ngbSlide id="two">
+      <div class="picsum-img-wrapper">
+        <img src="assets/img-2.png" alt="Slide 2">
+      </div>
+      <div class="carousel-caption">
+        <h3>Title Goes Here</h3>
+        <p>Consectetur tortor volutpat pretium.</p>
+      </div>
+    </ng-template>
+  </ngb-carousel>
+  <div class="text-center" *ngIf="false">
+    <button (click)="navigateToSlide('four')">Go to Slide Four</button>
+    <button (click)="getToPrev()">Prev</button>
+    <button (click)="goToNext()">Next</button>
+    <button (click)="stopCarousel()">Pause</button>
+  </div>

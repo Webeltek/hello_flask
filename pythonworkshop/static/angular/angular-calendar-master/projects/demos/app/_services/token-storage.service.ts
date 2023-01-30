@@ -43,7 +43,7 @@ export class TokenStorageService {
       return window.sessionStorage.getItem(TOKEN_KEY);
     } else if(window.sessionStorage.getItem(TOKEN_KEY)==null && this.getConfirmToken()==null){
       this.authenticated$.next(false);
-      this.router.navigate(['login']);
+      this.router.navigate(['landing']);
       return null;
     } else if(window.sessionStorage.getItem(TOKEN_KEY)==null && this.getConfirmToken()!=null){
       this.authenticated$.next(false);
