@@ -1,27 +1,27 @@
 <ngb-carousel #ngcarousel
   [showNavigationArrows]="true" 
   [showNavigationIndicators]="true"
-  [interval]="12000"
+  [interval]="5000"
   [keyboard]="true"
   [pauseOnHover]="true"
   [wrap]="true"
   [activeId]="'secondSlide'">
     <ng-template ngbSlide id="one">
       <div class="picsum-img-wrapper">
-        <img src="assets/img-1.jpeg" alt="Slide 1">
+        <img src="assets/img-2.png" alt="Slide 1">
       </div>
       <div class="carousel-caption">
-        <h3>Title Goes Here</h3>
-        <p>Consectetur tortor volutpat pretium.</p>
+        <h3>FJELLBYEN HOVDEN</h3>
+        <p>på toppen av Setesdal</p>
       </div>
     </ng-template>
     <ng-template ngbSlide id="two">
       <div class="picsum-img-wrapper">
-        <img src="assets/img-2.png" alt="Slide 2">
+        <img src="assets/img-1.jpeg" alt="Slide 2">
       </div>
       <div class="carousel-caption">
-        <h3>Title Goes Here</h3>
-        <p>Consectetur tortor volutpat pretium.</p>
+        <h3>FJELLBYEN HOVDEN</h3>
+        <p>på toppen av Setesdal</p>
       </div>
     </ng-template>
   </ngb-carousel>
@@ -31,3 +31,10 @@
     <button (click)="goToNext()">Next</button>
     <button (click)="stopCarousel()">Pause</button>
   </div>
+  <div class="row">
+    <div class="col-lg-3 p-3"><img src="assets/Drop-In-225x300.jpg"></div>
+    <div class="col-lg-3 p-3"><img src="assets/FLEX-4-225x300.jpg"></div>
+    <div class="col-lg-3 p-3" ><img src="assets/DESK-1-225x300.jpg"></div>
+    <div class="col-lg-3 p-3"><img src="assets/EGET-KONTOR-225x300.jpg"></div>
+  </div>
+  

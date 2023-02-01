@@ -1,11 +1,26 @@
 <div class="col-md-4 offset-md-4">
     <div class="card card-container">
       <p >{{errorMessage}}</p>
-      <img
-        id="profile-img"
-        src="../../assets/ufo.jpg"
-        class="profile-img-card"
-      />
+      <!-- <owl-carousel-o [options]="videosOptions" class="videosCarrusel">
+        <ng-container *ngFor="let slide of videos">
+          <ng-template carouselSlide [id]="slide.id">
+              <div class="card">
+                <youtube-player class="card-img-top"
+                    [videoId]= "slide.videoId"
+                    suggestedQuality="default" 
+                    [height]="290" 
+                    [width]="454" 
+                    [startSeconds]="0"
+                    [endSeconds]="180">
+                </youtube-player>
+                <div class="card-body">
+                  <p class="card-text">Titulo del video</p>
+                </div>
+              </div>  
+          </ng-template>
+        </ng-container>
+      </owl-carousel-o> -->
+      
       <form
         *ngIf="!isLoggedIn"
         name="form"

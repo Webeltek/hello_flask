@@ -16,7 +16,7 @@ export class TokenStorageService {
   authenticated$: BehaviorSubject<boolean> = new BehaviorSubject(false);
   currenLoginState = this.authenticated$.asObservable();
 
-  signOut(): void {
+  signOut(msg?: string): void {
     window.sessionStorage.clear();
     this.authenticated$.next(false);
     this.router.navigate(['login',{session: 'signout' }]);
@@ -39,13 +39,9 @@ export class TokenStorageService {
 
   public getToken(): string | null {
     if (window.sessionStorage.getItem(TOKEN_KEY)!==null){
-      this.authenticated$.next(true)
+      this.authenticated$.next(true);
       return window.sessionStorage.getItem(TOKEN_KEY);
-    } else if(window.sessionStorage.getItem(TOKEN_KEY)==null && this.getConfirmToken()==null){
-      this.authenticated$.next(false);
-      this.router.navigate(['landing']);
-      return null;
-    } else if(window.sessionStorage.getItem(TOKEN_KEY)==null && this.getConfirmToken()!=null){
+    } else if(window.sessionStorage.getItem(TOKEN_KEY)==null){
       this.authenticated$.next(false);
       return null;
     }

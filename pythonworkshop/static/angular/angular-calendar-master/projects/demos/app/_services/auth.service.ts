@@ -37,11 +37,6 @@ export class AuthService {
     }, { headers : this.httpHeaders, observe : 'response', responseType : 'json'} );
   }
 
-  confirm( token : string): Observable<any>{
-    return this.http.get(baseurl+AUTH_API + 'confirm/'+token, 
-      { headers: this.httpHeaders, observe: 'body', responseType : 'json'});
-  }
-
   /* getMessage() {
     return this.socket.fromEvent('user_confirmed').pipe(map((data: any) => {
       console.log("AuthServ event user_confirmed received");

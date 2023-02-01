@@ -69,7 +69,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngAfterViewInit() {
     this.loginStateSubscription = this.tokenStorage.authenticated$.subscribe( (loginState : boolean)=>{
-          this.breakPointObsSubscr = this.breakPointObsSubscr = this.observer
+          this.breakPointObsSubscr = this.observer
           .observe(['(max-width: 800px)'])
           .pipe(delay(1), untilDestroyed(this))
           .subscribe((res) => {
@@ -117,9 +117,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe(
       (obj) => {
-        if (this.roomNamesArr[0]==="alle rom"){
-          this.roomNamesArr.shift();
-        }
         if (typeof obj!=='undefined' && typeof obj.selectedRowsIds !== 'undefined') {
           this.delEvents(obj.selectedRowsIds);
           //console.log("HomeComp to delete ids",obj.selectedRowsIds)
@@ -187,10 +184,6 @@ export class EditEventsDialog {
         rooms : string[]},
         private httpService: HttpEventService,
         private tokenStorage: TokenStorageService,) {
-          if (this.data.rooms[0]!=="alle rom"){
-            this.data.rooms.unshift("alle rom");
-            console.log("EditEventsDial  unshifted rooms: ",this.data.rooms)
-          }
         }
 
 
@@ -210,43 +203,13 @@ export class EditEventsDialog {
 
   selectedRooms = new FormControl('alle rom');
 
-  displayedColumns: string[] = ['select', 'rom','user_email','start','title'];
+  displayedColumns: string[] = ['select','user_email','start','title'];
   dataToDisplay = [...ELEMENT_DATA];
   dataSourceEx = new ExampleDataSource(this.dataToDisplay);
   selection = new SelectionModel<TableRow>(true, []);
 
   ngOnInit(){
     this.getDbUsers();
-    this.selectedRooms.valueChanges.subscribe((value)=>{
-      let filteredRows : TableRow[] = [];
-      for (let row of this.tableRows){
-        //console.log("Homecomp row.rom :",row.rom);
-        if ( value.includes(row.rom)){
-          filteredRows.push(row);
-          //console.log("HomeComp filterValue in loop",value);
-        } else if ( value==="alle rom"){
-          filteredRows=[...this.tableRows]
-        }
-      }
-      this.dataSourceEx.setData(filteredRows);
-    })
-
-    this.range.valueChanges.subscribe(range=>{
-      if(range.start!==null && range.end!==null){
-      range.end=new Date(range.end.setHours(23,59,59,999));
-      //console.log("HomeComp rangeValue",res);
-      let filteredRows : TableRow[] = [];
-      for (let row of this.tableRows){
-        if(typeof row.start!=='undefined' 
-        && range.start<=row.start && row.start<=range.end){
-          filteredRows.push(row);
-          //console.log("HomeComp rangeValue in loop",range);
-        }
-      }
-      this.dataSourceEx.setData(filteredRows);
-      }
-      
-    })
   }
 
   /** Whether the number of selected elements matches the total number of rows. */
@@ -305,7 +268,8 @@ export class EditEventsDialog {
   }
 
   getDbEvents(){
-    this.httpService.getEvents().subscribe((response)=>{
+    this.httpService.getEvents().subscribe({
+      next: (response)=>{
       if(response.hasOwnProperty('events')) {
         this.events = [];
         let respObj  =  response as any;
@@ -313,7 +277,7 @@ export class EditEventsDialog {
           let tableRow : TableRow=  {
               id : objEvt.id,
               user_email : this.users.filter((user)=>objEvt.userId==user.id)[0].user_email,
-              rom : this.rooms[parseInt(objEvt.row,10)+1],
+              rom : objEvt.rowname,
               start : new Date(parseInt(objEvt.start,10)),
               end : new Date(parseInt(objEvt.end,10)),
               title : String(objEvt.title).substring(0,3),
@@ -330,12 +294,64 @@ export class EditEventsDialog {
         }
         this.tableRows = [...this.tableRows];
         this.dataSourceEx.setData(this.tableRows);
-        //console.log("getDbEvents() Follows events : ");  
+        console.log("getDbEvents() tableRows : ",this.tableRows);  
         //console.log(this.events);
-      } else {
-        console.log("getDbEvents() string response msg:",response);
+        } else {
+          console.log("getDbEvents() string response msg:",response);
+          
+        }
+      },
+      complete: () => {
+        this.subscribeToRangeChange();
+        this.subscribeToSelectChange();
+      }
+    })   
+  }
+
+  rangeFilteredRows : TableRow[] = [];
+
+  subscribeToRangeChange(){
+    this.range.valueChanges.subscribe({
+      next: (range)=>{
+        if(range.start!==null && range.end!==null){
+        range.end=new Date(range.end.setHours(23,59,59,999));
+        //console.log("HomeComp rangeValue",res);
+        this.rangeFilteredRows= [];
+        for (let row of this.tableRows){
+          if(typeof row.start!=='undefined' 
+          && range.start<=row.start && row.start<=range.end){
+            this.rangeFilteredRows.push(row);
+            //console.log("HomeComp rangeValue in loop",range);
+          }
+        }
+        
+        this.dataSourceEx.setData(this.rangeFilteredRows);
+        }
+      },
+      complete : () =>{
         
       }
+    })
+  }
+
+  selectFilteredRows : TableRow[] = [];
+
+  subscribeToSelectChange(){
+    this.selectedRooms.valueChanges.subscribe((value)=>{
+      this.selectFilteredRows= [];
+      console.log("HomeC subscribeToSelectChange() selected value: ",value);
+      for (let row of this.tableRows){
+        if ( row.rom===value){
+          this.selectFilteredRows.push(row);
+          console.log("HomeComp filterValue in loop",value);
+        }
+      }
+      
+      const newArr = this.rangeFilteredRows.filter(rangeFilteredRow=>{
+        return rangeFilteredRow.rom === value;
+      })
+      console.log("HomeC subscribeToSelectChange() newArr: ",newArr);
+      this.dataSourceEx.setData(newArr);
     })
   }
 

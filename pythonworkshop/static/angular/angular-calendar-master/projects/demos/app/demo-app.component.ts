@@ -173,9 +173,9 @@ export class DemoAppComponent implements OnInit, OnDestroy{
               }
               this.users = [...this.users];
               //console.log("getDBUsers() this.users",this.users)
-            } else {
+            } else if (response === "access token expired") {
               //console.log("getDbUsers() string response msg:",response);
-              this.tokenStorage.signOut();
+              this.tokenStorage.signOut("access token expired");
             }
             
           },
@@ -205,6 +205,7 @@ export class DemoAppComponent implements OnInit, OnDestroy{
       //console.log("getDbEvents() Response type: "+ typeof response);
       if(response.hasOwnProperty('events')) {
         this.events = [];
+        let item = response['events'];
         let respObj  =  response as any;
         for (let pythEvt of  respObj.events){
           let calEvent : CalendarEvent=  {
