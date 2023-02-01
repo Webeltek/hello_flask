@@ -338,13 +338,14 @@ export class EventDialog {
       clickedDbEvt : CalendarEvent, 
       toBeDeleted : boolean,
       toBeDeletedPythEvt : PythEvent,
-      date:Date,romIndex:number,
-      hourContainedEvTitle: string },
+      date:Date,
+      romIndex:number,
+      hourContainedEvTitle: string,
+      rooms: string[] },
      public fb: FormBuilder) {}
 
     containedEvTitle = this.data.hourContainedEvTitle;
     toBeDeleted = this.data.toBeDeleted;
-    rooms : string[] = ["Møterom stort", "Møterom lite", "Møterom 214", "Møterom 210" , "Aktivitets plan"];
 
     valgtPerCtrl = this.fb.control("");
     userForm  = this.fb.group({
