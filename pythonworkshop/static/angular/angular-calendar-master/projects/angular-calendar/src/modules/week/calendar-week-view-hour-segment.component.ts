@@ -4,7 +4,7 @@ import {
 import { WeekViewHourSegment } from 'calendar-utils';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CalendarEvent } from 'calendar-utils';
-import { FormControl, FormBuilder, FormGroup } from '@angular/forms';
+import { FormControl, UntypedFormBuilder, FormGroup } from '@angular/forms';
 import { Observable, throwError } from 'rxjs';
 import { catchError, retry } from 'rxjs/operators';
 import { Console } from 'console';
@@ -342,7 +342,7 @@ export class EventDialog {
       romIndex:number,
       hourContainedEvTitle: string,
       rooms: string[] },
-     public fb: FormBuilder) {}
+     public fb: UntypedFormBuilder) {}
 
     containedEvTitle = this.data.hourContainedEvTitle;
     toBeDeleted = this.data.toBeDeleted;

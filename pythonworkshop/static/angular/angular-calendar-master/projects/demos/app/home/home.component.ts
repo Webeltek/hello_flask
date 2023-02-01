@@ -9,7 +9,7 @@ import { MatSidenav } from '@angular/material/sidenav';
 import { delay, filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { FormBuilder, FormGroup, FormControl, FormArray, Validators, ValidatorFn, AbstractControl } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, UntypedFormControl, UntypedFormArray, Validators, ValidatorFn, AbstractControl } from '@angular/forms';
 import { PythEvent } from 'projects/angular-calendar/src/modules/week/calendar-week-view-hour-segment.component';
 import { MatTableDataSource} from '@angular/material/table';
 import { CalendarEvent } from 'calendar-utils';
@@ -196,12 +196,12 @@ export class EditEventsDialog {
   currentDate = new Date();
 
 
-  range = new FormGroup({
-    start: new FormControl(null),
-    end: new FormControl(null),
+  range = new UntypedFormGroup({
+    start: new UntypedFormControl(null),
+    end: new UntypedFormControl(null),
   });
 
-  selectedRooms = new FormControl('alle rom');
+  selectedRooms = new UntypedFormControl('alle rom');
 
   displayedColumns: string[] = ['select','user_email','start','title'];
   dataToDisplay = [...ELEMENT_DATA];
@@ -406,7 +406,7 @@ export class EditRoomsDialog implements OnInit{
         rooms : string[] },
         private httpService: HttpEventService,
         private tokenStorage: TokenStorageService,
-        public fb: FormBuilder) {
+        public fb: UntypedFormBuilder) {
         }
 
   rooms : string[] = this.data.rooms;
@@ -458,7 +458,7 @@ export class EditRoomsDialog implements OnInit{
   }
 
   get roomsArr(){
-    return this.roomsFormGroup.get('roomsArr') as FormArray;
+    return this.roomsFormGroup.get('roomsArr') as UntypedFormArray;
   }
 
   updateInput(roomName:string,idx:number){
