@@ -42,7 +42,7 @@ import { AngularCountriesFlagsModule } from 'angular-countries-flags';
 import { LandingPageComponent } from './landing-page/landing-page.component';
 import { NgbCarouselModule } from '@ng-bootstrap/ng-bootstrap';
 //import { CarouselModule } from 'ngx-owl-carousel-o';
-//import {YouTubePlayerModule} from '@angular/youtube-player';
+import {YouTubePlayerModule} from '@angular/youtube-player';
 //import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 
 /* const config: SocketIoConfig = {
@@ -103,7 +103,7 @@ import { NgbCarouselModule } from '@ng-bootstrap/ng-bootstrap';
     AngularCountriesFlagsModule,
     NgbCarouselModule,
     //CarouselModule,
-    //YouTubePlayerModule
+    YouTubePlayerModule
   ],
   providers : [
     { provide: LOCALE_ID, useValue: 'nb' },

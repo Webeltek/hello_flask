@@ -20,7 +20,14 @@
           </ng-template>
         </ng-container>
       </owl-carousel-o> -->
-      
+      <youtube-player class="card-img-top"
+                    [videoId]= "videos[0].videoId"
+                    suggestedQuality="default" 
+                    [height]="290" 
+                    [width]="454" 
+                    [startSeconds]="0"
+                    [endSeconds]="180">
+                </youtube-player>
       <form
         *ngIf="!isLoggedIn"
         name="form"

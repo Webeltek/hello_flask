@@ -72,11 +72,11 @@ export class LoginComponent implements OnInit {
     
   ngOnInit(): void {
      //script for youtube-player
-     /* if(!this.apiLoaded){
+     if(!this.apiLoaded){
       const tag = document.createElement('script');
       tag.src = "https://www.youtube.com/iframe_api";
       document.body.appendChild(tag);
-     } */
+     }
 
     if (this.tokenStorage.getToken()) {
       this.isLoggedIn = true;
