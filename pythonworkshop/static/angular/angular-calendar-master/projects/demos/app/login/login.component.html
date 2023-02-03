@@ -1,33 +1,18 @@
 <div class="col-md-4 offset-md-4">
     <div class="card card-container">
       <p >{{errorMessage}}</p>
-      <!-- <owl-carousel-o [options]="videosOptions" class="videosCarrusel">
-        <ng-container *ngFor="let slide of videos">
-          <ng-template carouselSlide [id]="slide.id">
               <div class="card">
                 <youtube-player class="card-img-top"
-                    [videoId]= "slide.videoId"
-                    suggestedQuality="default" 
-                    [height]="290" 
-                    [width]="454" 
-                    [startSeconds]="0"
-                    [endSeconds]="180">
-                </youtube-player>
-                <div class="card-body">
-                  <p class="card-text">Titulo del video</p>
-                </div>
-              </div>  
-          </ng-template>
-        </ng-container>
-      </owl-carousel-o> -->
-      <youtube-player class="card-img-top"
                     [videoId]= "videos[0].videoId"
                     suggestedQuality="default" 
-                    [height]="290" 
-                    [width]="454" 
-                    [startSeconds]="0"
-                    [endSeconds]="180">
+                    [height]="350"
+                    [width]="600" 
+                    [endSeconds]="">
                 </youtube-player>
+                <div class="card-body">
+                  <p class="card-text"></p>
+                </div>
+              </div>  
       <form
         *ngIf="!isLoggedIn"
         name="form"
@@ -35,6 +20,13 @@
         #f="ngForm"
         novalidate
       >
+      <!-- <youtube-player class="container-fluid"
+                    [videoId]= "videos[0].videoId"
+                    suggestedQuality="default" 
+                    [height]="500" 
+                    [startSeconds]="0"
+                    [endSeconds]="180">
+                </youtube-player> -->
         <div class="form-group">
           <label for="username">{{'LCusername' | translate}}</label>
           <input

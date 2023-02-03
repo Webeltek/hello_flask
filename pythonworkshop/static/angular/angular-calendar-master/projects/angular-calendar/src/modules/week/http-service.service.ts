@@ -65,33 +65,39 @@ export class HttpEventService{
     deleteRoom(room : Room ){
         this.http.post(this.baseurl+this.deleteRoomUrl, room,
             { headers : this.httpHeaders, observe: 'body', responseType : 'json'} ) 
-            .subscribe((response) =>{
-                let roomNames : string[]=[];
-                let mod_rooms=(response as any).mod_rooms;
-                for (let room of mod_rooms){
-                    roomNames.push(room.title);
-                }
-                this.roomNamesArr$.next(roomNames);
-                this.addedEvent.emit(null);
-                console.log("deleteEvent() response: " + JSON.stringify(response));
+            .subscribe({
+                next: (response) =>{
+                    let roomNames : string[]=[];
+                    let mod_rooms=(response as any).mod_rooms;
+                    for (let room of mod_rooms){
+                        roomNames.push(room.title);
+                    }
+                    this.roomNamesArr$.next(roomNames);
+                    this.addedEvent.emit(null);
+                    console.log("deleteEvent() response: " + JSON.stringify(response));
                 },
-                (error) => { console.log("deleteRoom() error : " + JSON.stringify(error)) ; }
+                error: (error) => { 
+                    console.log("deleteRoom() error : " + JSON.stringify(error)) ; }
+            }
             )
     }
 
     updateRooms(roomTitles: string[] ){
         this.http.post(this.baseurl+this.updateRoomsUrl, roomTitles, 
             { headers : this.httpHeaders, observe: 'body', responseType : 'json'} ) 
-            .subscribe((response) =>{
-                let roomNames : string[]=[];
-                let mod_rooms=(response as any).mod_rooms;
-                for (let room of mod_rooms){
-                    roomNames.push(room.title);
-                }
-                this.roomNamesArr$.next(roomNames);
-                console.log("HttpServ updateRooms() response: " + JSON.stringify(response));
+            .subscribe({
+                next: (response) =>{
+                    let roomNames : string[]=[];
+                    let mod_rooms=(response as any).mod_rooms;
+                    for (let room of mod_rooms){
+                        roomNames.push(room.title);
+                    }
+                    this.roomNamesArr$.next(roomNames);
+                    console.log("HttpServ updateRooms() response: " + JSON.stringify(response));
                 },
-                (error) => { console.log("HttpServ updateRooms() error : " + JSON.stringify(error)) ; }
+                error: (error) => { 
+                    console.log("HttpServ updateRooms() error : " + JSON.stringify(error)) ; }
+            }
             )
     }
 
@@ -110,22 +116,28 @@ export class HttpEventService{
     insertEvent(pythEvent : PythEvent ){
     this.http.post(this.baseurl+this.insertUrl, pythEvent, 
         { headers : this.httpHeaders, observe: 'body', responseType : 'json'} ) 
-        .subscribe((response) =>{
-            this.addedEvent.emit(null);
-            console.log("addEvent() response: " + JSON.stringify(response));
+        .subscribe({
+            next: (response) =>{
+                this.addedEvent.emit(null);
+                console.log("addEvent() response: " + JSON.stringify(response));
             },
-            (error) => { console.log("addEvent() error : " + JSON.stringify(error)) ; }
+            error: (error) => { 
+                console.log("addEvent() error : " + JSON.stringify(error)) ; }
+            }
         )
     }
 
     deleteEvent(ids : number[] ){
         this.http.post(this.baseurl+this.deleteUrl, {numList: ids},
             { headers : this.httpHeaders, observe: 'body', responseType : 'json'} ) 
-            .subscribe((response) =>{
-                this.deletedEvent.emit(null);
-                //console.log("deleteEvent() response: " + JSON.stringify(response));
+            .subscribe({
+                next:(response) =>{
+                    this.deletedEvent.emit(null);
+                    //console.log("deleteEvent() response: " + JSON.stringify(response));
                 },
-                (error) => { console.log("deleteEvent() error : " + JSON.stringify(error)) ; }
+                error: (error) => { 
+                    console.log("deleteEvent() error : " + JSON.stringify(error)) ; }
+            }
             )
     }
 
