@@ -173,11 +173,12 @@ def insert():
 def update():
     users_db.connect(reuse_if_open=True)
     if request.method == 'POST':
-        uid = request.form['uid']
-        userId = current_user.id
-        title = request.form['label']
-        start = request.form['start']
-        end = request.form['end']
+        req_json = request.get_json()
+        uid = req_json['uid']
+        userId = req_json['userId']
+        title = req_json['title']
+        start = req_json['start']
+        end = req_json['end']
         event = Event.update(uid=uid,userId=userId, title=title,start=start,end=end).where(Event.uid == uid).execute()       
         users_db.close()
         msg = 'Record updated successfully' 
@@ -191,9 +192,38 @@ def ajax_delete():
         req_json = request.get_json()
         ids = req_json['numList']
         if ids is not None:
-            print(f'To delete ids{str(ids[0])}')
-        num_of_rows = Event.delete().where((Event.id >= ids[0]) & (Event.id<=ids[len(ids)-1])).execute()
+            with users_db.atomic():
+                for todelid in ids:
+                    print(f'To delete id{str(id)}')
+                    Event.delete().where(Event.id == todelid).execute()
         users_db.close()
-        msg = 'Record deleted successfully' 
+        msg = 'Record/s deleted successfully' 
     return jsonify(msg)
+
+@auth_bp.route('/passreset', methods=['GET', 'POST'])
+@access_required
+def password_reset_request():
+    form = PasswordResetRequestForm()
+    if form.validate_on_submit():
+        user = User.get(User.user_email==form.email.data.lower())
+        if user:
+            token = user.generate_reset_token()
+            send_smtp(user.user_email, 'Reset Your Password',
+                       'auth/email/reset_password',
+                       user=user, token=token)
+        return redirect(url_for('auth_bp.login_form'))
+    return render_template('auth/pass_reset_request.jinja2', pass_res_req_form=form)
+
+
+@auth_bp.route('/passreset/<token>', methods=['GET', 'POST'])
+@access_required
+def password_reset(token):
+    form = PasswordResetForm()
+    if form.validate_on_submit():
+        if User.reset_password(token, form.password.data):
+            flash('Passordet ditt er oppdatert')
+            return redirect(url_for('auth_bp.login_form'))
+        else:
+            return redirect(url_for('auth_bp.password_reset_request'))
+    return render_template('auth/pass_reset.jinja2', pass_reset_form=form) 
 

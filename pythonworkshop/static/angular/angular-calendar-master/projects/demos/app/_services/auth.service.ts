@@ -37,6 +37,14 @@ export class AuthService {
     }, { headers : this.httpHeaders, observe : 'response', responseType : 'json'} );
   }
 
+  resetPass(email: string, oldpassword: string, newpassword: string): Observable<any> {
+    return this.http.post(baseurl+AUTH_API + 'resetpass', {
+      email : email,
+      oldpassword : oldpassword,
+      newpassword: newpassword
+    }, { headers : this.httpHeaders, observe : 'response', responseType : 'json'} );
+  }
+
   /* getMessage() {
     return this.socket.fromEvent('user_confirmed').pipe(map((data: any) => {
       console.log("AuthServ event user_confirmed received");

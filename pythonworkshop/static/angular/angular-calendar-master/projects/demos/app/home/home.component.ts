@@ -115,16 +115,17 @@ export class HomeComponent implements OnInit, OnDestroy {
       },
     });
 
-    dialogRef.afterClosed().subscribe(
-      (obj) => {
+    dialogRef.afterClosed().subscribe({
+      next: (obj) => {
         if (typeof obj!=='undefined' && typeof obj.selectedRowsIds !== 'undefined') {
           this.delEvents(obj.selectedRowsIds);
           //console.log("HomeComp to delete ids",obj.selectedRowsIds)
         }
       },
-      (error) => {
+      error: (error) => {
         console.log("editEvents() afterClosed() error : " + error);
       }
+    }
     );
   }
 

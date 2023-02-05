@@ -22,6 +22,7 @@ import { Router, ActivatedRoute, ParamMap  } from '@angular/router';
 import { TokenStorageService } from './_services/token-storage.service';
 import { stringify } from 'querystring';
 import { isSameDay,isSameMonth} from 'date-fns';
+import { TranslateService } from '@ngx-translate/core';
 
 export interface PythUser {
   id : number; 
@@ -79,6 +80,7 @@ export class DemoAppComponent implements OnInit, OnDestroy{
     public dialog: MatDialog,
     private breakpointObserver: BreakpointObserver,
     private cd: ChangeDetectorRef,
+    public translate: TranslateService,
     private router: Router,
     private kvDiffers: KeyValueDiffers,
     private itDiffers: IterableDiffers) {}

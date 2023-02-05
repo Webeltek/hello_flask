@@ -30,6 +30,23 @@ export class LoginComponent implements OnInit {
       videoId: 'GnWhniuvMrM'
     }
   ]
+  playerVars = {
+    autoplay: 1,
+    autohide: 1,
+    modestbranding: 0,
+    frameborder: 0,
+    loop:1,
+    rel: 0,
+    showinfo: 0,
+    fs: 0,
+    playsinline : 1,
+    mute: 1,
+    controls: 0,
+    disablekb :1,
+    iv_load_policy: 3,
+
+
+  }
 
   constructor(private authService: AuthService, 
     private tokenStorage: TokenStorageService,
@@ -38,12 +55,12 @@ export class LoginComponent implements OnInit {
     
   ngOnInit(): void {
      //script for youtube-player
-     if(!apiLoaded){
+     /* if(!apiLoaded){
       const tag = document.createElement('script');
       tag.src = "https://www.youtube.com/iframe_api";
       document.body.appendChild(tag);
       apiLoaded = true;
-     }
+     } */
 
     if (this.tokenStorage.getToken()) {
       this.isLoggedIn = true;
@@ -68,8 +85,8 @@ export class LoginComponent implements OnInit {
   onSubmit(): void {
     const { username, password } = this.form;
 
-    this.authService.login(username, password).subscribe(
-      data => {
+    this.authService.login(username, password).subscribe({
+      next: (data) => {
         let dataObj = data as any;
         //console.log("loginComp dataObj.user:",dataObj.user)
         if (dataObj.user!== 'nonexistent'){
@@ -87,10 +104,11 @@ export class LoginComponent implements OnInit {
         }
 
       },
-      err => {
+      error: err => {
         this.errorMessage = err.error.message;
         this.isLoginFailed = true;
       }
+    }
     );
   }
 

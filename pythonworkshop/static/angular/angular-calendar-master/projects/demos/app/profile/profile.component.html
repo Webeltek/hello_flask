@@ -9,4 +9,66 @@
         <p *ngIf="user.is_admin"><a href="mailto:{{ user.user_email }}">{{ user.user_email }}</a></p>
         <p>{{'PClastSeen' | translate }}{{ user.last_seen ? (user.last_seen | date:'short') : "" }}.</p>
     </div>
+    <form
+        *ngIf="!isPassReset"
+        name="passresetform"
+        (ngSubmit)="passresform.form.valid && onSubmit()"
+        #passresform="ngForm"
+        novalidate
+      >
+        <div class="form-group">
+          <label for="oldpassword">{{'LCusername' | translate}}</label>
+          <input
+            type="password"
+            class="form-control"
+            name="oldpassword"
+            [(ngModel)]="resetpassmodel.oldpassword"
+            required
+            minlength="6"
+            #oldpass="ngModel"
+          />
+          <div
+            class="alert alert-danger"
+            role="alert"
+            *ngIf="oldpass.errors && passresform.submitted"
+          >
+            <div *ngIf="oldpass.errors.required">{{'LCuserRequired' | translate}}</div>
+            <div *ngIf="oldpass.errors.minlength">{{'LCuserMinChar' | translate}}</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="newpassword">{{'LCpass' | translate}}</label>
+          <input
+            type="password"
+            class="form-control"
+            name="newpassword"
+            [(ngModel)]="resetpassmodel.newpassword"
+            required
+            minlength="6"
+            #newpass="ngModel"
+          />
+          <div
+            class="alert alert-danger"
+            role="alert"
+            *ngIf="newpass.errors && passresform.submitted"
+          >
+            <div *ngIf="newpass.errors.required">{{'LCpassRequired' | translate}}</div>
+            <div *ngIf="newpass.errors.minlength">{{'LCpassMinChar' | translate}}</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <button class="btn btn-primary btn-block">
+            {{'ToolbarLogin' | translate}}
+          </button>
+        </div>
+        <div class="form-group">
+          <div
+            class="alert alert-danger"
+            role="alert"
+            *ngIf="passresform.submitted && isPassResetFailed"
+          >
+            {{'LCloginFailed' | translate}}{{ errorMessage }}
+          </div>
+        </div>
+      </form>
 </div>

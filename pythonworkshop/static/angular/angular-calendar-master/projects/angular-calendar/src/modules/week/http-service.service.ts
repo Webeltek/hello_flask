@@ -133,7 +133,7 @@ export class HttpEventService{
             .subscribe({
                 next:(response) =>{
                     this.deletedEvent.emit(null);
-                    //console.log("deleteEvent() response: " + JSON.stringify(response));
+                    console.log("deleteEvent() response: " + JSON.stringify(response));
                 },
                 error: (error) => { 
                     console.log("deleteEvent() error : " + JSON.stringify(error)) ; }

@@ -42,8 +42,8 @@
     
     display: flex;
     align-items: center;
-    font-size: 1rem;
-    color: #fef !important;
+    font-size: 0.8rem;
+    color: #eff !important;
   
     mat-icon {
       margin-right: 8px;
@@ -98,5 +98,35 @@ table {
 
 .hint-warn-color{
   color :orangered
-} 
+}
+
+// hover gradient background underline
+.link, .link.dark-blue-gradient-bg{
+  background-size: 0% 3px;
+  background-repeat: no-repeat;
+  background-position: bottom left;
+  transition: background-size 300ms ease;
+  }
+  .link:hover, .link.dark-blue-gradient-bg:hover{
+  background-size: 100% 3px;
+  }
+  .link:focused, .link.dark-blue-gradient-bg:focused{
+  background-size: 100% 3px;
+  }
+  .nav-link-dropdown{
+  background-size: 0% 3px;
+  background-repeat: no-repeat;
+  background-position: bottom left;
+  transition: background-size 300ms ease;
+   }
+   .nav-link-dropdown:hover{
+   background-size: 100% 3px;
+   }
+   .nav-link-dropdown:focused{
+     background-size: 100% 3px;
+    }
+    
+   .dropdown-active {
+   background-color:red; 
+    }
 

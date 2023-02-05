@@ -41,7 +41,6 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { AngularCountriesFlagsModule } from 'angular-countries-flags';
 import { LandingPageComponent } from './landing-page/landing-page.component';
 import { NgbCarouselModule } from '@ng-bootstrap/ng-bootstrap';
-import { YouTubePlayerModule } from '@angular/youtube-player';
 //import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 
 /* const config: SocketIoConfig = {
@@ -101,7 +100,6 @@ import { YouTubePlayerModule } from '@angular/youtube-player';
     }),
     AngularCountriesFlagsModule,
     NgbCarouselModule,
-    YouTubePlayerModule
   ],
   providers : [
     { provide: LOCALE_ID, useValue: 'nb' },

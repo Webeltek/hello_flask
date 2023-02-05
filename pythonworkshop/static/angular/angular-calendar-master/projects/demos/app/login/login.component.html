@@ -2,14 +2,24 @@
     <div class="card card-container">
       <p >{{errorMessage}}</p>
               <div class="card">
-                <youtube-player class="card-img-top"
-                    [videoId]= "videos[0].videoId"
-                    suggestedQuality="default" 
+                <!-- <youtube-player class="card-img-top"
+                    [videoId]= "videos[1].videoId"
+                    [suggestedQuality]="'default'"
+                    [playerVars]="playerVars" 
                     [height]="350"
-                    [width]="600" 
-                    [endSeconds]="">
-                </youtube-player>
+                    [width]="600"
+                    [startSeconds]="0"
+                    [endSeconds]="30" 
+                    >
+                </youtube-player> -->
+                <!-- <video autoplay playsinline muted loop 
+                src="assets/hfjellb.mp4" 
+                style="width: 200px; height: 200px; margin: 0px;">
+                  <source type="video/mp4" src="assets/hfjellb.mp4">
+                  <source type="video/webm" src="assets/hfjellb.mp4">
+                </video> --> 
                 <div class="card-body">
+                  <img src="assets/hovdlogin.jpg" class="profile-img-card mx-auto img-fluid">
                   <p class="card-text"></p>
                 </div>
               </div>  
@@ -20,13 +30,6 @@
         #f="ngForm"
         novalidate
       >
-      <!-- <youtube-player class="container-fluid"
-                    [videoId]= "videos[0].videoId"
-                    suggestedQuality="default" 
-                    [height]="500" 
-                    [startSeconds]="0"
-                    [endSeconds]="180">
-                </youtube-player> -->
         <div class="form-group">
           <label for="username">{{'LCusername' | translate}}</label>
           <input
@@ -35,6 +38,7 @@
             name="username"
             [(ngModel)]="form.username"
             required
+            minlength="6"
             #username="ngModel"
           />
           <div
@@ -42,7 +46,8 @@
             role="alert"
             *ngIf="username.errors && f.submitted"
           >
-            {{'LCuserRequired' | translate}}
+            <div *ngIf="username.errors.required">{{'LCuserRequired' | translate}}</div>
+            <div *ngIf="username.errors.minlength">{{'LCuserMinChar' | translate}}</div>
           </div>
         </div>
         <div class="form-group">
@@ -62,9 +67,7 @@
             *ngIf="password.errors && f.submitted"
           >
             <div *ngIf="password.errors.required">{{'LCpassRequired' | translate}}</div>
-            <div *ngIf="password.errors.minlength">
-              {{'LCpassMinChar' | translate}}
-            </div>
+            <div *ngIf="password.errors.minlength">{{'LCpassMinChar' | translate}}</div>
           </div>
         </div>
         <div class="form-group">
