@@ -52,7 +52,7 @@
         (selectionChange)="switchLang(selectedLang.value)">
       <mat-option *ngFor="let language of translate.getLangs()" 
         [value]="language">
-        {{ language==='gb' ? 'en' : language }}
+        {{ (language==='gb' ? 'en' : language) }}
       </mat-option>
     </mat-select>
 </mat-toolbar>

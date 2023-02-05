@@ -83,7 +83,16 @@ export class DemoAppComponent implements OnInit, OnDestroy{
     public translate: TranslateService,
     private router: Router,
     private kvDiffers: KeyValueDiffers,
-    private itDiffers: IterableDiffers) {}
+    private itDiffers: IterableDiffers) {
+      translate.addLangs(['gb', 'no']);
+      translate.setDefaultLang('gb');
+    }
+
+    getLocaleFromTranslate(translateLang:string){
+      if (translateLang==='gb') {
+        return 'en-US'
+      } else if (translateLang ==='no') return 'nb-NO';
+    }
 
   ngOnChanges(){}
 
