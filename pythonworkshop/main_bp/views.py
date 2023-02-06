@@ -200,24 +200,55 @@ def ajax_delete():
         msg = 'Record/s deleted successfully' 
     return jsonify(msg)
 
-@auth_bp.route('/passreset', methods=['GET', 'POST'])
+@main_bp.route('/api/services/change_email', methods=['GET', 'POST'])
 @access_required
-def password_reset_request():
-    form = PasswordResetRequestForm()
-    if form.validate_on_submit():
+def change_email_request():
+    users_db.connect(reuse_if_open=True)
+    if request.method == 'POST':
+        req_json = request.get_json()
+        if current_user.verify_password(form.password.data):
+            new_email = form.email.data.lower()
+            token = current_user.generate_email_change_token(new_email)
+            send_email(new_email, 'Confirm your email address',
+                       'auth/email/change_email',
+                       user=current_user, token=token)
+            flash('En e-post med instruksjoner for å bekrefte din nye e-post adressen er sendt til deg.')
+            return redirect(url_for('auth_bp.login'))
+        else:
+            print('Invalid email or password.')
+            flash('Ugyldig epost')
+    users_db.close()        
+    return render_template("auth/email_reset_request.jinja2", form=form)
+
+
+@auth_bp.route('/api/services/change_email/<token>')
+@access_required
+def change_email(token):
+    if current_user.change_email(token):
+        flash('E-postadressen din er oppdatert')
+    else:
+        print('Ugyldig forespørsel.')
+    return redirect(url_for('main_bp.contact_form')) 
+
+@main_bp.route('/api/services/changepass', methods=['GET', 'POST'])
+@access_required
+def change_pass_request():
+    users_db.connect(reuse_if_open=True)
+    if request.method == 'POST':
+        req_json = request.get_json()
         user = User.get(User.user_email==form.email.data.lower())
         if user:
             token = user.generate_reset_token()
-            send_smtp(user.user_email, 'Reset Your Password',
+            send_email(user.user_email, 'Reset Your Password',
                        'auth/email/reset_password',
                        user=user, token=token)
         return redirect(url_for('auth_bp.login_form'))
     return render_template('auth/pass_reset_request.jinja2', pass_res_req_form=form)
 
 
-@auth_bp.route('/passreset/<token>', methods=['GET', 'POST'])
+@main_bp.route('/api/auth/changepass/<token>', methods=['GET', 'POST'])
 @access_required
-def password_reset(token):
+def change_pass(token):
     form = PasswordResetForm()
     if form.validate_on_submit():
         if User.reset_password(token, form.password.data):

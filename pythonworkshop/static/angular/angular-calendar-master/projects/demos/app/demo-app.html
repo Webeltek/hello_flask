@@ -6,7 +6,7 @@
     <ng-container *ngIf="isML; then horBtnGrp else horBtnGrp"></ng-container>
     <!-- <ng-template #vertBtnGrp>
         <div class="row text-start">
-            <div class="col-md-4">
+            <div class="col-lg-4">
                 <div  class="btn-group-vertical">
                     <div class="btn btn-primary" mwlCalendarPreviousView 
                     [view]="view" [(viewDate)]="viewDate">
@@ -25,7 +25,7 @@
     </ng-template> -->
     <ng-template #horBtnGrp>
         <div class="row text-center">
-            <div class="col-md-4">
+            <div class="col-lg-4">
                 <div  class="btn-group">
                     <div class="btn btn-primary" mwlCalendarPreviousView
                     (viewDateChange)="activeDayIsOpen=false" 
@@ -44,10 +44,10 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-lg-4">
                 <h3>{{ viewDate | calendarDate:(view + 'ViewTitle'):(getLocaleFromTranslate(translate.currentLang)) :1 }}</h3>
               </div>
-            <div class="col-md-4">
+            <div class="col-lg-4">
                 <div class="btn-group">
                   <div
                     class="btn btn-primary"

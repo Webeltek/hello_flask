@@ -2,6 +2,16 @@ import { Component, OnInit } from '@angular/core';
 import { TokenStorageService } from '../_services/token-storage.service';
 import { AuthService } from '../_services/auth.service';
 import { PythUser } from '../demo-app.component';
+import { UntypedFormControl,Validators ,FormControl, FormGroupDirective, NgForm} from '@angular/forms';
+import {ErrorStateMatcher} from '@angular/material/core';
+
+/** Error when invalid control is dirty, touched, or submitted. */
+export class MyErrorStateMatcher implements ErrorStateMatcher {
+  isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
+    const isSubmitted = form && form.submitted;
+    return !!(control && control.invalid && (control.dirty || control.touched || isSubmitted));
+  }
+}
 
 @Component({
   selector: 'mwl-profile',
@@ -18,6 +28,13 @@ export class ProfileComponent implements OnInit {
   isPassReset = false;
   isPassResetFailed = false;
   errorMessage = '';
+
+  emailFormControl = new UntypedFormControl('',[Validators.required, Validators.email,Validators.minLength(5)]);
+  emailPassFormControl = new UntypedFormControl('',[Validators.required,Validators.minLength(6)])
+  matcher = new MyErrorStateMatcher();
+
+  oldPassFormControl = new UntypedFormControl('',[Validators.required,Validators.minLength(6)]);
+  newPassFormControl = new UntypedFormControl('',[Validators.required,Validators.minLength(6)]);
 
   constructor(private tokenStorage: TokenStorageService, private authService: AuthService) { }
 

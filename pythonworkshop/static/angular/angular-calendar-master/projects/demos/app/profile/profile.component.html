@@ -1,7 +1,9 @@
-<div class="page-header">
+<div class="row">
+  <div class="page-header col-lg-6">
     <!-- <img class="img-rounded profile-thumbnail" src="assets/ufo.jpg"> -->
     <div class="profile-header">
-        <h1>{{'PCuser' | translate }}{{ user.user_email }}</h1>
+        <h1>{{'PCuser' | translate }}</h1>
+        <h1>{{ user.user_email }}</h1>
         <p *ngIf="user.user_email">
         <br>
                 {{'PCfrom' | translate}}<a href="http://maps.google.com/?q=">{{'PClocation' | translate}}</a><br>
@@ -9,7 +11,72 @@
         <p *ngIf="user.is_admin"><a href="mailto:{{ user.user_email }}">{{ user.user_email }}</a></p>
         <p>{{'PClastSeen' | translate }}{{ user.last_seen ? (user.last_seen | date:'short') : "" }}.</p>
     </div>
-    <form
+  </div>
+  <span class="col-lg-6"></span>
+</div>
+<div class="row">
+  <mat-accordion class="example-headers-align col-lg-6" multi>
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          {{ 'PCchangeEmail' | translate}}
+        </mat-panel-title>
+        <mat-panel-description>
+          {{ 'PCchangeEmailDescr' | translate}}
+          <mat-icon>account_circle</mat-icon>
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+
+      <mat-form-field appearance="fill">
+        <mat-label>{{'PCnewEmail' |translate}}</mat-label>
+        <input matInput [formControl]="emailFormControl" [errorStateMatcher]="matcher">
+        <mat-error *ngIf="emailFormControl.hasError('email')">
+          Email too short
+        </mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="fill">
+        <mat-label>{{'LCpass' |translate}}</mat-label>
+        <input matInput [formControl]="emailPassFormControl" type="password">
+        <mat-error *ngIf="emailPassFormControl.hasError('minlength')">
+          Password must be at least 6 characters!
+          </mat-error>
+          <mat-error *ngIf="emailPassFormControl.hasError('required')">
+          Password is <strong>required</strong>
+          </mat-error>
+      </mat-form-field>
+    </mat-expansion-panel>
+
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          {{'PCchangePass' |translate}}
+        </mat-panel-title>
+        <mat-panel-description>
+          {{'PCchangePassDescr' | translate}}
+          <mat-icon>password</mat-icon>
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+  
+      <mat-form-field appearance="fill">
+        <mat-label>{{'PColdPass' |translate}}</mat-label>
+        <input matInput [formControl]="oldPassFormControl" type="password">
+        <mat-error *ngIf="oldPassFormControl.hasError('minlength')">
+          Password must be at least 6 characters!
+          </mat-error>
+          <mat-error *ngIf="oldPassFormControl.hasError('required')">
+          Password is <strong>required</strong>
+          </mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="fill">
+        <mat-label>{{'PCnewPass' |translate}}</mat-label>
+        <input matInput [formControl]="newPassFormControl" type="password">
+      </mat-form-field>
+    </mat-expansion-panel>
+  </mat-accordion>
+  <span class="col-lg-6"></span>
+</div>
+<div  *ngIf="false" class="row">
+  <form class="col-lg-6"
         *ngIf="!isPassReset"
         name="passresetform"
         (ngSubmit)="passresform.form.valid && onSubmit()"
@@ -17,7 +84,7 @@
         novalidate
       >
         <div class="form-group">
-          <label for="oldpassword">{{'LCusername' | translate}}</label>
+          <label for="oldpassword">{{'PColdPass' | translate}}</label>
           <input
             type="password"
             class="form-control"
@@ -37,7 +104,7 @@
           </div>
         </div>
         <div class="form-group">
-          <label for="newpassword">{{'LCpass' | translate}}</label>
+          <label for="newpassword">{{'PCnewPass' | translate}}</label>
           <input
             type="password"
             class="form-control"
@@ -58,7 +125,7 @@
         </div>
         <div class="form-group">
           <button class="btn btn-primary btn-block">
-            {{'ToolbarLogin' | translate}}
+            {{'PCconfirm' | translate}}
           </button>
         </div>
         <div class="form-group">
@@ -72,3 +139,5 @@
         </div>
       </form>
 </div>
+  
+

@@ -41,6 +41,7 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { AngularCountriesFlagsModule } from 'angular-countries-flags';
 import { LandingPageComponent } from './landing-page/landing-page.component';
 import { NgbCarouselModule } from '@ng-bootstrap/ng-bootstrap';
+import {MatExpansionModule} from '@angular/material/expansion'; 
 //import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 
 /* const config: SocketIoConfig = {
@@ -100,6 +101,7 @@ import { NgbCarouselModule } from '@ng-bootstrap/ng-bootstrap';
     }),
     AngularCountriesFlagsModule,
     NgbCarouselModule,
+    MatExpansionModule
   ],
   providers : [
     { provide: LOCALE_ID, useValue: 'nb' },
