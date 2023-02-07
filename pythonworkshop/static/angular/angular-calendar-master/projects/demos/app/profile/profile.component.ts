@@ -62,7 +62,7 @@ export class ProfileComponent implements OnInit {
     })
   }
 
-  changePass(): void {
+  changePass(oldPass: string , newPass: string): void {
     const { oldpassword, newpassword } = this.changepassmodel;
 
     this.authService.changePass(this.user.user_email,oldpassword, newpassword).subscribe({
