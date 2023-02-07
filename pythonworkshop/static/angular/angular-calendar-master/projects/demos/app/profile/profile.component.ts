@@ -20,7 +20,7 @@ export class MyErrorStateMatcher implements ErrorStateMatcher {
 })
 export class ProfileComponent implements OnInit {
 
-  resetpassmodel : any = {
+  changepassmodel : any = {
     oldpassword : '',
     newpassword : ''
   }
@@ -53,16 +53,20 @@ export class ProfileComponent implements OnInit {
     this.user=this.tokenStorage.getUser();
   }
 
-  onSubmit(): void {
-    const { oldpassword, newpassword } = this.resetpassmodel;
+  changeEmail(){
+    const { oldpassword, newpassword } = this.changepassmodel;
+  }
 
-    this.authService.resetPass(this.user.user_email,oldpassword, newpassword).subscribe({
+  changePass(): void {
+    const { oldpassword, newpassword } = this.changepassmodel;
+
+    this.authService.changePass(this.user.user_email,oldpassword, newpassword).subscribe({
       next: (data) => {
         let dataObj = data as any;
         //console.log("loginComp dataObj.user:",dataObj.user)
         if (dataObj.user!== 'nonexistent'){
-          let accessToken : string= dataObj.user.access_token ;
-          this.tokenStorage.saveToken(accessToken);
+          let changePassToken : string= dataObj.user.access_token ;
+          this.tokenStorage.saveToken(changePassToken);
           this.tokenStorage.saveUser(dataObj.user);
           this.isPassResetFailed = false;
           this.isPassReset = true;

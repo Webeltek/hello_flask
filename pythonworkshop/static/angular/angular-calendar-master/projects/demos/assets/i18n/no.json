@@ -30,7 +30,8 @@
      "PCchangeEmail": "Endre e-postadresse",
      "PCchangeEmailDescr": "Skriv inn den nye e-postadressen",
      "PCchangePass": "Endre passord",
-     "PCchangePassDescr": "Skriv inn det nye passordet",   
+     "PCchangePassDescr": "Skriv inn det nye passordet",
+     "PCsubmit": "Bekreft",   
 
      "RCemail": "E-post",
      "RCemailRequired": "E-post kreves!",

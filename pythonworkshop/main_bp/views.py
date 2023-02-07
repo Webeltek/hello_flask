@@ -206,7 +206,10 @@ def change_email_request():
     users_db.connect(reuse_if_open=True)
     if request.method == 'POST':
         req_json = request.get_json()
+        userId = req_json['userId']
+        user = User.select.where(User.id==userId)
         if current_user.verify_password(form.password.data):
+            user = User.select.where(User.id==userId)
             new_email = form.email.data.lower()
             token = current_user.generate_email_change_token(new_email)
             send_email(new_email, 'Confirm your email address',
@@ -249,8 +252,8 @@ def change_pass_request():
 @main_bp.route('/api/auth/changepass/<token>', methods=['GET', 'POST'])
 @access_required
 def change_pass(token):
-    form = PasswordResetForm()
-    if form.validate_on_submit():
+    if request.method == 'POST':
+        req_json = request.get_json()
         if User.reset_password(token, form.password.data):
             flash('Passordet ditt er oppdatert')
             return redirect(url_for('auth_bp.login_form'))

@@ -35,7 +35,7 @@
         </mat-error>
       </mat-form-field>
       <mat-form-field appearance="fill">
-        <mat-label>{{'LCpass' |translate}}</mat-label>
+        <mat-label>{{'PColdPass' |translate}}</mat-label>
         <input matInput [formControl]="emailPassFormControl" type="password">
         <mat-error *ngIf="emailPassFormControl.hasError('minlength')">
           Password must be at least 6 characters!
@@ -44,6 +44,9 @@
           Password is <strong>required</strong>
           </mat-error>
       </mat-form-field>
+      <mat-action-row>
+        <button mat-button color="primary" (click)="changeEmail()">{{ 'PCsubmit' | translate}}</button>
+      </mat-action-row>
     </mat-expansion-panel>
 
     <mat-expansion-panel>

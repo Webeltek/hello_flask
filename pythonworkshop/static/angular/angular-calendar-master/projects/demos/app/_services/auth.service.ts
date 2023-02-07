@@ -6,6 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 //import { Socket } from 'ngx-socket-io'; 
 
 const AUTH_API = '/api/auth/';
+const MAIN_API = '/services/api/'
 const baseurl = 'https://138.109-247-35.customer.lyse.net';
 
 
@@ -37,8 +38,16 @@ export class AuthService {
     }, { headers : this.httpHeaders, observe : 'response', responseType : 'json'} );
   }
 
-  resetPass(email: string, oldpassword: string, newpassword: string): Observable<any> {
-    return this.http.post(baseurl+AUTH_API + 'resetpass', {
+  changeEmail(email: string, oldpassword: string): Observable<any> {
+      return this.http.post(baseurl+MAIN_API + 'changepass', {
+        email : email,
+        oldpassword : oldpassword
+      }, { headers : this.httpHeaders, observe : 'response', responseType : 'json'} );
+    }
+  
+
+  changePass(email: string, oldpassword: string, newpassword: string): Observable<any> {
+    return this.http.post(baseurl+AUTH_API + 'changepass', {
       email : email,
       oldpassword : oldpassword,
       newpassword: newpassword

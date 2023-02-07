@@ -31,6 +31,7 @@
     "PCchangeEmailDescr": "Type in your new email address",
     "PCchangePass": "Change password",
     "PCchangePassDescr": "Type in your new password",
+    "PCsubmit": "Submit",
 
     "RCemail": "Email",
     "RCemailRequired": "Email is required!",
