@@ -1,0 +1,10 @@
+<p>Dear {{ adm_conf_email }},</p>
+<p>Confirm registration of new user account: <b>{{user.user_email}}</b>!</p>
+<p>To confirm new user account please</p> 
+<p><a href="{{ url_for('auth_bp.conf_by_adm',_external=True, token=adm_conf_token) }}">click here</a>.</p>
+<p>Alternatively, you can paste the following link in your browser's address bar:</p>
+<p><a href="{{ url_for('auth_bp.conf_by_adm',_external=True, token=adm_conf_token) }}">
+    {{ url_for('auth_bp.conf_by_adm',_external=True, token=adm_conf_token) }}</a></p>
+<p>Sincerely,</p>
+<p>The Team</p>
+<p><small>Note: replies to this email address are not monitored.</small></p>
