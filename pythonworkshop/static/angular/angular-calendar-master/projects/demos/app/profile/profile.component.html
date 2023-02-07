@@ -74,6 +74,9 @@
         <mat-label>{{'PCnewPass' |translate}}</mat-label>
         <input matInput [formControl]="newPassFormControl" type="password">
       </mat-form-field>
+      <mat-action-row>
+        <button mat-button color="primary" (click)="changePass(oldPassFormControl.value,newPassFormControl.value)">{{ 'PCsubmit' | translate}}</button>
+      </mat-action-row>
     </mat-expansion-panel>
   </mat-accordion>
   <span class="col-lg-6"></span>

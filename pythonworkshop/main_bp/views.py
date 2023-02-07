@@ -224,7 +224,7 @@ def change_email_request():
     return render_template("auth/email_reset_request.jinja2", form=form)
 
 
-@auth_bp.route('/api/services/change_email/<token>')
+@main_bp.route('/api/services/change_email/<token>')
 @access_required
 def change_email(token):
     if current_user.change_email(token):
