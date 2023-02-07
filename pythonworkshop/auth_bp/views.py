@@ -7,7 +7,7 @@ from .forms import LoginForm, RegistrationForm, ChangePasswordForm,\
     PasswordResetRequestForm, PasswordResetForm, ChangeEmailForm
 import jinja2
 from ..models import *
-from ..email import send_email
+from ..email import send_email, send_adm_conf_email
 from .. import executor
 import peewee as p
 from wtforms import ValidationError
@@ -84,13 +84,12 @@ def register_form():
       except p.IntegrityError :
         return ({'is_duplicate': True, 'duplicate_email': request.json['email']})
       token = user.generate_confirmation_token()
+      temp_user_id = user.id
       send_email(user.user_email, 'Confirm Your Account', 'auth/email/confirm', user=user, token=token)
       #send_email([user.user_email], 'Confirm Your Account', 'auth/email/confirm', user=user, token=token)
       msg = 'En bekreftelses e-post har blitt sendt til deg på e-post.'
       users_db.close()
-  return jsonify({'is_duplicate': False,'sent_token': token, 'msg':msg})
-  
-
+  return jsonify({'is_duplicate': False,'sent_token': token, 'temp_user_id': temp_user_id,'msg':msg})
 
 @auth_bp.route('/api/auth/confirm/<token>',methods=['POST','GET'])
 def confirm(token):
@@ -109,6 +108,49 @@ def confirm(token):
     print(f'auth_bp.confirm userconfirmed:{userconfirmed}')    
     users_db.close()
     return redirect(f'/confirm/{userconfirmed}')
+
+@auth_bp.route('/api/auth/reg_admin_confirm', methods=['POST'])
+def reg_admin_confirm(): 
+    users_db.connect(reuse_if_open=True)
+    if request.method == 'POST':
+        req_json = request.get_json()
+        user_email=request.json['email']
+        user_pass=request.json['password']
+        temp_user_id = req_json['temp_user_id']
+        print(f'/api/auth/reg_admin_confirm called and request email: {str(request.json["email"])}') 
+        users_db.connect(reuse_if_open=True)
+        msg=''
+        """ try :
+            user = User.create(user_email=user_email,user_pass=user_pass)
+        except p.IntegrityError :
+            return ({'is_duplicate': True, 'duplicate_email': request.json['email']}) """
+        adm_conf_token = User.generate_admin_conf_token(temp_user_id)
+        temp_user = User.select().where(User.id==temp_user_id).first()
+        app= current_app._get_current_object()
+        adm_conf_email = app.config['FLASKY_CONF_ADMIN']
+        send_adm_conf_email(adm_conf_email, 'Confirm registration of account: '+temp_user.user_email,\
+                             'auth/email/reg_admin_confirm',adm_conf_email=adm_conf_email, user=temp_user, adm_conf_token=adm_conf_token)
+        msg = 'En bekreftelses e-post har blitt sendt til admin på e-post.'
+        users_db.close()
+    return jsonify({'is_duplicate': False,'sent_token': adm_conf_token, 'msg':msg})
+
+@auth_bp.route('/api/auth/reg_admin_confirm/<token>',methods=['POST','GET'])
+def conf_by_adm(token):
+    users_db.connect(reuse_if_open=True)
+    tokens_user_id = User.get_tokens_user_id(token)
+    user = User.select().where(User.id==tokens_user_id).first()
+    user_conf_by_adm=False
+    if user is not None and ((user.user_confirmed and user_conf_by_adm) or user.conf_by_adm(token)):
+        msg_confirmed=f'Admin har bekreftet kontoen {user.user_email}. Takk!'
+        user_dict = model_to_dict(user)
+        user_conf_by_adm=True
+    elif user is not None and not user.confirm_by_adm(token):
+        user_conf_by_adm=False
+        User.delete().where(User.id == user.id).execute()
+    msg_wrong_link = 'Bekreftelseslenken er ugyldig eller har utløpt.'
+    print(f'auth_bp.conf_by_adm user_conf_by_adm:{user_conf_by_adm}')    
+    users_db.close()
+    return redirect(f'/confirm/{user_conf_by_adm}')
 
 
 def confirm_event(userstate):

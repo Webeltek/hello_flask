@@ -29,6 +29,7 @@ export class RegisterComponent implements OnInit {
       next : (response) => {
         let responseObj = response.body as any;
         let is_duplicate : boolean = responseObj.is_duplicate;
+        let temp_user_id : number = responseObj.temp_user_id;
         console.log("RegComp is_duplicate value: ",responseObj.is_duplicate)
         if (!is_duplicate){
           //console.log("RegComp not duplicate response",response)
@@ -42,6 +43,28 @@ export class RegisterComponent implements OnInit {
           this.isSignUpFailed = true;
           this.errorMessage = "is duplicate";
         }
+
+        if(typeof temp_user_id!=='undefined'){
+          this.authService.sendAdminRegConfirm( email, password, temp_user_id).subscribe({
+            next : (response) => {
+              let responseObj = response.body as any;
+              let sent_success : boolean = responseObj.is_sent;
+              console.log("sendAdminRegConfirm value: ",responseObj)
+              if (sent_success){
+                
+              } else {
+                
+              }
+              
+            },
+            error : (err) => {
+              console.log("RegComp error",err);
+              this.errorMessage = JSON.stringify(err);
+              this.isSignUpFailed = true;
+            }
+          }
+          );
+        }
         
       },
       error : (err) => {
@@ -51,6 +74,7 @@ export class RegisterComponent implements OnInit {
       }
     }
     );
+    
   }
 }
 

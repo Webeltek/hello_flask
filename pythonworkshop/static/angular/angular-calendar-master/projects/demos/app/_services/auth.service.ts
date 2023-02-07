@@ -7,7 +7,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 const AUTH_API = '/api/auth/';
 const MAIN_API = '/services/api/'
-const baseurl = 'https://138.109-247-35.customer.lyse.net';
+const baseurl = '';
 
 
 @Injectable({
@@ -35,6 +35,12 @@ export class AuthService {
     return this.http.post(baseurl+AUTH_API + 'register', {
       email : email,
       password : password
+    }, { headers : this.httpHeaders, observe : 'response', responseType : 'json'} );
+  }
+
+  sendAdminRegConfirm( email: string, password: string,temp_user_id: number): Observable<any> {
+    return this.http.post(baseurl+AUTH_API + 'reg_admin_confirm', {
+      email : email, password: password, temp_user_id
     }, { headers : this.httpHeaders, observe : 'response', responseType : 'json'} );
   }
 

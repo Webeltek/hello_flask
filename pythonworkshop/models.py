@@ -36,6 +36,7 @@ class User(p.Model):
   user_pass_hash = p.CharField(default='initial hash')
   user_is_logged_in = p.BooleanField(default=False)
   user_confirmed = p.BooleanField(default=False)
+  user_conf_by_admin = p.BooleanField(default=False)
   access_token = p.CharField(default='empty token')
   last_seen = p.CharField(default='initial date')
   is_admin = p.BooleanField(default=False)
@@ -85,6 +86,11 @@ class User(p.Model):
         encoded = jwt.encode({'confirm': self.id, \
         'exp': datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(seconds=expiration)},current_app.config['SECRET_KEY'], algorithm='HS256')
         return encoded
+  
+  @staticmethod
+  def generate_admin_conf_token(user_id):
+        encoded = jwt.encode({'confirm': user_id  }, current_app.config['SECRET_KEY'], algorithm='HS256')
+        return encoded
 
   @staticmethod
   def get_tokens_user_id(token):
@@ -113,6 +119,25 @@ class User(p.Model):
         return False
     self.user_confirmed = True
     self.user_is_logged_in = True
+    self.save()
+    print('User confirmed in User.confirm(')
+    return True
+  
+  def conf_by_adm(self, token):
+    print(f'User.conf_by_adm() token is: {token}')
+    print(f'User.conf_by_adm(...) self.id is: {self.id}')
+    try:
+        data = jwt.decode(token,current_app.config['SECRET_KEY'],algorithms=["HS256"])
+        confirmed_user_id = data.get('confirm')
+        print(f'User.conf_by_adm(...) data.confirm is:{confirmed_user_id}')
+    except:
+        print(f'exept in models.User.conf_by_adm()')
+        return False
+    if data.get('confirm') != self.id:
+        print('User.conf_by_adm(...) exception in data.get("confirm")')
+        print('User.conf_by_adm(...) data.get("confirm"): ' + str(data.get('confirm')) + 'is not = self.id: '+str(self.id)) 
+        return False
+    self.user_conf_by_admin = True
     self.save()
     print('User confirmed in User.confirm(')
     return True
