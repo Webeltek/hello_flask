@@ -25,6 +25,7 @@ export class ProfileComponent implements OnInit {
     newpassword : ''
   }
 
+
   isPassReset = false;
   isPassResetFailed = false;
   errorMessage = '';

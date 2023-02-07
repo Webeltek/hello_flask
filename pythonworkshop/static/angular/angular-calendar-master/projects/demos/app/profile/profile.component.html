@@ -31,21 +31,21 @@
         <mat-label>{{'PCnewEmail' |translate}}</mat-label>
         <input matInput [formControl]="emailFormControl" [errorStateMatcher]="matcher">
         <mat-error *ngIf="emailFormControl.hasError('email')">
-          Email too short
+          {{ 'PCemailTooshort' | translate}}
         </mat-error>
       </mat-form-field>
       <mat-form-field appearance="fill">
         <mat-label>{{'PColdPass' |translate}}</mat-label>
         <input matInput [formControl]="emailPassFormControl" type="password">
         <mat-error *ngIf="emailPassFormControl.hasError('minlength')">
-          Password must be at least 6 characters!
+          {{'LCpassMinChar' | translate}}
           </mat-error>
           <mat-error *ngIf="emailPassFormControl.hasError('required')">
-          Password is <strong>required</strong>
+          {{'LCpassRequired' | translate }}
           </mat-error>
       </mat-form-field>
       <mat-action-row>
-        <button mat-button color="primary" (click)="changeEmail(emailFormControl.value)">{{ 'PCsubmit' | translate}}</button>
+        <button mat-button color="primary" (click)="changeEmail(emailFormControl.value,emailPassFormControl.value)">{{ 'PCsubmit' | translate}}</button>
       </mat-action-row>
     </mat-expansion-panel>
 
@@ -78,7 +78,7 @@
   </mat-accordion>
   <span class="col-lg-6"></span>
 </div>
-<div  *ngIf="false" class="row">
+<!-- <div  *ngIf="false" class="row">
   <form class="col-lg-6"
         *ngIf="!isPassReset"
         name="passresetform"
@@ -92,7 +92,7 @@
             type="password"
             class="form-control"
             name="oldpassword"
-            [(ngModel)]="resetpassmodel.oldpassword"
+            [(ngModel)]="changepassmodel.oldpassword"
             required
             minlength="6"
             #oldpass="ngModel"
@@ -112,7 +112,7 @@
             type="password"
             class="form-control"
             name="newpassword"
-            [(ngModel)]="resetpassmodel.newpassword"
+            [(ngModel)]="changepassmodel.newpassword"
             required
             minlength="6"
             #newpass="ngModel"
@@ -141,6 +141,6 @@
           </div>
         </div>
       </form>
-</div>
+</div> -->
   
 
