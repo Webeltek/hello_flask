@@ -53,8 +53,12 @@ export class ProfileComponent implements OnInit {
     this.user=this.tokenStorage.getUser();
   }
 
-  changeEmail(){
-    const { oldpassword, newpassword } = this.changepassmodel;
+  changeEmail(newEmail: string, oldPass: string){
+    this.authService.changeEmail(newEmail,oldPass).subscribe({
+      next: (respObj)=>{
+        
+      }
+    })
   }
 
   changePass(): void {
