@@ -5,7 +5,7 @@
   </ng-container>
 </ng-template>
 <ng-template #deleteTempl>
-  <h1 mat-dialog-title>Slett reservasjon av
+  <h1 mat-dialog-title>{{ 'EDdelTtl' | translate}}
   </h1>
   <mat-dialog-content class="mat-typography">
     <div>{{ data.toBeDeletedPythEvt.rowname}}</div>
@@ -15,12 +15,12 @@
       mat-dialog-close
       color="primary" 
       type="submit"
-      (click)="closeDialog()">Bekreft</button>
+      (click)="closeDialog()">{{'PCconfirm' | translate}}</button>
     </div>
   </mat-dialog-content>
 </ng-template>
 <ng-template #insertTempl>
-  <h1 mat-dialog-title>Velg reservasjon av
+  <h1 mat-dialog-title>{{'EDinsertTtl' | translate}}
     <br/>
   {{ data.rooms[data.romIndex]}}
   <br/>
@@ -32,7 +32,7 @@
     <div mat-dialog-content
     >{{data.date | date:'dd/MM/yyyy'}}
       <br/>
-      <label id="example-radio-group-label">Velg periode</label>
+      <label id="example-radio-group-label">{{'EDchoosePer' | translate}}</label>
       <br/>
       <mat-radio-group 
         aria-labelledby="example-radio-group-label"
@@ -50,7 +50,7 @@
       <button mat-button 
       mat-dialog-close
       color="primary" 
-      type="submit">Bekreft</button>
+      type="submit">{{'PCconfirm' | translate}}</button>
     </div>
   </form>
   </mat-dialog-content>

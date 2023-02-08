@@ -45,5 +45,9 @@
      "DCtoday": "I dag",
      "DCnext": "Neste",
      "DCmonth": "Måned",
-     "DCweek": "Uke"
+     "DCweek": "Uke",
+
+     "EDdelTtl": "Slett reservasjon av",
+     "EDinsertTtl": "Velg reservasjon av",
+     "EDchoosePer": "Velg periode"
 }
