@@ -88,8 +88,8 @@ class User(p.Model):
         return encoded
   
   @staticmethod
-  def generate_admin_conf_token(user_id):
-        encoded = jwt.encode({'confirm': user_id  }, current_app.config['SECRET_KEY'], algorithm='HS256')
+  def generate_admin_conf_token(user_id,expiration=3600*48):
+        encoded = jwt.encode({'confirm': user_id ,'exp': datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(seconds=expiration) }, current_app.config['SECRET_KEY'], algorithm='HS256')
         return encoded
 
   @staticmethod
@@ -118,7 +118,6 @@ class User(p.Model):
         print('User.confirm(...) data.get("confirm"): ' + str(data.get('confirm')) + 'is not = self.id: '+str(self.id)) 
         return False
     self.user_confirmed = True
-    self.user_is_logged_in = True
     self.save()
     print('User confirmed in User.confirm(')
     return True

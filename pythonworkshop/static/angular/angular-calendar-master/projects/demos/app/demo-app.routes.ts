@@ -12,7 +12,7 @@ export const ROUTES: Routes = [
         { path: 'login', component: LoginComponent },
         { path: 'register', component: RegisterComponent },
         { path: 'landing', component: LandingPageComponent },
-        { path: 'confirm/:userconfirmed', component: ConfirmComponent },
+        { path: 'confirm', component: ConfirmComponent },
         { path: 'calendar' , canActivate: [LoggedInGuardService], component : DemoAppComponent},
         { path: 'profile' , canActivate: [LoggedInGuardService], component : ProfileComponent},
         { path: 'logout' , canActivate: [LoggedInGuardService], component: LoginComponent},

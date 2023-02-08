@@ -88,10 +88,10 @@ def send_async_email(app, msg):
         print('Thread started, inside send_async_email')
         mail.send(msg)
 
-def send_adm_conf_email(admin_email, subject, template, **kwargs):
+def send_adm_conf_email(adm_conf_email, subject, template, **kwargs):
     app = current_app._get_current_object()
     msg = Message(app.config['FLASKY_MAIL_SUBJECT_PREFIX'] + ' ' + subject,
-                  sender=app.config['FLASKY_MAIL_SENDER'], recipients=[admin_email])
+                  sender=app.config['FLASKY_MAIL_SENDER'], recipients=[adm_conf_email])
     msg.body = render_template(template + '.txt', **kwargs)
     msg.html = render_template(template + '.html', **kwargs)
     mail.send(msg)        

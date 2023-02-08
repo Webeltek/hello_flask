@@ -20,22 +20,19 @@ export class ConfirmComponent implements OnInit {
 
   ngOnInit(): void {
 
-    let userConfirmed = this.actRoute.snapshot.paramMap.get('userconfirmed');
-    let userConfByAdm = this.actRoute.snapshot.paramMap.get('user_conf_by_adm');
+    let userConfirmed = this.actRoute.snapshot.queryParamMap.get('userconfirmed');
+    let userConfByAdm = this.actRoute.snapshot.queryParamMap.get('user_conf_by_adm');
     console.log("ConfComp userConfirmed",userConfirmed);
       if (userConfirmed==='True'){
-        this.router.navigate(['login']);
-        this.msg = "User is confirmed!"
+        this.msg = "Email confirmed! Awaiting confirmation by admin!"
       } else if (userConfirmed!=='True'){
         this.msg = "User is not confirmed!"
       }
-
       if (userConfByAdm==='True'){
-        this.router.navigate(['login']);
         this.msg= "User is confirmed by admin!"
       }
       else if(userConfByAdm!=='True') {
-        this.msg = "User is not confirmed by admin!";
+        this.msg = "Awaiting confirmation by admin!";
         console.log("ConfComp user not confirmed by admin")
       }
     ;

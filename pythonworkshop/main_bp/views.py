@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, url_for
+from flask import Flask,redirect, render_template, request, jsonify, url_for
 from ..models import *
 from . import forms
 from . import main_bp
@@ -9,6 +9,7 @@ from peewee import *
 from playhouse.shortcuts import model_to_dict
 from functools import wraps
 import uuid
+from ..email import send_email
 
 def access_required(f):
     @wraps(f)
@@ -207,19 +208,18 @@ def change_email_request():
     if request.method == 'POST':
         req_json = request.get_json()
         userId = req_json['userId']
-        user = User.select.where(User.id==userId)
-        if current_user.verify_password(form.password.data):
-            user = User.select.where(User.id==userId)
-            new_email = form.email.data.lower()
-            token = current_user.generate_email_change_token(new_email)
-            send_email(new_email, 'Confirm your email address',
+        newEmail = req_json['newEmail']
+        userPass = req_json['oldpassword']
+        user = User.select().where(User.id==userId).get()
+        if user.verify_password(userPass):
+            token = user.generate_email_change_token(newEmail)
+            send_email(newEmail, 'Confirm change of email address',
                        'auth/email/change_email',
-                       user=current_user, token=token)
+                       user=user, token=token)
             flash('En e-post med instruksjoner for å bekrefte din nye e-post adressen er sendt til deg.')
             return redirect(url_for('auth_bp.login'))
         else:
             print('Invalid email or password.')
-            flash('Ugyldig epost')
     users_db.close()        
     return render_template("auth/email_reset_request.jinja2", form=form)
 
@@ -233,7 +233,7 @@ def change_email(token):
         print('Ugyldig forespørsel.')
     return redirect(url_for('main_bp.contact_form')) 
 
-@main_bp.route('/api/services/changepass', methods=['GET', 'POST'])
+@main_bp.route('/api/services/change_pass', methods=['GET', 'POST'])
 @access_required
 def change_pass_request():
     users_db.connect(reuse_if_open=True)
@@ -249,7 +249,7 @@ def change_pass_request():
     return render_template('auth/pass_reset_request.jinja2', pass_res_req_form=form)
 
 
-@main_bp.route('/api/auth/changepass/<token>', methods=['GET', 'POST'])
+@main_bp.route('/api/auth/change_pass/<token>', methods=['GET', 'POST'])
 @access_required
 def change_pass(token):
     if request.method == 'POST':

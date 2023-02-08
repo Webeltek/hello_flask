@@ -28,10 +28,10 @@
      "PCnewEmail": "Ny epost",
      "PCconfirm" : "Bekreft",
      "PCchangeEmail": "Endre e-postadresse",
-     "PCchangeEmailDescr": "Skriv inn den nye e-postadressen",
+     "PCchangeEmailDescr": "Skriv inn ny e-post",
      "PCemailTooshort": "Epost skal være lenger!",
      "PCchangePass": "Endre passord",
-     "PCchangePassDescr": "Skriv inn det nye passordet",
+     "PCchangePassDescr": "Skriv inn nytt passord",
      "PCsubmit": "Bekreft",   
 
      "RCemail": "E-post",

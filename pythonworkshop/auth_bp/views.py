@@ -61,7 +61,7 @@ def login_form():
         user = User.select().where(User.user_email==request.json['email']).first()
         if user is not None:
             print(f'auth_bp.login_form() user email to login:{user.user_email}')
-        if user is not None and user.verify_password(request.json['password']) and user.user_confirmed:
+        if user is not None and user.verify_password(request.json['password']) and user.user_confirmed and user.conf_by_admin:
             user.login_user()
             user.generate_access_token()
             user_dict = model_to_dict(user)
@@ -107,7 +107,7 @@ def confirm(token):
     msg_wrong_link = 'Bekreftelseslenken er ugyldig eller har utløpt.'
     print(f'auth_bp.confirm userconfirmed:{userconfirmed}')    
     users_db.close()
-    return redirect(f'/confirm/{userconfirmed}')
+    return redirect(f'/confirm?=userconfirmed={userconfirmed}')
 
 @auth_bp.route('/api/auth/reg_admin_confirm', methods=['POST'])
 def reg_admin_confirm(): 
@@ -128,8 +128,8 @@ def reg_admin_confirm():
         temp_user = User.select().where(User.id==temp_user_id).first()
         app= current_app._get_current_object()
         adm_conf_email = app.config['FLASKY_CONF_ADMIN']
-        send_adm_conf_email(adm_conf_email, 'Confirm registration of account: '+temp_user.user_email,\
-                             'auth/email/reg_admin_confirm',adm_conf_email=adm_conf_email, user=temp_user, adm_conf_token=adm_conf_token)
+        send_adm_conf_email(adm_conf_email, 'Confirm registration of account: '+temp_user.user_email,  \
+                             'auth/email/reg_admin_confirm', user=temp_user, adm_conf_token=adm_conf_token)
         msg = 'En bekreftelses e-post har blitt sendt til admin på e-post.'
         users_db.close()
     return jsonify({'is_duplicate': False,'sent_token': adm_conf_token, 'msg':msg})
@@ -150,7 +150,7 @@ def conf_by_adm(token):
     msg_wrong_link = 'Bekreftelseslenken er ugyldig eller har utløpt.'
     print(f'auth_bp.conf_by_adm user_conf_by_adm:{user_conf_by_adm}')    
     users_db.close()
-    return redirect(f'/confirm/{user_conf_by_adm}')
+    return redirect(f'/confirm?user_conf_by_adm={user_conf_by_adm}')
 
 
 def confirm_event(userstate):

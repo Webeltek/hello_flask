@@ -6,7 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 //import { Socket } from 'ngx-socket-io'; 
 
 const AUTH_API = '/api/auth/';
-const MAIN_API = '/services/api/'
+const MAIN_API = '/api/services/'
 const baseurl = '';
 
 
@@ -44,16 +44,17 @@ export class AuthService {
     }, { headers : this.httpHeaders, observe : 'response', responseType : 'json'} );
   }
 
-  changeEmail(newEmail: string, oldpassword: string): Observable<any> {
-      return this.http.post(baseurl+MAIN_API + 'changepass', {
-        email : newEmail,
+  changeEmail(userId:number,newEmail: string, oldpassword: string): Observable<any> {
+      return this.http.post(baseurl+MAIN_API + 'change_email', {
+        userId: userId,
+        newEmail : newEmail,
         oldpassword : oldpassword
       }, { headers : this.httpHeaders, observe : 'response', responseType : 'json'} );
     }
   
 
   changePass(email: string, oldpassword: string, newpassword: string): Observable<any> {
-    return this.http.post(baseurl+AUTH_API + 'changepass', {
+    return this.http.post(baseurl+AUTH_API + 'change_pass', {
       email : email,
       oldpassword : oldpassword,
       newpassword: newpassword

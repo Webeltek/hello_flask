@@ -55,7 +55,7 @@ export class ProfileComponent implements OnInit {
   }
 
   changeEmail(newEmail: string, oldPass: string){
-    this.authService.changeEmail(newEmail,oldPass).subscribe({
+    this.authService.changeEmail(this.user.id,newEmail,oldPass).subscribe({
       next: (respObj)=>{
         
       }
