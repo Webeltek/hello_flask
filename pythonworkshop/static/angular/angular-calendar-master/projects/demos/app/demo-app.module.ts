@@ -41,7 +41,8 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { AngularCountriesFlagsModule } from 'angular-countries-flags';
 import { LandingPageComponent } from './landing-page/landing-page.component';
 import { NgbCarouselModule } from '@ng-bootstrap/ng-bootstrap';
-import {MatExpansionModule} from '@angular/material/expansion'; 
+import { MatExpansionModule} from '@angular/material/expansion';
+import {MatCardModule} from '@angular/material/card';  
 //import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 
 /* const config: SocketIoConfig = {
@@ -101,7 +102,8 @@ import {MatExpansionModule} from '@angular/material/expansion';
     }),
     AngularCountriesFlagsModule,
     NgbCarouselModule,
-    MatExpansionModule
+    MatExpansionModule,
+    MatCardModule
   ],
   providers : [
     { provide: LOCALE_ID, useValue: 'nb' },

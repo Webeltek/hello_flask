@@ -28,10 +28,10 @@
     "PCnewEmail": "New email",
     "PCconfirm" : "Confirm",
     "PCchangeEmail": "Change email",
-    "PCchangeEmailDescr": "Type in new email address",
+    "PCchangeEmailDescr": "type in",
     "PCemailTooshort": "Email too short!",
     "PCchangePass": "Change password",
-    "PCchangePassDescr": "Type in new password",
+    "PCchangePassDescr": "type in",
     "PCsubmit": "Submit",
 
     "RCemail": "Email",
