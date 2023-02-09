@@ -161,8 +161,8 @@ class User(p.Model):
         return True
 
   def generate_email_change_token(self, new_email, expiration=3600):
-        encodeed = jwt.encode({'change_email': self.id, 'new_email' : new_email, \
-        'exp': datetime.datetime.now(tz=timezone.utc) + datetime.timedelta(seconds=expiration) },current_app.config['SECRET_KEY'], algorithm='HS256')
+        encodeed = jwt.encode({'confirm': self.id, 'new_email' : new_email, \
+        'exp': datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(seconds=expiration) },current_app.config['SECRET_KEY'], algorithm='HS256')
         return encodeed
 
   def change_email(self, token):
@@ -171,16 +171,19 @@ class User(p.Model):
             data = jwt.decode(token, secret_key, algorithms=['HS256'])
         except:
             return False
-        if data.get('change_email') != self.id:
+        if data.get('confirm') != self.id:
             return False
         new_email = data.get('new_email')
+        user_id_change_email = data.get('confirm')
         if new_email is None:
             return False
-        user =  User.get(User.user_email==new_email)        
-        if user is not None:
+        user =  User.get(User.id==user_id_change_email)        
+        if user is None:
             return False
-        self.user_email = new_email
-        user
+        print(f'models change_email() user_id_change_email: {user_id_change_email}')
+        print(f'models change_email() new_email : {new_email}')
+        query = (User.update({User.user_email:new_email}).where(User.id == user_id_change_email))
+        query.execute()
         return True
 
   def ping(self):

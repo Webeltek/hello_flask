@@ -17,9 +17,11 @@ import { MatDialogModule, MAT_DIALOG_DEFAULT_OPTIONS } from '@angular/material/d
 import { MatRadioModule } from '@angular/material/radio';
 import { MatDialogConfig } from '@angular/material/dialog';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule ,HttpClient} from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { HttpEventService } from './http-service.service';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
 export {
   CalendarWeekViewComponent,
@@ -51,6 +53,13 @@ export { CalendarWeekViewCurrentTimeMarkerComponent as ɵCalendarWeekViewCurrent
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
+    TranslateModule.forRoot({
+      loader: {
+        provide: TranslateLoader,
+        useFactory: httpTranslateLoader,
+        deps: [HttpClient]
+      }
+    })
   ],
   declarations: [
     CalendarWeekViewComponent,
@@ -78,3 +87,8 @@ export { CalendarWeekViewCurrentTimeMarkerComponent as ɵCalendarWeekViewCurrent
   providers : [ {provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: {hasBackdrop: true}}]
 })
 export class CalendarWeekModule {}
+
+// AOT compilation support
+export function httpTranslateLoader(http: HttpClient) {
+  return new TranslateHttpLoader(http);
+}

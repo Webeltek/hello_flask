@@ -205,6 +205,7 @@ def ajax_delete():
 @access_required
 def change_email_request():
     users_db.connect(reuse_if_open=True)
+    msg = ''
     if request.method == 'POST':
         req_json = request.get_json()
         userId = req_json['userId']
@@ -216,22 +217,11 @@ def change_email_request():
             send_email(newEmail, 'Confirm change of email address',
                        'auth/email/change_email',
                        user=user, token=token)
-            flash('En e-post med instruksjoner for å bekrefte din nye e-post adressen er sendt til deg.')
-            return redirect(url_for('auth_bp.login'))
+            msg='En e-post med instruksjoner for å bekrefte din nye e-post adressen er sendt til deg.'
         else:
-            print('Invalid email or password.')
+            msg='Invalid email or password.'
     users_db.close()        
-    return render_template("auth/email_reset_request.jinja2", form=form)
-
-
-@main_bp.route('/api/services/change_email/<token>')
-@access_required
-def change_email(token):
-    if current_user.change_email(token):
-        flash('E-postadressen din er oppdatert')
-    else:
-        print('Ugyldig forespørsel.')
-    return redirect(url_for('main_bp.contact_form')) 
+    return jsonify({'changed_email': newEmail, 'msg':msg})
 
 @main_bp.route('/api/services/change_pass', methods=['GET', 'POST'])
 @access_required
@@ -255,7 +245,7 @@ def change_pass(token):
     if request.method == 'POST':
         req_json = request.get_json()
         if User.reset_password(token, form.password.data):
-            flash('Passordet ditt er oppdatert')
+            msg ='Passordet ditt er oppdatert'
             return redirect(url_for('auth_bp.login_form'))
         else:
             return redirect(url_for('auth_bp.password_reset_request'))
