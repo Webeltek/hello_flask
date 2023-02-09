@@ -29,6 +29,7 @@ export class ProfileComponent implements OnInit {
   isPassReset = false;
   isPassResetFailed = false;
   errorMessage = '';
+  serviceMsg= '';
 
   emailFormControl = new UntypedFormControl('',[Validators.required, Validators.email,Validators.minLength(5)]);
   emailPassFormControl = new UntypedFormControl('',[Validators.required,Validators.minLength(6)])
