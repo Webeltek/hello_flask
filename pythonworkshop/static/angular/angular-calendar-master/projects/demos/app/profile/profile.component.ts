@@ -58,7 +58,8 @@ export class ProfileComponent implements OnInit {
   changeEmail(newEmail: string, oldPass: string){
     this.authService.changeEmail(this.user.id,newEmail,oldPass).subscribe({
       next: (respObj)=>{
-        
+        let respAny  = respObj as any;
+        this.serviceMsg = `A confirmation has been sent to the new email: ${respAny.changed_email}`;
       }
     })
   }
