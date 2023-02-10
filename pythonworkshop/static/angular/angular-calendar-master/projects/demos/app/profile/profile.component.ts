@@ -4,6 +4,7 @@ import { AuthService } from '../_services/auth.service';
 import { PythUser } from '../demo-app.component';
 import { UntypedFormControl,Validators ,FormControl, FormGroupDirective, NgForm} from '@angular/forms';
 import {ErrorStateMatcher} from '@angular/material/core';
+import { BehaviorSubject } from 'rxjs';
 
 /** Error when invalid control is dirty, touched, or submitted. */
 export class MyErrorStateMatcher implements ErrorStateMatcher {
@@ -29,7 +30,7 @@ export class ProfileComponent implements OnInit {
   isPassReset = false;
   isPassResetFailed = false;
   errorMessage = '';
-  serviceMsg= '';
+  serviceMsg$: BehaviorSubject<string> = new BehaviorSubject('');
 
   emailFormControl = new UntypedFormControl('',[Validators.required, Validators.email,Validators.minLength(5)]);
   emailPassFormControl = new UntypedFormControl('',[Validators.required,Validators.minLength(6)])
@@ -58,8 +59,9 @@ export class ProfileComponent implements OnInit {
   changeEmail(newEmail: string, oldPass: string){
     this.authService.changeEmail(this.user.id,newEmail,oldPass).subscribe({
       next: (respObj)=>{
-        let respAny  = respObj as any;
-        this.serviceMsg = `A confirmation has been sent to the new email: ${respAny.changed_email}`;
+        let respAny  = respObj.body as any;
+        console.log("PC changeEmail respAny.changed_email: ",respAny.changed_email);
+        this.serviceMsg$.next(`A confirmation has been sent to the new email: ${respAny.changed_email}`);
       }
     })
   }

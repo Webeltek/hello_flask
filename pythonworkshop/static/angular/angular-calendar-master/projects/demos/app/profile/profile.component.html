@@ -14,7 +14,7 @@
               </p>
               <p *ngIf="user.is_admin"><a class="text-white" href="mailto:{{ user.user_email }}">{{ user.user_email }}</a></p>
               <p>{{'PClastSeen' | translate }}{{ user.last_seen ? (user.last_seen | date:'short') : "" }}.</p>
-              <p class="text-warning"><b></b></p>
+              <p class="text-warning"><b>{{serviceMsg$ | async}}</b></p>
             </div>
             <mat-expansion-panel>
               <mat-expansion-panel-header>
