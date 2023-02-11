@@ -166,7 +166,23 @@ def change_email(token):
         msg='Ugyldig forespørsel.'
     print(f'main_bp.change_emal() msg: {msg}')    
     users_db.close()    
-    return redirect(f'/confirm?=emailchanged={emailchanged}') 
+    return redirect(f'/confirm?=emailchanged={emailchanged}')
+
+@auth_bp.route('/api/auth/change_pass/<token>', methods=['GET', 'POST'])
+def change_pass(token):
+    users_db.connect(reuse_if_open=True)
+    msg=''
+    passchanged=False
+    tokens_user_id = User.get_tokens_user_id(token)
+    user = User.select().where(User.id==tokens_user_id).first()
+    if user is not None and user.reset_password(token, new_password):
+        msg='Passordet ditt er oppdatert'
+        passchanged=True
+    else:
+        msg='Ugyldig forespørsel.'
+    print(f'main_bp.change_pass msg: {msg}')    
+    users_db.close()    
+    return redirect(f'/confirm?=passchanged={passchanged}') 
 
 
 def confirm_event(userstate):

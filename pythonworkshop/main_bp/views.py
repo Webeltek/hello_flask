@@ -229,8 +229,11 @@ def change_pass_request():
     users_db.connect(reuse_if_open=True)
     if request.method == 'POST':
         req_json = request.get_json()
-        user = User.get(User.user_email==form.email.data.lower())
-        if user:
+        user_email = req_json['email']
+        old_pass = req_json['oldpassword']
+        new_pass = req_json['newpassword']
+        user = User.get(User.user_email==user_email)
+        if user is not None and user.verify_password(old_pass):
             token = user.generate_reset_token()
             send_email(user.user_email, 'Reset Your Password',
                        'auth/email/reset_password',

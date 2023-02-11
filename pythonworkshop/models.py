@@ -37,6 +37,7 @@ class User(p.Model):
   user_is_logged_in = p.BooleanField(default=False)
   user_confirmed = p.BooleanField(default=False)
   user_conf_by_admin = p.BooleanField(default=False)
+  user_conf_pass_change = p.BooleanField(default=False)
   access_token = p.CharField(default='empty token')
   last_seen = p.CharField(default='initial date')
   is_admin = p.BooleanField(default=False)
@@ -145,15 +146,17 @@ class User(p.Model):
         encodeed = jwt.encode({'reset': self.id,'exp': datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(seconds=expiration)},current_app.config['SECRET_KEY'], algorithm='HS256')
         return encodeed
 
-  @staticmethod
-  def reset_password(token, new_password):
+  def reset_password(self,token, new_password):
         secret_key = current_app.config['SECRET_KEY']
         try:
            data = jwt.decode(token, secret_key, algorithms=['HS256'])
         except:
             print('serializer loads exeption')
             return False
-        user = User.get(User.id == data.get('reset'))
+        if data.get('confirm') != self.id:
+            return False
+        user_id_change_pass = data.get('confirm')
+        user = User.get(User.id == user_id_change_pass)
         if user is None:
             return False
         user.user_pass = new_password
