@@ -59,7 +59,7 @@ class User(p.Model):
     raise AttributeError('new password is not a readable attribute')  
 
   @user_new_pass.setter
-  def new_user_pass(self, password):
+  def user_new_pass(self, password):
     print(f'models user_new_pass.setter password: {password}')
     self.new_user_pass_hash = bcrypt_sha256.hash(password)  
 
