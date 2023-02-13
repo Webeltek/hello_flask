@@ -34,6 +34,7 @@ class User(p.Model):
   id = p.AutoField()  
   user_email = p.CharField(default='first_email',unique=True)
   user_pass_hash = p.CharField(default='initial hash')
+  user_new_pass_hash = p.CharField(default='initial hash')
   user_is_logged_in = p.BooleanField(default=False)
   user_confirmed = p.BooleanField(default=False)
   user_conf_by_admin = p.BooleanField(default=False)
@@ -53,7 +54,17 @@ class User(p.Model):
   def user_pass(self, password):
     self.user_pass_hash = bcrypt_sha256.hash(password)
 
+  @property
+  def user_new_pass(self):
+    raise AttributeError('new password is not a readable attribute')  
+
+  @user_new_pass.setter
+  def new_user_pass(self, password):
+    print(f'models user_new_pass.setter password: {password}')
+    self.new_user_pass_hash = bcrypt_sha256.hash(password)  
+
   def verify_password(self, password):
+    print(f'models verify_password value: {password}')
     return bcrypt_sha256.verify(password,self.user_pass_hash)
   
   class Meta:
@@ -142,11 +153,12 @@ class User(p.Model):
     print('User confirmed in User.confirm(')
     return True
   
-  def generate_reset_token(self, expiration=3600):
+  def generate_pass_change_token(self, expiration=3600):
+        print(f'models generate_pass_change_token user.id : {self.id}')
         encodeed = jwt.encode({'reset': self.id,'exp': datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(seconds=expiration)},current_app.config['SECRET_KEY'], algorithm='HS256')
         return encodeed
 
-  def reset_password(self,token, new_password):
+  def change_pass(self,token):
         secret_key = current_app.config['SECRET_KEY']
         try:
            data = jwt.decode(token, secret_key, algorithms=['HS256'])
@@ -159,7 +171,7 @@ class User(p.Model):
         user = User.get(User.id == user_id_change_pass)
         if user is None:
             return False
-        user.user_pass = new_password
+        user.user_pass = user.user_new_password
         user.save()
         return True
 

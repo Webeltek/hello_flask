@@ -67,23 +67,17 @@ export class ProfileComponent implements OnInit {
   }
 
   changePass(oldPass: string , newPass: string): void {
-    const { oldpassword, newpassword } = this.changepassmodel;
-
-    this.authService.changePass(this.user.user_email,oldpassword, newpassword).subscribe({
+    this.authService.changePass(this.user.user_email,oldPass, newPass).subscribe({
       next: (data) => {
-        let dataObj = data as any;
+        let respAny = data.body as any;
         //console.log("loginComp dataObj.user:",dataObj.user)
-        if (dataObj.user!== 'nonexistent'){
-          let changePassToken : string= dataObj.user.access_token ;
-          this.tokenStorage.saveToken(changePassToken);
-          this.tokenStorage.saveUser(dataObj.user);
-          this.isPassResetFailed = false;
-          this.isPassReset = true;
-          this.tokenStorage.authenticated$.next(true);
+        if (respAny.hasOwnProperty('user_email')){
+          this.serviceMsg$.next(`A confirmation has been sent to: ${respAny.user_email}`);
+          
+          
           //this.reloadPage();
-        } else if(dataObj.user === 'nonexistent'){
+        } else {
           this.errorMessage = "Wrong username or password!";
-          this.isPassResetFailed = true;
         }
 
       },

@@ -212,7 +212,7 @@ def change_email_request():
         newEmail = req_json['newEmail']
         userPass = req_json['oldpassword']
         user = User.select().where(User.id==userId).get()
-        if user.verify_password(userPass):
+        if user is not None and user.verify_password(userPass):
             token = user.generate_email_change_token(newEmail)
             send_email(newEmail, 'Confirm change of email address',
                        'auth/email/change_email',
@@ -221,36 +221,31 @@ def change_email_request():
         else:
             msg='Invalid email or password.'
     users_db.close()        
-    return jsonify({'changed_email': newEmail, 'msg':msg})
+    return jsonify({'to_change_email': newEmail, 'msg':msg})
 
 @main_bp.route('/api/services/change_pass', methods=['GET', 'POST'])
 @access_required
 def change_pass_request():
     users_db.connect(reuse_if_open=True)
+    msg = ''
     if request.method == 'POST':
         req_json = request.get_json()
         user_email = req_json['email']
         old_pass = req_json['oldpassword']
         new_pass = req_json['newpassword']
+        print(f'main_bp.change_pass_request new pass: {new_pass}')
         user = User.get(User.user_email==user_email)
+        print(f'main_bp.change_pass_request selected user email: {user.user_email}') 
         if user is not None and user.verify_password(old_pass):
-            token = user.generate_reset_token()
+            user.user_new_pass = new_pass
+            token = user.generate_pass_change_token()
+            user.save()
             send_email(user.user_email, 'Reset Your Password',
                        'auth/email/reset_password',
                        user=user, token=token)
-        return redirect(url_for('auth_bp.login_form'))
-    return render_template('auth/pass_reset_request.jinja2', pass_res_req_form=form)
-
-
-@main_bp.route('/api/auth/change_pass/<token>', methods=['GET', 'POST'])
-@access_required
-def change_pass(token):
-    if request.method == 'POST':
-        req_json = request.get_json()
-        if User.reset_password(token, form.password.data):
-            msg ='Passordet ditt er oppdatert'
-            return redirect(url_for('auth_bp.login_form'))
+            msg='En e-post med instruksjoner for å bekrefte ditt nytt passord er sendt til deg.'
         else:
-            return redirect(url_for('auth_bp.password_reset_request'))
-    return render_template('auth/pass_reset.jinja2', pass_reset_form=form) 
+            msg='Invalid email or password.'    
+    users_db.close()
+    return jsonify({'user_email': user_email, 'msg':msg})
 
