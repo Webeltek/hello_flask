@@ -1,7 +1,9 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
 # compiled output
-#/dist
+<<<<<<< HEAD
+=======
+>>>>>>> 6e3afdfb70ea6017073b7113a48687c9460cd4e8
 /tmp
 /out-tsc
 
