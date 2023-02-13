@@ -101,6 +101,7 @@ class User(p.Model):
   
   @staticmethod
   def generate_admin_conf_token(user_id,expiration=3600*48):
+        print(f'models generate_admin_conf_token user_id: {user_id}')
         encoded = jwt.encode({'confirm': user_id ,'exp': datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(seconds=expiration) }, current_app.config['SECRET_KEY'], algorithm='HS256')
         return encoded
 
@@ -155,7 +156,7 @@ class User(p.Model):
   
   def generate_pass_change_token(self, expiration=3600):
         print(f'models generate_pass_change_token user.id : {self.id}')
-        encodeed = jwt.encode({'reset': self.id,'exp': datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(seconds=expiration)},current_app.config['SECRET_KEY'], algorithm='HS256')
+        encodeed = jwt.encode({'confirm': self.id,'exp': datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(seconds=expiration)},current_app.config['SECRET_KEY'], algorithm='HS256')
         return encodeed
 
   def change_pass(self,token):
@@ -171,8 +172,9 @@ class User(p.Model):
         user = User.get(User.id == user_id_change_pass)
         if user is None:
             return False
-        user.user_pass = user.user_new_password
-        user.save()
+        query = (User.update({User.user_pass_hash:user.user_new_pass_hash}).where(User.id == user_id_change_pass))
+        #user.user_pass = user.user_new_pass
+        query.execute()
         return True
 
   def generate_email_change_token(self, new_email, expiration=3600):

@@ -241,7 +241,7 @@ def change_pass_request():
             token = user.generate_pass_change_token()
             user.save()
             send_email(user.user_email, 'Reset Your Password',
-                       'auth/email/reset_password',
+                       'auth/email/change_password',
                        user=user, token=token)
             msg='En e-post med instruksjoner for å bekrefte ditt nytt passord er sendt til deg.'
         else:
