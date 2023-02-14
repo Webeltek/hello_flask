@@ -42,7 +42,8 @@ import { AngularCountriesFlagsModule } from 'angular-countries-flags';
 import { LandingPageComponent } from './landing-page/landing-page.component';
 import { NgbCarouselModule } from '@ng-bootstrap/ng-bootstrap';
 import { MatExpansionModule} from '@angular/material/expansion';
-import { MatCardModule } from '@angular/material/card';  
+import { MatCardModule } from '@angular/material/card';
+import { ChangePassComponent } from './change-pass/change-pass.component';  
 //import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 
 /* const config: SocketIoConfig = {
@@ -65,6 +66,7 @@ import { MatCardModule } from '@angular/material/card';
     ConfirmComponent,
     ProfileComponent,
     LandingPageComponent,
+    ChangePassComponent,
   ],
   imports: [
     CommonModule,

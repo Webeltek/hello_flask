@@ -37,7 +37,7 @@
               <mat-form-field appearance="fill">
                 <mat-label>{{'PColdPass' |translate}}</mat-label>
                 <input matInput [formControl]="emailPassFormControl" type="password">
-                <mat-error *ngIf="emailPassFormControl.hasError('minlength')">
+                  <mat-error *ngIf="emailPassFormControl.hasError('minlength')">
                   {{'LCpassMinChar' | translate}}
                   </mat-error>
                   <mat-error *ngIf="emailPassFormControl.hasError('required')">
@@ -61,18 +61,19 @@
               </mat-expansion-panel-header>
           
               <mat-form-field appearance="fill">
-                <mat-label>{{'PColdPass' |translate}}</mat-label>
-                <input matInput [formControl]="oldPassFormControl" type="password">
-                <mat-error *ngIf="oldPassFormControl.hasError('minlength')">
-                  Password must be at least 6 characters!
+                <mat-label>{{'RCemail' |translate}}</mat-label>
+                <input matInput [formControl]="resPassEmailFormControl" type="email">
+                <mat-error *ngIf="resPassEmailFormControl.hasError('minlength')">
+                  {{'PCemailTooshort' | translate}}
                   </mat-error>
-                  <mat-error *ngIf="oldPassFormControl.hasError('required')">
-                  Password is <strong>required</strong>
+                  <mat-error *ngIf="oldPassFormControl.hasError('required') ; #emailError">
+                    {{ 'LCpassRequired' | translate}}
                   </mat-error>
-              </mat-form-field>
-              <mat-form-field appearance="fill">
-                <mat-label>{{'PCnewPass' |translate}}</mat-label>
-                <input matInput [formControl]="newPassFormControl" type="password">
+                  <ng-container #emailError>
+                    <mat-error>
+                      {{ 'RCemailValid' | translate}}
+                    </mat-error>
+                  </ng-container>
               </mat-form-field>
               <mat-action-row>
                 <button mat-button color="primary" (click)="changePass(oldPassFormControl.value,newPassFormControl.value)">{{ 'PCsubmit' | translate}}</button>

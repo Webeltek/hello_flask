@@ -36,8 +36,7 @@ export class ProfileComponent implements OnInit {
   emailPassFormControl = new UntypedFormControl('',[Validators.required,Validators.minLength(6)])
   matcher = new MyErrorStateMatcher();
 
-  oldPassFormControl = new UntypedFormControl('',[Validators.required,Validators.minLength(6)]);
-  newPassFormControl = new UntypedFormControl('',[Validators.required,Validators.minLength(6)]);
+  resPassEmailFormControl = new UntypedFormControl('',[Validators.required,Validators.email,Validators.minLength(5)]);
 
   constructor(private tokenStorage: TokenStorageService, private authService: AuthService) { }
 
@@ -66,8 +65,8 @@ export class ProfileComponent implements OnInit {
     })
   }
 
-  changePass(oldPass: string , newPass: string): void {
-    this.authService.changePass(this.user.user_email,oldPass, newPass).subscribe({
+  changePass(resPassEmail: string ): void {
+    this.authService.changePass(resPassEmail).subscribe({
       next: (data) => {
         let respAny = data.body as any;
         //console.log("loginComp dataObj.user:",dataObj.user)

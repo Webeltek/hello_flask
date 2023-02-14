@@ -230,22 +230,17 @@ def change_pass_request():
     msg = ''
     if request.method == 'POST':
         req_json = request.get_json()
-        user_email = req_json['email']
-        old_pass = req_json['oldpassword']
-        new_pass = req_json['newpassword']
-        print(f'main_bp.change_pass_request new pass: {new_pass}')
+        user_email = req_json['resPassEmail']
         user = User.get(User.user_email==user_email)
         print(f'main_bp.change_pass_request selected user email: {user.user_email}') 
-        if user is not None and user.verify_password(old_pass):
-            user.user_new_pass = new_pass
+        if user is not None :
             token = user.generate_pass_change_token()
-            user.save()
             send_email(user.user_email, 'Reset Your Password',
                        'auth/email/change_password',
                        user=user, token=token)
-            msg='En e-post med instruksjoner for å bekrefte ditt nytt passord er sendt til deg.'
+            msg='En e-post med instruksjoner for å innføre ditt nytt passord er sendt til deg.'
         else:
-            msg='Invalid email or password.'    
+            msg='Invalid email'    
     users_db.close()
     return jsonify({'user_email': user_email, 'msg':msg})
 

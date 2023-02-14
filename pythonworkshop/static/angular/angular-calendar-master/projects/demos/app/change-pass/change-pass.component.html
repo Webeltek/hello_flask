@@ -1,0 +1,64 @@
+<div class="col-lg-4 offset-lg-4">
+    <div class="card card-container">
+      <img
+        id="profile-img"
+        src="//ssl.gstatic.com/accounts/ui/avatar_2x.png"
+        class="profile-img-card"
+      />
+      <form
+        *ngIf="!isSuccessful"
+        name="form"
+        (ngSubmit)="f.form.valid && onSubmit()"
+        #f="ngForm"
+        novalidate
+      >
+        <div class="form-group">
+          <label for="email">{{'RCemail' | translate}}</label>
+          <input
+            type="email"
+            class="form-control"
+            name="email"
+            [(ngModel)]="form.email"
+            required
+            email
+            #email="ngModel"
+          />
+          <div class="alert-danger" *ngIf="email.errors && f.submitted">
+            <div *ngIf="email.errors.required">{{'RCemailRequired' | translate}}</div>
+            <div *ngIf="email.errors.email">
+              {{'RCemailValid' | translate}}
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="password">{{'LCpass' | translate}}</label>
+          <input
+            type="password"
+            class="form-control"
+            name="password"
+            [(ngModel)]="form.password"
+            required
+            minlength="6"
+            #password="ngModel"
+          />
+          <div class="alert-danger" *ngIf="password.errors && f.submitted">
+            <div *ngIf="password.errors.required">{{'LCpassRequired'}}</div>
+            <div *ngIf="password.errors.minlength">
+              {{'LCpassMinChar' | translate}}
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <button class="btn btn-primary btn-block" type="submit">{{'RCsignup' | translate}}</button>
+        </div>
+  
+        <div class="alert alert-warning" *ngIf="f.submitted && isSignUpFailed">
+          {{'RCsignupFailed' | translate }}<br />{{ errorMessage }}
+        </div>
+      </form>
+  
+      <div class="alert alert-success" *ngIf="isSuccessful">
+        {{'RCalertSuccess' | translate }}{{form.email}}
+      </div>
+    </div>
+  </div>

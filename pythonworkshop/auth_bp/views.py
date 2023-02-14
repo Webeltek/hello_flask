@@ -172,17 +172,35 @@ def change_email(token):
 def change_pass(token):
     users_db.connect(reuse_if_open=True)
     msg=''
-    passchanged=False
+    emailcheck=False
     tokens_user_id = User.get_tokens_user_id(token)
     user = User.select().where(User.id==tokens_user_id).first()
-    if user is not None and user.change_pass(token):
-        msg='Passordet ditt er oppdatert'
-        passchanged=True
+    if user is not None :
+        msg='User exists'
+        emailcheck=True
     else:
-        msg='Ugyldig forespørsel.'
+        msg='Invalid email.'
     print(f'auth_bp.change_pass msg: {msg}')    
     users_db.close()    
-    return redirect(f'/confirm?passchanged={passchanged}') 
+    return redirect(f'/change_pass?emailcheck={emailcheck}')
+
+@auth_bp.route('/api/auth/input_change_pass', methods=['POST','GET'])
+def input_change_pass():
+    msg = ''
+    if request.method == 'POST':
+        users_db.connect(reuse_if_open=True)
+        user = User.select().where(User.user_email==request.json['email']).first()
+        if user is not None:
+            print(f'auth_bp.input_change_pass user email to change pass:{user.user_email}')
+        if user is not None and user.verify_password(request.json['password']) and user.user_confirmed and user.user_conf_by_admin:
+            user.login_user()
+            user.generate_access_token()
+            user_dict = model_to_dict(user)
+            return jsonify({'user':user_dict,'msg':'User confirmed!'})
+        else:
+            msg='Wrong username or password!'
+        users_db.close()
+    return jsonify({'user':'nonexistent','msg':msg}) 
 
 
 def confirm_event(userstate):
