@@ -34,11 +34,9 @@ class User(p.Model):
   id = p.AutoField()  
   user_email = p.CharField(default='first_email',unique=True)
   user_pass_hash = p.CharField(default='initial hash')
-  user_new_pass_hash = p.CharField(default='initial hash')
   user_is_logged_in = p.BooleanField(default=False)
   user_confirmed = p.BooleanField(default=False)
   user_conf_by_admin = p.BooleanField(default=False)
-  user_conf_pass_change = p.BooleanField(default=False)
   access_token = p.CharField(default='empty token')
   last_seen = p.CharField(default='initial date')
   is_admin = p.BooleanField(default=False)
@@ -52,16 +50,7 @@ class User(p.Model):
 
   @user_pass.setter
   def user_pass(self, password):
-    self.user_pass_hash = bcrypt_sha256.hash(password)
-
-  @property
-  def user_new_pass(self):
-    raise AttributeError('new password is not a readable attribute')  
-
-  @user_new_pass.setter
-  def user_new_pass(self, password):
-    print(f'models user_new_pass.setter password: {password}')
-    self.new_user_pass_hash = bcrypt_sha256.hash(password)  
+    self.user_pass_hash = bcrypt_sha256.hash(password) 
 
   def verify_password(self, password):
     print(f'models verify_password value: {password}')
@@ -130,8 +119,9 @@ class User(p.Model):
         print('User.confirm(...) exception in data.get("confirm")')
         print('User.confirm(...) data.get("confirm"): ' + str(data.get('confirm')) + 'is not = self.id: '+str(self.id)) 
         return False
-    self.user_confirmed = True
-    self.save()
+    if self.user_confirmed == False:
+        self.user_confirmed = True
+        self.save()
     print('User confirmed in User.confirm(')
     return True
   
@@ -159,23 +149,17 @@ class User(p.Model):
         encodeed = jwt.encode({'confirm': self.id,'exp': datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(seconds=expiration)},current_app.config['SECRET_KEY'], algorithm='HS256')
         return encodeed
 
-  def change_pass(self,token):
+  def change_pass(self,email,newpass):
         secret_key = current_app.config['SECRET_KEY']
-        try:
-           data = jwt.decode(token, secret_key, algorithms=['HS256'])
-        except:
-            print('serializer loads exeption')
+        change_pass_user_id = User.get(User.user_email == email)
+        if change_pass_user_id!=self.id:
             return False
-        if data.get('confirm') != self.id:
-            return False
-        user_id_change_pass = data.get('confirm')
-        user = User.get(User.id == user_id_change_pass)
-        if user is None:
-            return False
-        query = (User.update({User.user_pass_hash:user.user_new_pass_hash}).where(User.id == user_id_change_pass))
-        #user.user_pass = user.user_new_pass
-        query.execute()
-        return True
+        if newpass is not None:
+          self.user_pass = newpass
+          self.save()
+          return True
+        
+        return False
 
   def generate_email_change_token(self, new_email, expiration=3600):
         encodeed = jwt.encode({'confirm': self.id, 'new_email' : new_email, \

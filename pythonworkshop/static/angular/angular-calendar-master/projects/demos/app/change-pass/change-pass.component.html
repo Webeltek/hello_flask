@@ -5,60 +5,43 @@
         src="//ssl.gstatic.com/accounts/ui/avatar_2x.png"
         class="profile-img-card"
       />
-      <form
-        *ngIf="!isSuccessful"
-        name="form"
-        (ngSubmit)="f.form.valid && onSubmit()"
-        #f="ngForm"
-        novalidate
-      >
-        <div class="form-group">
-          <label for="email">{{'RCemail' | translate}}</label>
-          <input
-            type="email"
-            class="form-control"
-            name="email"
-            [(ngModel)]="form.email"
-            required
-            email
-            #email="ngModel"
-          />
-          <div class="alert-danger" *ngIf="email.errors && f.submitted">
-            <div *ngIf="email.errors.required">{{'RCemailRequired' | translate}}</div>
-            <div *ngIf="email.errors.email">
-              {{'RCemailValid' | translate}}
-            </div>
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="password">{{'LCpass' | translate}}</label>
-          <input
-            type="password"
-            class="form-control"
-            name="password"
-            [(ngModel)]="form.password"
-            required
-            minlength="6"
-            #password="ngModel"
-          />
-          <div class="alert-danger" *ngIf="password.errors && f.submitted">
-            <div *ngIf="password.errors.required">{{'LCpassRequired'}}</div>
-            <div *ngIf="password.errors.minlength">
-              {{'LCpassMinChar' | translate}}
-            </div>
-          </div>
-        </div>
-        <div class="form-group">
-          <button class="btn btn-primary btn-block" type="submit">{{'RCsignup' | translate}}</button>
-        </div>
-  
-        <div class="alert alert-warning" *ngIf="f.submitted && isSignUpFailed">
-          {{'RCsignupFailed' | translate }}<br />{{ errorMessage }}
-        </div>
-      </form>
-  
+    <form [formGroup]="changePassFG">  
+      <mat-form-field appearance="fill">
+        <mat-label>{{'PCnewEmail' |translate}}</mat-label>
+        <input matInput formControlname="email" [errorStateMatcher]="matcher">
+        <mat-error *ngIf="changePassFG.controls.email.errors?.['email']">
+          {{ 'PCemailTooshort' | translate}}
+        </mat-error>
+        <mat-error *ngIf="changePassFG.controls.oldpass.errors?.['required']">
+          {{'LCemailRequired' | translate }}
+          </mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="fill">
+        <mat-label>{{'PColdPass' |translate}}</mat-label>
+        <input matInput formControlName="oldpass" type="password" [errorStateMatcher]="matcher">
+          <mat-error *ngIf="changePassFG.controls.oldpass.errors?.['minlength']">
+          {{'LCpassMinChar' | translate}}
+          </mat-error>
+          <mat-error *ngIf="changePassFG.controls.oldpass.errors?.['required']">
+          {{'LCpassRequired' | translate }}
+          </mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="fill">
+        <mat-label>{{'PCnewPass' |translate}}</mat-label>
+        <input matInput formControlName="newpass" type="password" [errorStateMatcher]="matcher">
+          <mat-error *ngIf="changePassFG.controls.newpass.errors?.['minlength']">
+          {{'LCpassMinChar' | translate}}
+          </mat-error>
+          <mat-error *ngIf="changePassFG.controls.newpass.errors?.['required']">
+          {{'LCpassRequired' | translate }}
+          </mat-error>
+      </mat-form-field>
+      <mat-action-row>
+        <button mat-button color="primary" (click)="inputChangePass(changePassFG.value.email,changePassFG.value.oldpass,changePassFG.value.newpass)">{{ 'PCsubmit' | translate}}</button>
+      </mat-action-row>
+    </form>  
       <div class="alert alert-success" *ngIf="isSuccessful">
-        {{'RCalertSuccess' | translate }}{{form.email}}
+        {{'RCalertSuccess' | translate }}{{changePassFG.value.email}}
       </div>
     </div>
   </div>

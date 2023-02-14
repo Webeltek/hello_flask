@@ -187,16 +187,18 @@ def change_pass(token):
 @auth_bp.route('/api/auth/input_change_pass', methods=['POST','GET'])
 def input_change_pass():
     msg = ''
+    email= request.json['email']
+    oldpass = request.json['oldpass']
+    newpass = request.json['newpass']
     if request.method == 'POST':
         users_db.connect(reuse_if_open=True)
-        user = User.select().where(User.user_email==request.json['email']).first()
+        user = User.select().where(User.user_email==email).first()
         if user is not None:
             print(f'auth_bp.input_change_pass user email to change pass:{user.user_email}')
-        if user is not None and user.verify_password(request.json['password']) and user.user_confirmed and user.user_conf_by_admin:
+        if user is not None and user.verify_password(oldpass) and user.user_confirmed and user.user_conf_by_admin:
+            user.change_pass(email,newpass)
             user.login_user()
-            user.generate_access_token()
-            user_dict = model_to_dict(user)
-            return jsonify({'user':user_dict,'msg':'User confirmed!'})
+            return jsonify({'user_email':email,'msg':'Password changed!'})
         else:
             msg='Wrong username or password!'
         users_db.close()

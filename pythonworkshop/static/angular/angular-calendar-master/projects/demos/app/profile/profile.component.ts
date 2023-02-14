@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { TokenStorageService } from '../_services/token-storage.service';
 import { AuthService } from '../_services/auth.service';
 import { PythUser } from '../demo-app.component';
-import { UntypedFormControl,Validators ,FormControl, FormGroupDirective, NgForm} from '@angular/forms';
+import { UntypedFormControl,Validators ,FormControl, FormGroupDirective, NgForm, UntypedFormGroup} from '@angular/forms';
 import {ErrorStateMatcher} from '@angular/material/core';
 import { BehaviorSubject } from 'rxjs';
 
@@ -21,24 +21,17 @@ export class MyErrorStateMatcher implements ErrorStateMatcher {
 })
 export class ProfileComponent implements OnInit {
 
-  changepassmodel : any = {
-    oldpassword : '',
-    newpassword : ''
-  }
-
-
   isPassReset = false;
   isPassResetFailed = false;
   errorMessage = '';
   serviceMsg$: BehaviorSubject<string> = new BehaviorSubject('');
 
-  emailFormControl = new UntypedFormControl('',[Validators.required, Validators.email,Validators.minLength(5)]);
-  emailPassFormControl = new UntypedFormControl('',[Validators.required,Validators.minLength(6)])
   matcher = new MyErrorStateMatcher();
 
   resPassEmailFormControl = new UntypedFormControl('',[Validators.required,Validators.email,Validators.minLength(5)]);
 
-  constructor(private tokenStorage: TokenStorageService, private authService: AuthService) { }
+  constructor(private tokenStorage: TokenStorageService,
+     private authService: AuthService) { }
 
   user : PythUser = {
     id : 0, 
@@ -50,6 +43,15 @@ export class ProfileComponent implements OnInit {
   last_seen : '',
   is_admin : ''
   };
+
+  changeEmailFG = new UntypedFormGroup({
+    email: new UntypedFormControl('',[Validators.required, Validators.email,Validators.minLength(5)]),
+    pass: new UntypedFormControl('',[Validators.required,Validators.minLength(6)])
+  })
+
+  changePassFG = new UntypedFormGroup({
+    email: new UntypedFormControl('',[Validators.required, Validators.email,Validators.minLength(5)]),
+  })
 
   ngOnInit(): void {
     this.user=this.tokenStorage.getUser();
@@ -72,9 +74,6 @@ export class ProfileComponent implements OnInit {
         //console.log("loginComp dataObj.user:",dataObj.user)
         if (respAny.hasOwnProperty('user_email')){
           this.serviceMsg$.next(`A confirmation has been sent to: ${respAny.user_email}`);
-          
-          
-          //this.reloadPage();
         } else {
           this.errorMessage = "Wrong username or password!";
         }

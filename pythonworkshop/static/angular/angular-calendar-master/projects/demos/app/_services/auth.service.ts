@@ -59,10 +59,11 @@ export class AuthService {
     }, { headers : this.httpHeaders, observe : 'response', responseType : 'json'} );
   }
 
-  inputChangePass( email: string, password: string): Observable<any> {
+  inputChangePass( email: string, oldpass: string,newpass: string): Observable<any> {
     return this.http.post(baseurl+AUTH_API + 'input_change_pass', {
       email : email,
-      password : password
+      oldpass : oldpass,
+      newpass: newpass
     }, { headers : this.httpHeaders, observe : 'response', responseType : 'json'} );
   }
 

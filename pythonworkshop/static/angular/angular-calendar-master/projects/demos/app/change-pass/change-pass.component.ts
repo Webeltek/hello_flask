@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../_services/auth.service';
 import { TokenStorageService } from '../_services/token-storage.service';
 import { ActivatedRoute} from '@angular/router';
+import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms';
+import { MyErrorStateMatcher } from '../profile/profile.component';
 
 @Component({
   selector: 'mwl-change-pass',
@@ -9,13 +11,15 @@ import { ActivatedRoute} from '@angular/router';
   styleUrls: ['./change-pass.component.scss']
 })
 export class ChangePassComponent implements OnInit {
-  form: any = {
-    email: null,
-    password: null
-  };
+  changePassFG = new UntypedFormGroup({
+    email: new UntypedFormControl('',[Validators.required, Validators.email,Validators.minLength(5)]),
+    oldpass: new UntypedFormControl('',[Validators.required,Validators.minLength(6)]),
+    newpass : new UntypedFormControl('',[Validators.required,Validators.minLength(6)])
+  });
   isSuccessful = false;
-  isSignUpFailed = false;
+  isInputChangePassFailed = false;
   errorMessage = '';
+  matcher = new MyErrorStateMatcher();
 
   constructor(private authService: AuthService, 
     private tokenStorage: TokenStorageService,
@@ -25,55 +29,19 @@ export class ChangePassComponent implements OnInit {
     let userEmailexists = this.actRoute.snapshot.queryParamMap.get('emailcheck');
   }
 
-  onSubmit(): void {
-    const { email, password } = this.form;
-
-    this.authService.inputChangePass( email, password).subscribe({
+  inputChangePass(email: string,oldpass: string,newpass: string): void {
+    this.authService.inputChangePass( email, oldpass,newpass).subscribe({
       next : (response) => {
         let responseObj = response.body as any;
-        let is_duplicate : boolean = responseObj.is_duplicate;
-        let temp_user_id : number = responseObj.temp_user_id;
-        console.log("RegComp is_duplicate value: ",responseObj.is_duplicate)
-        if (!is_duplicate){
-          //console.log("RegComp not duplicate response",response)
+        let user_id : number = responseObj.temp_user_id;
           let sentToken = response.sent_token;
           this.tokenStorage.saveConfirmToken(sentToken)
           this.isSuccessful = true;
-          this.isSignUpFailed = false;
-        } else {
-          //console.log("RegComp is duplicate response",response)
-          this.isSuccessful = false;
-          this.isSignUpFailed = true;
-          this.errorMessage = "is duplicate";
-        }
-
-        if(typeof temp_user_id!=='undefined'){
-          this.authService.sendAdminRegConfirm( email, password, temp_user_id).subscribe({
-            next : (response) => {
-              let responseObj = response.body as any;
-              let sent_success : boolean = responseObj.is_sent;
-              console.log("sendAdminRegConfirm value: ",responseObj)
-              if (sent_success){
-                
-              } else {
-                
-              }
-              
-            },
-            error : (err) => {
-              console.log("RegComp error",err);
-              this.errorMessage = JSON.stringify(err);
-              this.isSignUpFailed = true;
-            }
-          }
-          );
-        }
-        
+          this.isInputChangePassFailed = false;
       },
       error : (err) => {
-        console.log("RegComp error",err);
-        this.errorMessage = JSON.stringify(err);
-        this.isSignUpFailed = true;
+        this.errorMessage = err.error.message;
+        this.isInputChangePassFailed = true;
       }
     }
     );

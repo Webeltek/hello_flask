@@ -26,26 +26,28 @@
                   <mat-icon>account_circle</mat-icon>
                 </mat-panel-description>
               </mat-expansion-panel-header>
-        
-              <mat-form-field appearance="fill">
-                <mat-label>{{'PCnewEmail' |translate}}</mat-label>
-                <input matInput [formControl]="emailFormControl" [errorStateMatcher]="matcher">
-                <mat-error *ngIf="emailFormControl.hasError('email')">
-                  {{ 'PCemailTooshort' | translate}}
-                </mat-error>
-              </mat-form-field>
-              <mat-form-field appearance="fill">
-                <mat-label>{{'PColdPass' |translate}}</mat-label>
-                <input matInput [formControl]="emailPassFormControl" type="password">
-                  <mat-error *ngIf="emailPassFormControl.hasError('minlength')">
-                  {{'LCpassMinChar' | translate}}
+              <form [formGroup]="changeEmailFG">
+                <mat-form-field appearance="fill">
+                  <mat-label>{{'PCnewEmail' |translate}}</mat-label>
+                  <input matInput formControlName="email" [errorStateMatcher]="matcher">
+                  <mat-error *ngIf="changeEmailFG.controls.email.errors?.['email']">
+                    {{ 'PCemailTooshort' | translate}}
                   </mat-error>
-                  <mat-error *ngIf="emailPassFormControl.hasError('required')">
-                  {{'LCpassRequired' | translate }}
-                  </mat-error>
-              </mat-form-field>
+                </mat-form-field>
+                <mat-form-field appearance="fill">
+                  <mat-label>{{'PColdPass' |translate}}</mat-label>
+                  <input matInput formControlName="pass" type="password" [errorStateMatcher]="matcher">
+                    <mat-error *ngIf="changeEmailFG.controls.pass.errors?.['minlength']">
+                    {{'LCpassMinChar' | translate}}
+                    </mat-error>
+                    <mat-error *ngIf="changeEmailFG.controls.pass.errors?.['required']">
+                    {{'LCpassRequired' | translate }}
+                    </mat-error>
+                </mat-form-field>
+              </form>
+
               <mat-action-row>
-                <button mat-button color="primary" (click)="changeEmail(emailFormControl.value,emailPassFormControl.value)">{{ 'PCsubmit' | translate}}</button>
+                <button mat-button color="primary" (click)="changeEmail(changeEmailFG.value.pass,changeEmailFG.value.pass)">{{ 'PCsubmit' | translate}}</button>
               </mat-action-row>
             </mat-expansion-panel>
         
@@ -60,23 +62,23 @@
                 </mat-panel-description>
               </mat-expansion-panel-header>
           
-              <mat-form-field appearance="fill">
-                <mat-label>{{'RCemail' |translate}}</mat-label>
-                <input matInput [formControl]="resPassEmailFormControl" type="email">
-                <mat-error *ngIf="resPassEmailFormControl.hasError('minlength')">
-                  {{'PCemailTooshort' | translate}}
-                  </mat-error>
-                  <mat-error *ngIf="oldPassFormControl.hasError('required') ; #emailError">
-                    {{ 'LCpassRequired' | translate}}
-                  </mat-error>
-                  <ng-container #emailError>
-                    <mat-error>
+              <form [formGroup]="changePassFG">
+                <mat-form-field appearance="fill">
+                  <mat-label>{{'RCemail' |translate}}</mat-label>
+                  <input matInput formControlName="email" type="email">
+                    <mat-error *ngIf="changePassFG.controls.email.errors?.['minlength']">
+                    {{'PCemailTooshort' | translate}}
+                    </mat-error>
+                    <mat-error *ngIf="changePassFG.controls.email.errors?.['required']">
+                      {{ 'LCpassRequired' | translate}}
+                    </mat-error>
+                    <mat-error *ngIf="changePassFG.controls.email.errors?.['email']">
                       {{ 'RCemailValid' | translate}}
                     </mat-error>
-                  </ng-container>
-              </mat-form-field>
+                </mat-form-field>
+              </form>
               <mat-action-row>
-                <button mat-button color="primary" (click)="changePass(oldPassFormControl.value,newPassFormControl.value)">{{ 'PCsubmit' | translate}}</button>
+                <button mat-button color="primary" (click)="changePass(changePassFG.value.email)">{{ 'PCsubmit' | translate}}</button>
               </mat-action-row>
             </mat-expansion-panel>
           </mat-accordion>
