@@ -45,5 +45,9 @@
     "DCtoday": "Today",
     "DCnext": "Next",
     "DCmonth": "Month",
-    "DCweek": "Week"
+    "DCweek": "Week",
+
+    "EDdelTtl": "Delete event",
+    "EDinsertTtl": "Select event",
+    "EDchoosePer": "Choose period"
 }

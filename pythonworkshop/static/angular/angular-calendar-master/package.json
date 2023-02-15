@@ -3,7 +3,7 @@
   "version": "0.29.0",
   "description": "A calendar component for angular 12.0+ that can display events on a month, week or day view",
   "funding": {
-    "url": "https://github.com/sponsors/mattlewis92"
+    "url": ""
   },
   "scripts": {
     "node:memory": "cross-env NODE_OPTIONS=--max_old_space_size=8192",

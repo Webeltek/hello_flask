@@ -35,7 +35,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   @ViewChild(MatSidenav)
   sidenav!: MatSidenav;
 
-  constructor( private observer: BreakpointObserver,
+  constructor( 
+    private observer: BreakpointObserver,
     public tokenStorage: TokenStorageService,
     private router: Router,
     public dialog: MatDialog,
