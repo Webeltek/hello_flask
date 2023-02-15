@@ -96,7 +96,6 @@ export class LoginComponent implements OnInit {
           this.isLoginFailed = false;
           this.isLoggedIn = true;
           this.tokenStorage.authenticated$.next(true);
-          //this.reloadPage();
           this.router.navigate(['calendar'])
         } else if(dataObj.user === 'nonexistent'){
           this.errorMessage = "Wrong username or password!";
@@ -112,8 +111,5 @@ export class LoginComponent implements OnInit {
     );
   }
 
-  reloadPage(): void {
-    window.location.reload();
-  }
 }
 

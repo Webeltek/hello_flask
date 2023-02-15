@@ -7,7 +7,7 @@
       />
     <form [formGroup]="changePassFG">  
       <mat-form-field appearance="fill">
-        <mat-label>{{'PCnewEmail' |translate}}</mat-label>
+        <mat-label>{{'PCEmail' |translate}}</mat-label>
         <input matInput formControlname="email" [errorStateMatcher]="matcher">
         <mat-error *ngIf="changePassFG.controls.email.errors?.['email']">
           {{ 'PCemailTooshort' | translate}}

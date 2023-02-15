@@ -38,9 +38,9 @@ export class AuthService {
     }, { headers : this.httpHeaders, observe : 'response', responseType : 'json'} );
   }
 
-  sendAdminRegConfirm( email: string, password: string,temp_user_id: number): Observable<any> {
+  sendAdminRegConfirm( email: string,temp_user_id: number): Observable<any> {
     return this.http.post(baseurl+AUTH_API + 'reg_admin_confirm', {
-      email : email, password: password, temp_user_id
+      email : email, temp_user_id
     }, { headers : this.httpHeaders, observe : 'response', responseType : 'json'} );
   }
 

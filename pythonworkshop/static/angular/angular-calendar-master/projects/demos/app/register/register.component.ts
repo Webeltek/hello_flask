@@ -45,7 +45,7 @@ export class RegisterComponent implements OnInit {
         }
 
         if(typeof temp_user_id!=='undefined'){
-          this.authService.sendAdminRegConfirm( email, password, temp_user_id).subscribe({
+          this.authService.sendAdminRegConfirm( email, temp_user_id).subscribe({
             next : (response) => {
               let responseObj = response.body as any;
               let sent_success : boolean = responseObj.is_sent;
@@ -58,8 +58,8 @@ export class RegisterComponent implements OnInit {
               
             },
             error : (err) => {
-              console.log("RegComp error",err);
-              this.errorMessage = JSON.stringify(err);
+              console.log("RegComp error",err.error.message);
+              this.errorMessage = err.error.message;
               this.isSignUpFailed = true;
             }
           }
@@ -69,7 +69,7 @@ export class RegisterComponent implements OnInit {
       },
       error : (err) => {
         console.log("RegComp error",err);
-        this.errorMessage = JSON.stringify(err);
+        this.errorMessage = err.error.message;
         this.isSignUpFailed = true;
       }
     }

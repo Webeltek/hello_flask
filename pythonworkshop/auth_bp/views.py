@@ -25,16 +25,6 @@ login_templ = templateEnv.get_template('/auth/login.jinja2')
 register_templ = templateEnv.get_template('/auth/register.jinja2')
 
 """
-@auth_bp.route('/')
-def index():
-  login_form = LoginForm()
-  pass_reset_form = PasswordResetRequestForm()
-  reg_form = RegistrationForm()
-  wrong_cred=False
-  email_sent=False
-  return render_template('index.html')
-
-
 @auth_bp.before_app_request
 def before_request():
   users_db.connect(reuse_if_open=True)
@@ -48,7 +38,6 @@ def before_request():
             return redirect(url_for('auth_bp.unconfirmed'))
   users_db.close()
   pass 
-
 """     
 
 
@@ -75,14 +64,16 @@ def login_form():
 @auth_bp.route('/api/auth/register', methods=['POST'])
 def register_form(): 
   if request.method == 'POST':
-      print(f'/api/auth/register called and request email: {str(request.json["email"])}') 
+      print(f'/api/auth/register called with email: {str(request.json["email"])}') 
       users_db.connect(reuse_if_open=True)
       msg=''
+      user_email=request.json['email']
+      user_pass=request.json['password']
       try :
-        user = User.create(user_email=request.json['email'],
-                           user_pass=request.json['password'])
+        user = User.create(user_email=user_email,
+                           user_pass=user_pass)
       except p.IntegrityError :
-        return ({'is_duplicate': True, 'duplicate_email': request.json['email']})
+        return ({'is_duplicate': True, 'duplicate_email': user_email})
       token = user.generate_confirmation_token()
       temp_user_id = user.id
       send_email(user.user_email, 'Confirm Your Account', 'auth/email/confirm', user=user, token=token)
@@ -97,15 +88,15 @@ def confirm(token):
     tokens_user_id = User.get_tokens_user_id(token)
     user = User.select().where(User.id==tokens_user_id).first()
     userconfirmed=False
+    msg=''
     if user is not None and (user.user_confirmed or user.confirm(token)):
-        msg_confirmed='Du har bekreftet kontoen din. Takk!'
-        user_dict = model_to_dict(user)
         userconfirmed=True
+        msg='Du har bekreftet kontoen din. Takk!'
     elif user is not None and not user.confirm(token):
         userconfirmed=False
         User.delete().where(User.id == user.id).execute()
-    msg_wrong_link = 'Bekreftelseslenken er ugyldig eller har utløpt.'
-    print(f'auth_bp.confirm userconfirmed:{userconfirmed}')    
+        msg = 'Bekreftelseslenken er ugyldig eller har utløpt.'
+    print(f'auth_bp.confirm msg:{msg}')    
     users_db.close()
     return redirect(f'/confirm?=userconfirmed={userconfirmed}')
 
@@ -115,15 +106,10 @@ def reg_admin_confirm():
     if request.method == 'POST':
         req_json = request.get_json()
         user_email=request.json['email']
-        user_pass=request.json['password']
         temp_user_id = req_json['temp_user_id']
-        print(f'/api/auth/reg_admin_confirm called and request email: {str(request.json["email"])}') 
+        print(f'/api/auth/reg_admin_confirm called from user email: {str(user_email)}') 
         users_db.connect(reuse_if_open=True)
         msg=''
-        """ try :
-            user = User.create(user_email=user_email,user_pass=user_pass)
-        except p.IntegrityError :
-            return ({'is_duplicate': True, 'duplicate_email': request.json['email']}) """
         adm_conf_token = User.generate_admin_conf_token(temp_user_id)
         temp_user = User.select().where(User.id==temp_user_id).first()
         app= current_app._get_current_object()
@@ -134,25 +120,25 @@ def reg_admin_confirm():
         users_db.close()
     return jsonify({'is_duplicate': False,'sent_token': adm_conf_token, 'msg':msg})
 
-@auth_bp.route('/api/auth/reg_admin_confirm/<token>',methods=['POST','GET'])
+@auth_bp.route('/api/auth/reg_admin_confirm/<token>',methods=['GET','POST'])
 def conf_by_adm(token):
     users_db.connect(reuse_if_open=True)
     tokens_user_id = User.get_tokens_user_id(token)
     user = User.select().where(User.id==tokens_user_id).first()
+    msg=''
     user_conf_by_adm=False
-    if user is not None and ((user.user_confirmed and user_conf_by_adm) or user.conf_by_adm(token)):
-        msg_confirmed=f'Admin har bekreftet kontoen {user.user_email}. Takk!'
-        user_dict = model_to_dict(user)
+    if user is not None and (user.user_conf_by_admin or user.conf_by_adm(token)):
+        msg=f'Admin har bekreftet kontoen {user.user_email}. Takk!'
         user_conf_by_adm=True
     elif user is not None and not user.confirm_by_adm(token):
         user_conf_by_adm=False
         User.delete().where(User.id == user.id).execute()
-    msg_wrong_link = 'Bekreftelseslenken er ugyldig eller har utløpt.'
-    print(f'auth_bp.conf_by_adm user_conf_by_adm:{user_conf_by_adm}')    
+        msg = 'Bekreftelseslenken er ugyldig eller har utløpt.'
+    print(f'auth_bp.conf_by_adm msg :{msg}')    
     users_db.close()
     return redirect(f'/confirm?user_conf_by_adm={user_conf_by_adm}')
 
-@auth_bp.route('/api/auth/change_email/<token>')
+@auth_bp.route('/api/auth/change_email/<token>', methods=['GET', 'POST'])
 def change_email(token):
     users_db.connect(reuse_if_open=True)
     msg=''
