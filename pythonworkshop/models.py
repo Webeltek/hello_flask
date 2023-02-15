@@ -150,13 +150,12 @@ class User(p.Model):
         return encodeed
 
   def change_pass(self,email,newpass):
-        secret_key = current_app.config['SECRET_KEY']
-        change_pass_user_id = User.get(User.user_email == email)
-        if change_pass_user_id!=self.id:
+        user = User.get(User.user_email == email)
+        if user.id!=self.id:
             return False
         if newpass is not None:
           self.user_pass = newpass
-          self.save()
+          self.safe()
           return True
         
         return False
