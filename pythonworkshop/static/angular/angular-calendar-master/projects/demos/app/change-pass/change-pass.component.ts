@@ -30,6 +30,7 @@ export class ChangePassComponent implements OnInit {
   }
 
   inputChangePass(email: string,oldpass: string,newpass: string): void {
+    console .log("ChPC inputchangePass email, oldpass, newpass: ",email,oldpass,newpass)
     this.authService.inputChangePass( email, oldpass,newpass).subscribe({
       next : (response) => {
         let responseObj = response.body as any;

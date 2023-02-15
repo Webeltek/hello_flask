@@ -176,6 +176,7 @@ def input_change_pass():
     email= request.json['email']
     oldpass = request.json['oldpass']
     newpass = request.json['newpass']
+    print(f'auth_bp.input_change_pass email, oldpass, newpass:{email,oldpass,newpass}')
     if request.method == 'POST':
         users_db.connect(reuse_if_open=True)
         user = User.select().where(User.user_email==email).first()
@@ -183,7 +184,7 @@ def input_change_pass():
             print(f'auth_bp.input_change_pass user email to change pass:{user.user_email}')
         if user is not None and user.verify_password(oldpass) and user.user_confirmed and user.user_conf_by_admin:
             user.change_pass(email,newpass)
-            user.login_user()
+            #user.login_user()
             return jsonify({'user_email':email,'msg':'Password changed!'})
         else:
             msg='Wrong username or password!'

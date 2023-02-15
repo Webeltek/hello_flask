@@ -8,12 +8,12 @@
     <form [formGroup]="changePassFG">  
       <mat-form-field appearance="fill">
         <mat-label>{{'RCemail' |translate}}</mat-label>
-        <input matInput formControlname="email" [errorStateMatcher]="matcher">
-        <mat-error *ngIf="changePassFG.controls.email.errors?.['email']">
-          {{ 'PCemailTooshort' | translate}}
-        </mat-error>
-        <mat-error *ngIf="changePassFG.controls.oldpass.errors?.['required']">
-          {{'LCemailRequired' | translate }}
+        <input matInput formControlName="email" type="email" [errorStateMatcher]="matcher">
+          <mat-error *ngIf="changePassFG.controls.email.errors?.['email']">
+            {{ 'PCemailTooshort' | translate}}
+          </mat-error>
+          <mat-error *ngIf="changePassFG.controls.email.errors?.['required']">
+            {{'LCemailRequired' | translate }}
           </mat-error>
       </mat-form-field>
       <mat-form-field appearance="fill">

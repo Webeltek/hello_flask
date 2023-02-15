@@ -29,7 +29,7 @@
               <form [formGroup]="changeEmailFG">
                 <mat-form-field appearance="fill">
                   <mat-label>{{'PCnewEmail' |translate}}</mat-label>
-                  <input matInput formControlName="email" [errorStateMatcher]="matcher">
+                  <input matInput formControlName="email" type="email" [errorStateMatcher]="matcher">
                   <mat-error *ngIf="changeEmailFG.controls.email.errors?.['email']">
                     {{ 'PCemailTooshort' | translate}}
                   </mat-error>

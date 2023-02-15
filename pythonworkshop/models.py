@@ -155,7 +155,7 @@ class User(p.Model):
             return False
         if newpass is not None:
           self.user_pass = newpass
-          self.safe()
+          self.save()
           return True
         
         return False
