@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../_services/auth.service';
 import { TokenStorageService } from '../_services/token-storage.service';
-import { ActivatedRoute, Router ,ParamMap} from '@angular/router';
+import { ActivatedRoute, Router} from '@angular/router';
 
 let apiLoaded = false;
 

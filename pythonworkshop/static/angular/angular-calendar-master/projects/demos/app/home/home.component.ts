@@ -2,7 +2,7 @@ import { Component, ViewChild, OnInit , Inject, OnDestroy} from '@angular/core';
 import { HttpEventService } from 'projects/angular-calendar/src/modules/week/http-service.service';
 import { PythUser } from '../demo-app.component';
 import { TokenStorageService } from '../_services/token-storage.service';
-import { Router, NavigationEnd} from '@angular/router';
+import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { MatSidenav } from '@angular/material/sidenav';
@@ -14,7 +14,7 @@ import { PythEvent } from 'projects/angular-calendar/src/modules/week/calendar-w
 import { MatTableDataSource} from '@angular/material/table';
 import { CalendarEvent } from 'calendar-utils';
 import { DataSource } from '@angular/cdk/collections';
-import { Observable, ReplaySubject} from 'rxjs';
+import { Observable, ReplaySubject, BehaviorSubject} from 'rxjs';
 import { DatePipe} from '@angular/common';
 import { SelectionModel } from '@angular/cdk/collections';
 import { TranslateService } from '@ngx-translate/core';
@@ -39,6 +39,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     private observer: BreakpointObserver,
     public tokenStorage: TokenStorageService,
     private router: Router,
+    private actRoute: ActivatedRoute,
     public dialog: MatDialog,
     private httpService: HttpEventService,
     public translate: TranslateService) {
@@ -48,8 +49,9 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   switchLang(lang: string) {
     this.translate.use(lang);
-  }  
+  } 
 
+  isCalendarActive$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
   loginStateSubscription: Subscription = new Subscription();
   breakPointObsSubscr : Subscription = new Subscription();
@@ -58,6 +60,19 @@ export class HomeComponent implements OnInit, OnDestroy {
 
 
   ngOnInit(): void {
+    this.router.events.subscribe({
+      next : (routerEvent)=>{
+        if (routerEvent instanceof NavigationEnd){
+          const titleVal = routerEvent.url;
+          titleVal === "/calendar" ? this.isCalendarActive$.next(true)  : this.isCalendarActive$.next(false);
+          console.log("HC ngOnInit actRoute.title value: ",routerEvent.url)
+        }
+      },
+      error: (err) => {
+        console.log("HC ngOnInit actRoute.title.subscribe error",err.error.message)
+      }
+    })
+
     this.httpService.roomNamesArr$.subscribe((roomNamesArr)=>{
       this.roomNamesArr= roomNamesArr;
       //console.log("HomeComp ngOnInit() roomNamesArr",this.roomNamesArr);
@@ -109,53 +124,61 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   editEvents(){
+    if (this.isCalendarActive$.value){
     console.log("HomeC editEvents() this.roomNamesArr: ",this.roomNamesArr)
-    const dialogRef = this.dialog.open(EditEventsDialog, {
-      data: {
-        rooms: this.roomNamesArr
-      },
-    });
-
-    dialogRef.afterClosed().subscribe({
-      next: (obj) => {
-        if (typeof obj!=='undefined' && typeof obj.selectedRowsIds !== 'undefined') {
-          this.delEvents(obj.selectedRowsIds);
-          //console.log("HomeComp to delete ids",obj.selectedRowsIds)
+    if (this.isCalendarActive$){
+      const dialogRef = this.dialog.open(EditEventsDialog, {
+        data: {
+          rooms: this.roomNamesArr
+        },
+      });
+  
+      dialogRef.afterClosed().subscribe({
+        next: (obj) => {
+          if (typeof obj!=='undefined' && typeof obj.selectedRowsIds !== 'undefined') {
+            this.delEvents(obj.selectedRowsIds);
+            //console.log("HomeComp to delete ids",obj.selectedRowsIds)
+          }
+        },
+        error: (error) => {
+          console.log("editEvents() afterClosed() error : " + error);
         }
-      },
-      error: (error) => {
-        console.log("editEvents() afterClosed() error : " + error);
       }
+      );
     }
-    );
+  }
+    
   }
 
   editRooms(){
-    const dialogRef = this.dialog.open(EditRoomsDialog, {
-      data: {
-        rooms: this.roomNamesArr
-      },
-    });
-
-    dialogRef.afterClosed().subscribe(
-      (obj) => {
-        if (typeof obj !== 'undefined' && typeof obj.toEditRooms !== 'undefined') {
-          console.log("HomeComp dial afterClosed() obj.toEditRooms",obj.toEditRooms);
-          let roomTitles: string[] = obj.toEditRooms;
-          this.httpService.updateRooms(roomTitles);
-        } else if(typeof obj == 'undefined'){
-          console.log("HomeC dial afterClosed obj is undefined")
+    if (this.isCalendarActive$.value){
+      const dialogRef = this.dialog.open(EditRoomsDialog, {
+        data: {
+          rooms: this.roomNamesArr
+        },
+      });
+  
+      dialogRef.afterClosed().subscribe(
+        (obj) => {
+          if (typeof obj !== 'undefined' && typeof obj.toEditRooms !== 'undefined') {
+            console.log("HomeComp dial afterClosed() obj.toEditRooms",obj.toEditRooms);
+            let roomTitles: string[] = obj.toEditRooms;
+            this.httpService.updateRooms(roomTitles);
+          } else if(typeof obj == 'undefined'){
+            console.log("HomeC dial afterClosed obj is undefined")
+          }
+        },
+        (error) => {
+          console.log("HomeComp editRooms() afterClosed() error : " + error);
         }
-      },
-      (error) => {
-        console.log("HomeComp editRooms() afterClosed() error : " + error);
-      }
-    );
-
-    dialogRef.backdropClick().subscribe((mouseEvent)=>{
-      let roomTitles: string[] = this.httpService.roomNamesArr$.getValue()
-      console.log("HomeC editRooms() backdropClick() roomTitles:",roomTitles)
-    })
+      );
+  
+      dialogRef.backdropClick().subscribe((mouseEvent)=>{
+        let roomTitles: string[] = this.httpService.roomNamesArr$.getValue()
+        console.log("HomeC editRooms() backdropClick() roomTitles:",roomTitles)
+      })
+    }
+    
   }
 
   ngOnDestroy(){
