@@ -37,7 +37,23 @@
   mat-sidenav-container {
     height: calc(100vh - 65px);
   }
+
+  mat-expansion-panel {
+    background: #007bff;
+  }
   
+  .menu-button {
+    
+    display: flex;
+    align-items: center;
+    font-size: 0.8rem;
+    color: #eff !important;
+  
+    mat-icon {
+      margin-right: 8px;
+    }
+  }
+
   .menu-button {
     
     display: flex;

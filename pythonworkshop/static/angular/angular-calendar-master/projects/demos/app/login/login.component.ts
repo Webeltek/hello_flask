@@ -74,10 +74,10 @@ export class LoginComponent implements OnInit {
 
    const sessionParam = this.actRoute.snapshot.paramMap.get("session");
     if (sessionParam==="expired"){
-      this.errorMessage = "Session expired!"
+      this.errorMessage = "LCsessExpired"
       console.log("login expired errorMessage",this.errorMessage)
     } else if (sessionParam==="signout"){
-      this.errorMessage ="signed out";
+      this.errorMessage ="LCsignedOut";
       console.log("login signout errorMessage",this.errorMessage)
     }
   }
@@ -98,7 +98,7 @@ export class LoginComponent implements OnInit {
           this.tokenStorage.authenticated$.next(true);
           this.router.navigate(['calendar'])
         } else if(dataObj.user === 'nonexistent'){
-          this.errorMessage = "Wrong username or password!";
+          this.errorMessage = "LCwrongUserPass";
           this.isLoginFailed = true;
         }
 

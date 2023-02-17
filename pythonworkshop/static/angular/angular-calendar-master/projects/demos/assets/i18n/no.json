@@ -18,6 +18,9 @@
      "LCloginFailed " :"Pålogging mislyktes: ",
      "LCloggedInAs": "Logget på som: ",
      "LCforgotEmail": "Glemt epost?",
+     "LCsessExpired": "Sesjon utløpt!",
+     "LCsignedOut": "Logget ut!",
+     "LCwrongUserPass": "Feil brukernavn eller passord!",
 
      "PCuser": "Bruker",
      "PCfrom": "fra: ",

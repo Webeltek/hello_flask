@@ -43,7 +43,8 @@ import { LandingPageComponent } from './landing-page/landing-page.component';
 import { NgbCarouselModule } from '@ng-bootstrap/ng-bootstrap';
 import { MatExpansionModule} from '@angular/material/expansion';
 import { MatCardModule } from '@angular/material/card';
-import { ChangePassComponent } from './change-pass/change-pass.component';  
+import { ChangePassComponent } from './change-pass/change-pass.component';
+import {MatListModule} from '@angular/material/list';   
 //import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 
 /* const config: SocketIoConfig = {
@@ -105,7 +106,8 @@ import { ChangePassComponent } from './change-pass/change-pass.component';
     AngularCountriesFlagsModule,
     NgbCarouselModule,
     MatExpansionModule,
-    MatCardModule
+    MatCardModule,
+    MatListModule
   ],
   providers : [
     { provide: LOCALE_ID, useValue: 'nb' },

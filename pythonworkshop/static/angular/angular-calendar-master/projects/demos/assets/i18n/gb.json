@@ -18,6 +18,9 @@
     "LCloginFailed" :"Login failed: ",
     "LCloggedInAs": "Logged in as: ",
     "LCforgotEmail": "Forgot email?",
+    "LCsessExpired": "Session expired!",
+    "LCsignedOut": "Signed out!",
+    "LCwrongUserPass": "Wrong username or password!",
 
     "PCuser": "User ",
     "PCfrom": "from ",
