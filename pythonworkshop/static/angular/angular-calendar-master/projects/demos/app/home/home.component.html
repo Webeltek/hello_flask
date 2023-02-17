@@ -93,7 +93,7 @@
           <p class="designation">{{tokenStorage.getUser().is_admin ? "admin" : "user"}}</p>
           <mat-divider></mat-divider>
       <mat-nav-list dense>
-        <mat-list-item *ngIf="tokenStorage.getUser().is_admin; else adminCalendarView">
+        <mat-list-item *ngIf="!tokenStorage.getUser().is_admin; else adminCalendarView">
           <button mat-button class="menu-button" routerLink="/calendar">
             <mat-icon>calendar_month</mat-icon>
             <span>{{'SideNavCalendar' | translate}}</span>
@@ -101,7 +101,7 @@
         </mat-list-item>
         <ng-template #adminCalendarView>
             <mat-expansion-panel [class.mat-elevation-z0]="true" dense>
-              <mat-expansion-panel-header>
+              <mat-expansion-panel-header [style.padding-left]="0">
                 <button mat-button class="menu-button" routerLink="/calendar">
                   <mat-icon>calendar_month</mat-icon>
                   <span>{{'SideNavCalendar' | translate}}</span>
@@ -124,7 +124,7 @@
             </mat-expansion-panel>
         </ng-template>
         
-        <mat-list-item>
+        <mat-list-item [style.padding-left]="0">
           <button mat-button class="menu-button" routerLink="/profile">
             <mat-icon>account_box</mat-icon>
             <span>{{'SideNavProfile' | translate}}</span>
