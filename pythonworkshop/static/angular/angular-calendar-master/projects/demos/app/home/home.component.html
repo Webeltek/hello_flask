@@ -108,14 +108,14 @@
                 </button>
               </mat-expansion-panel-header>
               <mat-nav-list dense>
-                  <mat-list-item>
-                    <button   mat-button class="menu-button" (click)="editEvents()">
+                  <mat-list-item [style.padding-left]="0" [style.padding-right]="0" (click)="editEvents()">
+                    <button   mat-button class="menu-button" >
                       <mat-icon>edit_calendar</mat-icon>
                       <span>{{'SideNavEditEvents' | translate}}</span>
                     </button>
                   </mat-list-item>
-                  <mat-list-item>
-                    <button mat-button class="menu-button" (click)="editRooms()">
+                  <mat-list-item [style.padding-left]="0" [style.padding-right]="0" (click)="editRooms()">
+                    <button mat-button class="menu-button" >
                       <mat-icon>tune</mat-icon>
                       <span>{{'SideNavEditRooms' | translate}}</span>
                     </button>
